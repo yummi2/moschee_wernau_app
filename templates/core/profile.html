@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Profil{% endblock %}
+{% block content %}
+
+<div class="flex justify-end items-start p-6">
+    <div class="w-80 bg-white rounded-2xl justify-end shadow p-6" dir="rtl">
+        <h2 class="text-xl font-semibold mb-4">الملف الشخصي</h2>
+
+        <div class="flex items-center gap-4 mb-6">
+            {% if profile.avatar %}
+            <img src="{{ profile.avatar.url }}" class="h-24 w-24 rounded-full object-cover border" alt="avatar">
+            {% else %}
+            <div class="h-24 w-24 rounded-full bg-gray-200 grid place-items-center text-gray-500 border">
+                {{ request.user.username|first|upper }}
+            </div>
+            {% endif %}
+            <div class="text-sm text-gray-600">
+                {{ request.user.username }}
+            </div>
+        </div>
+
+        <!-- FORMULAR START -->
+        <form method="post" enctype="multipart/form-data" class=" space-y-2">
+            {% csrf_token %}
+
+            <!-- Blauer Button für Datei-Auswahl -->
+            <div class="flex gap-3">
+                <label for="id_avatar"
+                    class="inline-block px-4 py-2 rounded-lg bg-blue-600 text-white cursor-pointer hover:bg-blue-700">
+                    اختر صورة
+                </label>
+                <input type="file" id="id_avatar" name="avatar" accept="image/*" class="hidden">
+
+
+                <!-- Speichern (zuerst versteckt) -->
+                <button id="saveBtn" class="px-4 py-2 rounded-lg bg-blue-600 text-white cursor-not-allowed opacity-50"
+                    disabled>
+                    حفظ
+                </button>
+            </div>
+            <button type="submit" name="action" value="delete"
+            class="px-4 py-2 rounded-lg bg-red-600 text-white cursor-pointer hover:bg-red-700">
+            حذف
+        </button>
+        </form>
+
+        <script>
+            // Sobald ein Bild ausgewählt wird → Button aktivieren
+            document.getElementById("id_avatar").addEventListener("change", function () {
+                const saveBtn = document.getElementById("saveBtn");
+                if (this.files.length > 0) {
+                    saveBtn.disabled = false;
+                    saveBtn.classList.remove("cursor-not-allowed", "opacity-50");
+                } else {
+                    saveBtn.disabled = true;
+                    saveBtn.classList.add("cursor-not-allowed", "opacity-50");
+                }
+            });
+        </script>
+
+    </div>
+    </form>
+</div>
+</div>
+{% endblock %}

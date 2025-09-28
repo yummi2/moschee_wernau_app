@@ -1,0 +1,47 @@
+<div class="mt-4 bg-white rounded-2xl shadow p-3" dir="rtl">
+    <div class="flex items-center justify-between mb-2 text-sm">
+
+        <!-- rechter Pfeil -->
+        <a href="?y={{ cal_next_y }}&m={{ cal_next_m }}" class="px-2 py-1 rounded bg-gray-100 hover:bg-gray-200">▶︎</a>
+
+        <span class="font-semibold text-green-600">{{ cal_month_name }}</span>
+
+        <!-- Linker Pfeil -->
+        <a href="?y={{ cal_prev_y }}&m={{ cal_prev_m }}" class="px-2 py-1 rounded bg-gray-100 hover:bg-gray-200">◀︎</a>
+    </div>
+
+
+
+    <div class="grid grid-cols-7 text-center text-[11px] text-gray-600 mb-1">
+        {% for name in cal_weekday_names %}
+        <div class="py-1 font-medium">{{ name|slice:":2" }}</div>
+        {% endfor %}
+    </div>
+
+    <table class="w-full text-center text-xs">
+        <thead>
+            <tr>
+                {% for d in cal_weekday_names %}
+                <th class="py-1">{{ d }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for week in cal_weeks %}
+            <tr>
+                {% for day in week %}
+                {% if day == 0 %}
+                <td class="py-1"></td>
+                {% elif day == cal_today.day and cal_month == cal_today.month and cal_year == cal_today.year %}
+                <td class="py-1">
+                    <span class="px-2 py-1 bg-blue-600 text-white rounded-lg">{{ day }}</span>
+                </td>
+                {% else %}
+                <td class="py-1">{{ day }}</td>
+                {% endif %}
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

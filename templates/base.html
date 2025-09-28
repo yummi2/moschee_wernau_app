@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="{{ LANGUAGE_CODE }}" dir="{% if LANGUAGE_BIDI %}rtl{% else %}ltr{% endif %}">
+
+
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}دار الفرح {% endblock %}</title>
+  {% load static i18n %}
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+
+<body class="bg-gray-50 text-gray-900">
+  <header class="border-b bg-white">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+      <p class="text-xl font-bold">دار الفرح </p>
+      <nav class="space-s-4 text-sm">
+        <a href="{% url 'home' %}" class="hover:underline">الصفحة الرئيسية</a>
+        {% if user.is_authenticated %}
+
+        <a href="#" onclick="event.preventDefault(); document.getElementById('logoutForm').submit();"
+          class="px-3 py-1 rounded bg-gray-900 text-white hover:bg-gray-700">
+          تسجيل الخروج
+        </a>
+
+        <!-- verstecktes Formular für Logout -->
+        <form id="logoutForm" method="post" action="{% url 'logout' %}" class="hidden">
+          {% csrf_token %}
+        </form>
+
+        {% else %}
+        <a href="{% url 'login' %}" class="px-3 py-1 rounded cursor-pointer bg-gray-900 text-white">تسجيل الدخول</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 py-8">
+    {% if messages %}
+    <ul id="messages" class="mb-4 space-y-2">
+      {% for m in messages %}
+      <li class="px-3 py-2 rounded bg-green-100 text-green-800">{{ m }}</li>
+      {% endfor %}
+    </ul>
+
+    <script>
+      // Nach 5 Sekunden Messages automatisch ausblenden
+      setTimeout(function () {
+        const messages = document.getElementById("messages");
+        if (messages) {
+          messages.style.transition = "opacity 1s ease";
+          messages.style.opacity = "0";
+          setTimeout(() => messages.remove(), 1000); // nach dem Ausblenden entfernen
+        }
+      }, 5000); 
+    </script>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+</body>
+
+</html>
