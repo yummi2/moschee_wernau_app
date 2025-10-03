@@ -27,12 +27,11 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "dev-insecure-key-only-local")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG", "False").lower() in ("1", "true", "yes")
 
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "dar-al-farah.pythonanywhere.com,localhost,127.0.0.1").split(",")
-
+ALLOWED_HOSTS = ["daralfarah.pythonanywhere.com", "localhost", "127.0.0.1"]
+CSRF_TRUSTED_ORIGINS = ["https://daralfarah.pythonanywhere.com"]
 
 # Für HTTPS-Cookies & CSRF hinter Proxy (Koyeb setzt X-Forwarded-Proto)
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS", "https://dar-al-farah.pythonanywhere.com").split(",")
 
 
 # Application definition
@@ -117,7 +116,6 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = 'ar'
 
 TIME_ZONE = 'Europe/Berlin'
-
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
