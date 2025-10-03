@@ -1,1 +1,1 @@
-web: gunicorn config.wsgi --bind 0.0.0.0:$PORT --access-logfile - --error-logfile -
+web: bash start.sh
