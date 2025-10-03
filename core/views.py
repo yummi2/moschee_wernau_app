@@ -16,6 +16,8 @@ ARABIC_BLOCK_MSG = "يمكن وضع علامة الغياب فقط من يوم �
 ARABIC_ALREADY_MARKED = "لقد تم وضع علامة الغياب لهذا اليوم من قبل."
 ARABIC_NOT_PURPLE = "لا يمكن وضع علامة الغياب إلا في الأيام المحددة (باللون البنفسجي)."
 
+ACADEMIC_START = dt.date(2025, 9, 1)
+ACADEMIC_END_EXCL = dt.date(2026, 9, 1)
 # --- Zeitfenster-Helfer ---
 def is_within_window_for_date(target_date: dt.date, now: dt.datetime | None = None) -> bool:
     """Erlaubt Markieren nur zwischen Freitag 10:00 und Samstag 10:00 rund um target_date."""
@@ -175,9 +177,17 @@ def home(request):
                 user=request.user, date__gte=month_start, date__lt=next_first
             )
         }
+    absences_count = len(absences)    
 
     (py, pm), (ny, nm) = month_neighbors(y, m)
     weeks = calendar.monthcalendar(y, m)
+    absences_total = 0
+    if request.user.is_authenticated:
+        absences_total = Absence.objects.filter(
+            user=request.user,
+            date__gte=ACADEMIC_START,
+            date__lt=ACADEMIC_END_EXCL,
+        ).count()
 
     # Kontext IMMER zusammenbauen
     ctx = {
@@ -192,6 +202,7 @@ def home(request):
         "special_map": special_map, 
         "purple_days": purple_days,
         "absences": absences,
+        "absences_total": absences_total,
     }
 
     return render(request, "core/home.html", ctx)
