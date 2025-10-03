@@ -27,5 +27,6 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),  # Login/Logout/Passwort
     path('profile/', profile_view, name='profile'),
     path("absences/mark/", views.mark_absence, name="mark_absence"),
+    path("assignments/<int:pk>/", views.assignment_detail, name="assignment_detail"),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

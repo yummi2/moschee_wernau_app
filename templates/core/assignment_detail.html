@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}{{ assignment.title }}{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-2xl shadow p-6" dir="rtl">
+    <h2 class="text-2xl font-semibold text-blue-600 mb-1">{{ assignment.title }}</h2>
+    <div class="text-gray-600 mb-4">
+        الصف: {{ assignment.classroom.name }}
+        · تاريخ التسليم: {{ assignment.due_at|date:"d.m.Y H:i" }}
+    </div>
+
+    {# ==== Lehrer-Ansicht ==== #}
+    {% if is_teacher %}
+    <h3 class="font-semibold mb-2">تسليمات الطلاب</h3>
+
+    {% if submissions %}
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm border rounded-xl overflow-hidden">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="p-2 text-right">الطالب</th>
+                    <th class="p-2 text-right">الوقت</th>
+                    <th class="p-2 text-right">النص</th>
+                    <th class="p-2 text-right">الملف</th>
+                    <th class="p-2 text-right">الملاحظة </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in submissions %}
+                <tr class="border-t">
+                    <td class="p-2">{{ s.student.username }}</td>
+                    <td class="p-2">{{ s.submitted_at|date:"d.m.Y H:i" }}</td>
+                    <td class="p-2">{{ s.text|default:"-"|truncatechars:60 }}</td>
+                    <td class="p-2">
+                        {% if s.file %}
+                        <a class="text-blue-600 underline" href="{{ s.file.url }}">تنزيل</a>
+                        {% else %}-{% endif %}
+                    </td>
+                    <td class="p-2">
+                        <form method="post" class="flex items-center gap-2">
+                            {% csrf_token %}
+                            <input type="hidden" name="grade_submission_id" value="{{ s.id }}">
+                            <input name="grade" value="{{ s.grade }}" class="border rounded px-2 py-1 w-24"
+                                placeholder="مثال: A/100/✓">
+                            <button class="px-3 py-1 bg-blue-600 text-white rounded">حفظ</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-gray-600">لا توجد تسليمات بعد.</p>
+    {% endif %}
+
+    <h4 class="font-semibold mt-6 mb-2">طلاب لم يسلموا</h4>
+    {% if missing_students %}
+    <ul class="list-disc pr-6 text-gray-700">
+        {% for st in missing_students %}
+        <li>{{ st.username }}</li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="text-gray-600">الجميع قد سلّموا.</p>
+    {% endif %}
+    <hr class="my-6">
+    {% endif %}
+
+    {# ==== Schüler-Ansicht ==== #}
+    {% if is_student %}
+    {% if submission %}
+    <div class="p-4 border rounded-xl mb-4">
+        <div class="font-medium mb-2">تم التسليم:</div>
+        {% if submission.text %}<p class="mb-2">{{ submission.text|linebreaksbr }}</p>{% endif %}
+        {% if submission.file %}
+        <a class="text-blue-600 underline" href="{{ submission.file.url }}">ملف مرفق</a>
+        {% endif %}
+        <div class="text-xs text-gray-500 mt-2">وقت التسليم: {{ submission.submitted_at|date:"d.m.Y H:i" }}</div>
+        {% if submission.grade %}<div class="mt-2">ملاحظة: <b>{{ submission.grade }}</b></div>{% endif %}
+    </div>
+    {% endif %}
+
+    {% if can_submit %}
+    <form method="post" enctype="multipart/form-data" class="space-y-3">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div>
+            {{ form.text.label_tag }} {{ form.text }}
+            {# -> Textarea hat id="id_text" #}
+        </div>
+
+        <div>
+            {{ form.file.label_tag }} {{ form.file }}
+            {# -> File input hat id="id_file" #}
+        </div>
+
+        <button id="submitBtn" class="px-4 py-2 bg-blue-600 text-white rounded opacity-60 cursor-not-allowed"
+            disabled>تسليم الواجب</button>
+    </form>
+
+    <script>
+        (function () {
+            const textEl = document.getElementById("id_text");
+            const fileEl = document.getElementById("id_file");
+            const btn = document.getElementById("submitBtn");
+
+            function update() {
+                const hasText = textEl && textEl.value.trim().length > 0;
+                const hasFile = fileEl && fileEl.files && fileEl.files.length > 0;
+                const enable = hasText || hasFile;
+
+                btn.disabled = !enable;
+                btn.classList.toggle("opacity-60", !enable);
+                btn.classList.toggle("cursor-not-allowed", !enable);
+            }
+
+            if (textEl) textEl.addEventListener("input", update);
+            if (fileEl) fileEl.addEventListener("change", update);
+
+            // Initialzustand beim Laden korrekt setzen
+            update();
+        })();
+    </script>
+
+    {% else %}
+    {% if not submission %}
+    <p class="text-red-600 font-medium">لا يمكن التسليم بعد الآن.</p>
+    {% endif %}
+    {% endif %}
+    {% endif %}
+</div>
+{% endblock %}
