@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get("SECRET_KEY", "dev-insecure-key-only-local")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEBUG", "False").lower() in ("1", "true", "yes")
+DEBUG = True
 
 ALLOWED_HOSTS = ["daralfarah.pythonanywhere.com", "localhost", "127.0.0.1"]
 CSRF_TRUSTED_ORIGINS = ["https://daralfarah.pythonanywhere.com"]
