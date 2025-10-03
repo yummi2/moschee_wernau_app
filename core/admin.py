@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ClassRoom, Assignment, Submission
+from .models import ClassRoom, Assignment, Submission, Absence
 
 @admin.register(ClassRoom)
 class ClassRoomAdmin(admin.ModelAdmin):
@@ -18,3 +18,7 @@ class SubmissionAdmin(admin.ModelAdmin):
     list_display = ("assignment", "student", "submitted_at", "grade")
     list_filter = ("assignment", "grade")
     search_fields = ("student__username",)
+
+@admin.register(Absence)
+class AbsenceAdmin(admin.ModelAdmin):
+    list_display = ("user", "date", "marked_at")

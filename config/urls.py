@@ -19,11 +19,13 @@ from django.urls import path, include
 from core.views import home, profile_view
 from django.conf import settings
 from django.conf.urls.static import static
+from core import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home, name='home'),
     path('accounts/', include('django.contrib.auth.urls')),  # Login/Logout/Passwort
     path('profile/', profile_view, name='profile'),
+    path("absences/mark/", views.mark_absence, name="mark_absence"),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

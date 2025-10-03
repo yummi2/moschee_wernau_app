@@ -1,4 +1,6 @@
 <div class="mt-4 bg-white rounded-2xl shadow p-3" dir="rtl">
+    <form id="csrf-helper" style="display:none;">{% csrf_token %}</form>
+
     <div class="flex items-center justify-between mb-2 text-sm">
 
         <!-- rechter Pfeil -->
@@ -37,7 +39,15 @@
                     <span class="px-2 py-1 bg-blue-600 text-white rounded-lg">{{ day }}</span>
                 </td>
                 {% else %}
-                <td class="py-1">{{ day }}</td>
+                <td class="py-1">
+                    <button type="button" class="cal-day px-2 py-1 rounded-lg
+           {% if day in purple_days %} is-purple bg-purple-600 text-white {% endif %}
+           {% if day in absences %} is-absent bg-red-600 text-white {% endif %}"
+                        data-date="{{ cal_year }}-{{ '%02d'|format(cal_month) }}-{{ '%02d'|format(day) }}" {% if not day
+                        in purple_days %} disabled {% endif %}>
+                        {{ day }}
+                    </button>
+                </td>
                 {% endif %}
                 {% endfor %}
             </tr>

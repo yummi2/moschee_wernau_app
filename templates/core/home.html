@@ -55,6 +55,8 @@
         <li><a href="{% url 'profile' %}" class="text-blue-600 hover:underline">الصفحة الشخصية</a></li>
 
         <li class="mt-6">
+            <form id="csrf-helper" style="display:none;">{% csrf_token %}</form>
+
             <div class="flex justify-between items-center mb-2">
                 <a href="?y={{ cal_prev_y }}&m={{ cal_prev_m }}" class="text-blue-600">&larr;</a>
                 <span class="font-semibold text-blue-700">{{ cal_month_name }} {{ cal_year }}</span>
@@ -76,25 +78,27 @@
                         {% if day == 0 %}
                         <td class="py-1"></td>
                         {% else %}
-                        {% with cls=special_map|dict_get:day %}
-                        {% if cls %}
                         <td class="py-1">
-                            <span class="px-2 py-1 rounded {{ cls }}">{{ day }}</span>
+                            <button type="button" class="cal-day px-2 py-1 rounded
+                     {% if day in absences %} bg-red-600 text-white is-absent
+                     {% elif special_map|dict_get:day %} {{ special_map|dict_get:day }}
+                     {% endif %}
+                     {% if day in purple_days and day not in absences %} is-purple{% endif %}"
+                                data-date="{{ cal_year }}-{{ cal_month|stringformat:'02d' }}-{{ day|stringformat:'02d' }}"
+                                {% if day not in purple_days or day in absences %}disabled{% endif %}>
+                                <span
+                                    class="{% if day == cal_today.day and cal_month == cal_today.month and cal_year == cal_today.year %} ring-2 ring-blue-600 rounded {% endif %}">
+                                    {{ day }}
+                                </span>
+                            </button>
                         </td>
-                        {% elif day == cal_today.day and cal_month == cal_today.month and cal_year == cal_today.year %}
-                        <td class="py-1">
-                            <span class="px-2 py-1 rounded bg-blue-600 text-white">{{ day }}</span>
-                        </td>
-                        {% else %}
-                        <td class="py-1">{{ day }}</td>
-                        {% endif %}
-                        {% endwith %}
                         {% endif %}
                         {% endfor %}
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
+
             <div class="mt-3 space-y-1 text-xs" dir="rtl">
                 <div class="flex items-center gap-2">
                     <span class="inline-block w-3.5 h-3.5 rounded bg-purple-600"></span>
@@ -119,8 +123,63 @@
                 </div>
             </div>
 
+            <script>
+                // === Klick-Init ===
+                function initMiniCalendar() {
+                    function getCsrfFromCookie() {
+                        const m = document.cookie.match(/csrftoken=([^;]+)/);
+                        return m ? m[1] : null;
+                    }
+                    const csrfToken =
+                        (document.querySelector('#csrf-helper input[name=csrfmiddlewaretoken]') || {}).value ||
+                        getCsrfFromCookie();
 
+                    document.querySelectorAll("button.cal-day").forEach((btn) => {
+                        const isPurple = btn.classList.contains("is-purple");
+                        const isAbsent = btn.classList.contains("is-absent");
+                        const isDisabledAttr = btn.hasAttribute("disabled");
+                        btn.style.cursor = isPurple && !isAbsent && !isDisabledAttr ? "pointer" : "default";
 
+                        btn.addEventListener("click", async () => {
+                            if (!btn.classList.contains("is-purple") || btn.classList.contains("is-absent") || btn.disabled) return;
+
+                            const date = btn.dataset.date;
+                            if (!confirm("هل تريد وضع علامة غياب لهذا اليوم؟")) return;
+
+                            try {
+                                const resp = await fetch("{% url 'mark_absence' %}", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken || "" },
+                                    body: JSON.stringify({ date }),
+                                });
+
+                                let data = {};
+                                try { data = await resp.json(); } catch (_) { }
+                                console.log("mark_absence response:", resp.status, data); 
+
+                                if (!resp.ok) {
+                                    alert(data.error || "تعذر تنفيذ الطلب.");
+                                    return;
+                                }
+
+                                // Erfolg: Lila -> Rot
+                                btn.classList.remove("bg-purple-600", "is-purple");
+                                btn.classList.add("bg-red-600", "text-white", "is-absent");
+                                btn.disabled = true;
+                                alert("تم تسجيل غيابك لهذا اليوم.");
+                            } catch (e) {
+                                console.error(e);
+                                alert("حدث خطأ غير متوقع.");
+                            }
+                        });
+                    });
+                }
+                if (document.readyState === "loading") {
+                    document.addEventListener("DOMContentLoaded", initMiniCalendar);
+                } else {
+                    initMiniCalendar();
+                }
+            </script>
         </li>
     </ul>
 </div>

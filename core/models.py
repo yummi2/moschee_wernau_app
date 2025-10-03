@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.conf import settings
 
 class ClassRoom(models.Model):
     name = models.CharField(max_length=120)
@@ -41,3 +42,11 @@ class Profile(models.Model):
 
     def __str__(self):
         return f"Profile({self.user.username})"
+
+class Absence(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    date = models.DateField()  # der angeklickte Tag (der lila Samstag)
+    marked_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("user", "date")  # pro User/Tag nur einmal        
