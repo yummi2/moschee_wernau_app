@@ -138,6 +138,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_REDIRECT_URL = reverse_lazy('home')   # nach dem Login zur Startseite
 LOGOUT_REDIRECT_URL = reverse_lazy('home')  # nach dem Logout zur Startseite
+
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
