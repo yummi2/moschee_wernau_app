@@ -16,7 +16,7 @@ class Assignment(models.Model):
     classroom = models.ForeignKey(ClassRoom, on_delete=models.CASCADE, related_name="assignments")
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
-    due_at = models.DateTimeField()
+    due_at = models.DateTimeField(blank=True, null=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="assignments_created")
     created_at = models.DateTimeField(auto_now_add=True)
 
