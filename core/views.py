@@ -12,8 +12,8 @@ from django.utils import timezone
 import json
 from django.conf import settings
 from django.http import HttpResponseForbidden
-from .forms import ProfileForm, SubmissionForm
-from .models import Assignment, Submission
+from .forms import ProfileForm
+
 
 ARABIC_BLOCK_MSG = "يمكن وضع علامة الغياب فقط من يوم الجمعة الساعة 10:00 حتى السبت الساعة 10:00."
 ARABIC_ALREADY_MARKED = "لقد تم وضع علامة الغياب لهذا اليوم من قبل."
@@ -243,56 +243,10 @@ def assignment_detail(request, pk):
     # Rollen im Klassenraum
     is_student = a.classroom.students.filter(id=request.user.id).exists()
     is_teacher = a.classroom.teachers.filter(id=request.user.id).exists()
-    
-    # Schüler-Submission (falls vorhanden)
-    existing = Submission.objects.filter(assignment=a, student=request.user).first()
-
-    # Abgabe nur bis Fälligkeitszeitpunkt
-    now = timezone.now()
-    can_submit = is_student and (now <= a.due_at)
-
-     # Lehrer: Liste aller Submissions + fehlende Schüler
-    submissions = missing_students = None
-    if is_teacher:
-        submissions = Submission.objects.filter(assignment=a)\
-                                        .select_related("student")\
-                                        .order_by("-submitted_at")
-        missing_students = a.classroom.students.exclude(
-            id__in=submissions.values_list("student_id", flat=True)
-        )
-
-    # POST: entweder Note setzen (Lehrer) oder abgeben/überschreiben (Schüler)
-    if request.method == "POST":
-        # Lehrer: Noten speichern
-        sid = request.POST.get("grade_submission_id")
-        if is_teacher and sid:
-            s = get_object_or_404(Submission, id=sid, assignment=a)
-            s.grade = (request.POST.get("grade") or "").strip()
-            s.save()
-            return redirect("assignment_detail", pk=a.id)
-
-        # Schüler: abgeben (nur wenn erlaubt)
-        if is_student and can_submit:
-            form = SubmissionForm(request.POST, request.FILES, instance=existing)
-            if form.is_valid():
-                s = form.save(commit=False)
-                s.assignment = a
-                s.student = request.user
-                s.save()
-                return redirect("assignment_detail", pk=a.id)
-        else:
-            form = SubmissionForm(instance=existing)  # liest vorhandene Daten ein
-    else:
-        form = SubmissionForm(instance=existing)
-
+        
     ctx = {
         "assignment": a,
         "is_teacher": is_teacher,
         "is_student": is_student,
-        "submission": existing,
-        "submissions": submissions,
-        "missing_students": missing_students,
-        "can_submit": can_submit,
-        "form": form,
     }
     return render(request, "core/assignment_detail.html", ctx)

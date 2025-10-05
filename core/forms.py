@@ -1,7 +1,6 @@
 from django import forms
 from .models import Profile
 from django.forms.widgets import ClearableFileInput
-from .models import Submission
 
 class CustomClearableFileInput(ClearableFileInput):
     initial_text = "الصورة الحالية"
@@ -22,20 +21,3 @@ class ProfileForm(forms.ModelForm):
             raise forms.ValidationError("Bild darf max. 3 MB groß sein.")
         return img
 
-class SubmissionForm(forms.ModelForm):
-    class Meta:
-        model = Submission
-        fields = ["text"]
-        widgets = {
-            "text": forms.Textarea(attrs={"rows": 4, "class": "w-full border rounded p-2"})
-        }
-        labels = {
-            "text": "النص",
-        }
-    
-    def clean(self):
-        cleaned = super().clean()
-        text = (cleaned.get("text") or "").strip()
-        if not text and not file:
-            raise forms.ValidationError("يجب إدخال نص .")
-        return cleaned

@@ -23,20 +23,6 @@ class Assignment(models.Model):
     def __str__(self):
         return f"{self.title} ({self.classroom})"
 
-class Submission(models.Model):
-    assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE, related_name="submissions")
-    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name="submissions")
-    text = models.TextField(blank=True)
-    file = models.FileField(upload_to="submissions/", blank=True, null=True)
-    submitted_at = models.DateTimeField(auto_now_add=True)
-    grade = models.CharField(max_length=10, blank=True)
-
-    class Meta:
-        unique_together = ("assignment", "student")  # jeder Schüler genau eine Abgabe
-
-    def __str__(self):
-        return f"{self.student} → {self.assignment}"
-
 class Profile(models.Model):
     user   = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     avatar = models.ImageField(upload_to="avatars/", blank=True, null=True)
@@ -44,7 +30,7 @@ class Profile(models.Model):
 
     def __str__(self):
         return f"Profile({self.user.username})"
-        
+
     def save(self, *args, **kwargs):
         old_path = None
         if self.pk:  # Falls das Profil schon existiert
