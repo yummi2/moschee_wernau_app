@@ -13,7 +13,7 @@ class ProfileForm(forms.ModelForm):
         model = Profile
         fields = ['avatar']
         widgets = {
-            'avatar': CustomClearableFileInput
+            'avatar': CustomClearableFileInput()
         }
 
     def clean_avatar(self):
@@ -25,7 +25,7 @@ class ProfileForm(forms.ModelForm):
 class SubmissionForm(forms.ModelForm):
     class Meta:
         model = Submission
-        fields = ["text", "file"]
+        fields = ["text"]
         widgets = {
             "text": forms.Textarea(attrs={"rows": 4, "class": "w-full border rounded p-2"})
         }
@@ -36,7 +36,6 @@ class SubmissionForm(forms.ModelForm):
     def clean(self):
         cleaned = super().clean()
         text = (cleaned.get("text") or "").strip()
-        file = cleaned.get("file")
         if not text and not file:
-            raise forms.ValidationError("يجب إدخال نص أو رفع ملف.")
+            raise forms.ValidationError("يجب إدخال نص .")
         return cleaned
