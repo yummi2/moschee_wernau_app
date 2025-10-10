@@ -7,13 +7,16 @@ import calendar
 import datetime as dt
 from .models import Absence
 from zoneinfo import ZoneInfo
-from django.http import JsonResponse, HttpResponseBadRequest
+from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.utils import timezone 
 import json
 from django.conf import settings
 from django.http import HttpResponseForbidden
 from .forms import ProfileForm
-
+from django.views.decorators.http import require_POST, require_GET
+from .models import ClassRoom, ChecklistItem, StudentChecklist
+from django.contrib.auth.models import User
+from django.db.models import Q
 
 ARABIC_BLOCK_MSG = "يمكن وضع علامة الغياب فقط من يوم الجمعة الساعة 10:00 حتى السبت الساعة 10:00."
 ARABIC_ALREADY_MARKED = "لقد تم وضع علامة الغياب لهذا اليوم من قبل."
@@ -21,6 +24,19 @@ ARABIC_NOT_PURPLE = "لا يمكن وضع علامة الغياب إلا في ا
 
 ACADEMIC_START = dt.date(2025, 9, 1)
 ACADEMIC_END_EXCL = dt.date(2026, 9, 1)
+
+def is_user_teacher(user):
+    return user.is_authenticated and ClassRoom.objects.filter(teachers=user).exists()
+
+def visible_items_for_student(student):
+    # Items ohne Classroom-Einschränkung ODER an mindestens eine Klasse des Schülers gebunden
+    student_cls_ids = ClassRoom.objects.filter(students=student).values_list('id', flat=True)
+    return (ChecklistItem.objects
+            .filter(Q(classrooms__isnull=True) | Q(classrooms__id__in=student_cls_ids))
+            .distinct()
+            .order_by('order', 'id'))
+
+
 # --- Zeitfenster-Helfer ---
 def is_within_window_for_date(target_date: dt.date, now: dt.datetime | None = None) -> bool:
     """Erlaubt Markieren nur zwischen Freitag 10:00 und Samstag 10:00 rund um target_date."""
@@ -208,6 +224,37 @@ def home(request):
         "absences_total": absences_total,
     }
 
+    if request.user.is_authenticated:
+        if is_user_teacher(request.user):
+            # Schüler aus allen Klassen des Lehrers
+            students = (User.objects
+                        .filter(classes_as_student__in=ClassRoom.objects.filter(teachers=request.user))
+                        .distinct()
+                        .order_by('username'))
+            sel_id = request.GET.get('student')
+            selected_student = students.filter(pk=sel_id).first() if sel_id else students.first()
+            items = visible_items_for_student(selected_student) if selected_student else ChecklistItem.objects.none()
+            checked_ids = set(StudentChecklist.objects
+                              .filter(student=selected_student, checked=True)
+                              .values_list('item_id', flat=True)) if selected_student else set()
+            ctx.update({
+                "is_teacher": True,
+                "students": students,
+                "selected_student": selected_student,
+                "checklist_items": items,
+                "checked_item_ids": checked_ids,
+            })
+        else:
+            items = visible_items_for_student(request.user)
+            checked_ids = set(StudentChecklist.objects
+                              .filter(student=request.user, checked=True)
+                              .values_list('item_id', flat=True))
+            ctx.update({
+                "is_teacher": False,
+                "checklist_items": items,
+                "checked_item_ids": checked_ids,
+            })
+
     return render(request, "core/home.html", ctx)
 
 @login_required
@@ -250,3 +297,41 @@ def assignment_detail(request, pk):
         "is_student": is_student,
     }
     return render(request, "core/assignment_detail.html", ctx)
+
+    
+@login_required
+@require_POST
+def toggle_check(request):
+    # nur Lehrer
+    if not getattr(request.user.profile, "is_teacher", False):
+        return HttpResponseForbidden("Kein Zugriff")
+
+    try:
+        data = json.loads(request.body or '{}')
+        student_id = int(data['student_id'])
+        item_id    = int(data['item_id'])
+        checked    = bool(data['checked'])
+    except Exception:
+        return HttpResponseBadRequest("Bad payload")
+
+    student = User.objects.filter(pk=student_id, is_active=True).first()
+    item    = ChecklistItem.objects.filter(pk=item_id).first()
+    if not student or not item:
+        return HttpResponseBadRequest("Not found")
+
+    # Lehrer darf nur für Schüler toggeln, die in seiner Klasse sind
+    same_class = ClassRoom.objects.filter(teachers=request.user, students=student).exists()
+    if not same_class:
+        return HttpResponseForbidden("Nicht deine Klasse")
+
+    # Item muss für den Schüler sichtbar sein
+    vis_ids = set(visible_items_for_student(student).values_list('id', flat=True))
+    if item.id not in vis_ids:
+        return HttpResponseForbidden("Item für diesen Schüler nicht sichtbar")
+
+    obj, _ = StudentChecklist.objects.get_or_create(student=student, item=item)
+    obj.checked = checked
+    obj.save()
+    done = StudentChecklist.objects.filter(student=student, checked=True, item_id__in=vis_ids).count()
+    total = len(vis_ids)
+    return JsonResponse({"ok": True, "done": done, "total": total})

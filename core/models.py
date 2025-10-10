@@ -28,6 +28,14 @@ class Profile(models.Model):
     avatar = models.ImageField(upload_to="avatars/", blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    is_teacher = models.BooleanField(default=False)
+    classroom = models.ForeignKey(
+        ClassRoom, null=True, blank=True,
+        on_delete=models.SET_NULL, related_name="profiles"
+    )
+    # String 'Group' verwenden, weil die Klasse weiter unten definiert ist
+    groups = models.ManyToManyField('Group', blank=True, related_name="profiles")
+
     def __str__(self):
         return f"Profile({self.user.username})"
 
@@ -54,3 +62,31 @@ class Absence(models.Model):
 
     class Meta:
         unique_together = ("user", "date")  # pro User/Tag nur einmal        
+
+class Group(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    classroom = models.ForeignKey('ClassRoom', null=True, blank=True,
+                                  on_delete=models.SET_NULL, related_name='groups')
+
+    def __str__(self):
+        return self.name    
+
+class ChecklistItem(models.Model):
+    title = models.CharField(max_length=200)
+    order = models.PositiveIntegerField(default=0)
+    # Sichtbarkeit: nur für diese Klassen. Wenn leer -> für alle Klassen sichtbar.
+    classrooms = models.ManyToManyField('ClassRoom', blank=True, related_name='checklist_items')
+
+    class Meta:
+        ordering = ['order', 'id']
+
+    def __str__(self):
+        return self.title
+
+class StudentChecklist(models.Model):
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='checkmarks')
+    item    = models.ForeignKey(ChecklistItem, on_delete=models.CASCADE, related_name='checkmarks')
+    checked = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('student', 'item')         
