@@ -54,57 +54,57 @@ SPECIAL_DATES = {
         dt.date(2025, 12, 27): "bg-green-500 text-white",
         dt.date(2026, 1, 3): "bg-green-500 text-white",
         dt.date(2026, 2, 14): "bg-green-500 text-white",
-        dt.date(2026, 2, 28): "bg-purple-600",
-        dt.date(2026, 3, 7): "bg-purple-600",
-        dt.date(2026, 3, 14): "bg-purple-600",
+        dt.date(2026, 2, 28): "bg-purple-600 text-white",
+        dt.date(2026, 3, 7): "bg-purple-600 text-white",
+        dt.date(2026, 3, 14): "bg-purple-600 text-white",
         
-        dt.date(2026, 3, 21): "bg-blue-300 text-gray-900",
+        dt.date(2026, 3, 21): "bg-blue-300 text-gray-900 text-white",
 
-        dt.date(2026, 4, 4):"bg-green-500 text-white",
-        dt.date(2026, 4, 11):"bg-green-500 text-white",
+        dt.date(2026, 4, 4):"bg-green-500 text-white text-white",
+        dt.date(2026, 4, 11):"bg-green-500 text-white text-white",
         
-        dt.date(2026, 5, 2): "bg-green-500 text-white",
-        dt.date(2026, 5, 16): "bg-green-500 text-white",
+        dt.date(2026, 5, 2): "bg-green-500 text-white text-white",
+        dt.date(2026, 5, 16): "bg-green-500 text-white text-white",
 
-        dt.date(2026, 5, 23): "bg-green-500 text-white",
-        dt.date(2026, 5, 30): "bg-green-500 text-white",
+        dt.date(2026, 5, 23): "bg-green-500 text-white text-white",
+        dt.date(2026, 5, 30): "bg-green-500 text-white text-white",
 
-        dt.date(2026, 6, 6): "bg-blue-300 text-gray-900",
-        dt.date(2026, 7, 25): "bg-pink-300 text-gray-900",
+        dt.date(2026, 6, 6): "bg-blue-300 text-gray-900 text-white",
+        dt.date(2026, 7, 25): "bg-pink-300 text-gray-900 text-white",
 
 
-        dt.date(2025, 9, 20): "bg-purple-600",
-        dt.date(2025, 9, 27): "bg-purple-600",
-        dt.date(2025, 10, 4): "bg-purple-600",
-        dt.date(2025, 10, 11): "bg-purple-600",
-        dt.date(2025, 10, 18): "bg-purple-600",
-        dt.date(2025, 11, 1): "bg-purple-600",
-        dt.date(2025, 11, 8): "bg-purple-600",
-        dt.date(2025, 11, 15): "bg-purple-600",
-        dt.date(2025, 11, 22): "bg-purple-600",
-        dt.date(2025, 11, 29): "bg-purple-600",
-        dt.date(2025, 12, 6): "bg-purple-600",
-        dt.date(2025, 12, 13): "bg-purple-600",
-        dt.date(2026, 1, 10): "bg-purple-600",
-        dt.date(2026, 1, 17): "bg-purple-600",
-        dt.date(2026, 1, 24): "bg-purple-600",
-        dt.date(2026, 1, 31): "bg-purple-600",
-        dt.date(2026, 2, 7): "bg-purple-600",
-        dt.date(2026, 2, 21): "bg-purple-600",
-        dt.date(2026, 3, 28): "bg-purple-600",
-        dt.date(2026, 4, 18): "bg-purple-600",
-        dt.date(2026, 4, 25): "bg-purple-600",
-        dt.date(2026, 5, 9): "bg-purple-600",
-        dt.date(2026, 6, 13): "bg-purple-600",
-        dt.date(2026, 6, 20): "bg-purple-600",
-        dt.date(2026, 6, 27): "bg-purple-600",
-        dt.date(2026, 7, 4): "bg-purple-600",
-        dt.date(2026, 7, 11): "bg-purple-600",
-        dt.date(2026, 7, 18): "bg-purple-600",
+        dt.date(2025, 9, 20): "bg-purple-600 text-white",
+        dt.date(2025, 9, 27): "bg-purple-600 text-white",
+        dt.date(2025, 10, 4): "bg-purple-600 text-white",
+        dt.date(2025, 10, 11): "bg-purple-600 text-white",
+        dt.date(2025, 10, 18): "bg-purple-600 text-white",
+        dt.date(2025, 11, 1): "bg-purple-600 text-white",
+        dt.date(2025, 11, 8): "bg-purple-600 text-white",
+        dt.date(2025, 11, 15): "bg-purple-600 text-white",
+        dt.date(2025, 11, 22): "bg-purple-600 text-white",
+        dt.date(2025, 11, 29): "bg-purple-600 text-white",
+        dt.date(2025, 12, 6): "bg-purple-600 text-white",
+        dt.date(2025, 12, 13): "bg-purple-600 text-white",
+        dt.date(2026, 1, 10): "bg-purple-600 text-white",
+        dt.date(2026, 1, 17): "bg-purple-600 text-white",
+        dt.date(2026, 1, 24): "bg-purple-600 text-white",
+        dt.date(2026, 1, 31): "bg-purple-600 text-white",
+        dt.date(2026, 2, 7): "bg-purple-600 text-white",
+        dt.date(2026, 2, 21): "bg-purple-600 text-white",
+        dt.date(2026, 3, 28): "bg-purple-600 text-white",
+        dt.date(2026, 4, 18): "bg-purple-600 text-white",
+        dt.date(2026, 4, 25): "bg-purple-600 text-white",
+        dt.date(2026, 5, 9): "bg-purple-600 text-white",
+        dt.date(2026, 6, 13): "bg-purple-600 text-white",
+        dt.date(2026, 6, 20): "bg-purple-600 text-white",
+        dt.date(2026, 6, 27): "bg-purple-600 text-white",
+        dt.date(2026, 7, 4): "bg-purple-600 text-white",
+        dt.date(2026, 7, 11): "bg-purple-600 text-white",
+        dt.date(2026, 7, 18): "bg-purple-600 text-white",
     }
 
 def is_purple_date(d: dt.date) -> bool:                                           # NEW
-    return SPECIAL_DATES.get(d) == "bg-purple-600"    
+    return SPECIAL_DATES.get(d) == "bg-purple-600 text-white"    
 
 def month_neighbors(year, month):
     first = dt.date(year, month, 1)
@@ -183,7 +183,7 @@ def home(request):
       # lila Tage (klickbar) dieses Monats
     purple_days = {
         d.day for d, cls in SPECIAL_DATES.items()
-        if d.year == y and d.month == m and cls == "bg-purple-600"
+        if d.year == y and d.month == m and cls == "bg-purple-600 text-white"
     }
 
     # bereits markierte Abwesenheiten für diesen Monat
