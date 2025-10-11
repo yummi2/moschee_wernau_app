@@ -18,7 +18,7 @@
                     <li class="p-4 border rounded-xl" dir="rtl">
                         <div class="font-medium">
                             {% if a.title %}
-                        <p class="{% if forloop.first %}text-black-600{% else %}mt-2 text-gray-700{% endif %}">
+                        <p class="text-black-600">
                             {{ a.title }}
                         </p>
                         {% endif %}
@@ -29,7 +29,7 @@
                             التاريخ: {{ a.created_at|date:"d.m.Y" }}
                         </div>
                         {% if a.description %}
-                        <p class="{% if forloop.first %}text-red-600{% else %}text-black{% endif %}">
+                        <p class="text-red-600">
                             {{ a.description }}
                         </p>
                         {% endif %}
