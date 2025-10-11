@@ -2,6 +2,7 @@ from django.contrib import admin
 from .models import ClassRoom, Assignment, Absence, ChecklistItem, StudentChecklist
 from django.contrib.auth import get_user_model
 from django.db.models import Q
+from .models import WeeklyBanner
 
 User = get_user_model()
 @admin.register(ClassRoom)
@@ -84,3 +85,7 @@ class StudentChecklistAdmin(admin.ModelAdmin):
         if not base or request.user.is_superuser or obj is None:
             return base
         return ClassRoom.objects.filter(teachers=request.user, students=obj.student).exists()
+
+@admin.register(WeeklyBanner)
+class WeeklyBannerAdmin(admin.ModelAdmin):
+    list_display = ("image_url", "updated_at")

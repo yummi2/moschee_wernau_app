@@ -89,4 +89,12 @@ class StudentChecklist(models.Model):
     checked = models.BooleanField(default=False)
 
     class Meta:
-        unique_together = ('student', 'item')         
+        unique_together = ('student', 'item')   
+
+class WeeklyBanner(models.Model):
+    # wir halten nur die aktuell gültige URL
+    image_url = models.URLField()
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Banner ({self.updated_at:%Y-%m-%d %H:%M})"              

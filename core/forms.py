@@ -1,5 +1,5 @@
 from django import forms
-from .models import Profile
+from .models import Profile, WeeklyBanner
 from django.forms.widgets import ClearableFileInput
 
 class CustomClearableFileInput(ClearableFileInput):
@@ -20,4 +20,9 @@ class ProfileForm(forms.ModelForm):
         if img and img.size > 3 * 1024 * 1024:  # 3 MB Limit
             raise forms.ValidationError("Bild darf max. 3 MB groß sein.")
         return img
+        
+class WeeklyBannerForm(forms.ModelForm):
+    class Meta:
+        model = WeeklyBanner
+        fields = ["image_url"]        
 

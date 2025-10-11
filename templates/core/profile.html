@@ -40,9 +40,9 @@
                 </button>
             </div>
             <button type="submit" name="action" value="delete"
-            class="px-4 py-2 rounded-lg bg-red-600 text-white cursor-pointer hover:bg-red-700">
-            حذف
-        </button>
+                class="px-4 py-2 rounded-lg bg-red-600 text-white cursor-pointer hover:bg-red-700">
+                حذف
+            </button>
         </form>
 
         <script>
@@ -58,9 +58,26 @@
                 }
             });
         </script>
+        <hr class="my-6">
 
+        <h3 class="text-lg font-semibold mb-2" dir="rtl">خريطة هذا الأسبوع</h3>
+
+        {% if banner %}
+        <!-- Link zum Bild öffnen -->
+        <a href="{{ banner.image_url }}" target="_blank" rel="noopener" class="text-blue-600 hover:underline" dir="rtl">
+            اضغط هنا لتكبير الخريطة
+        </a>
+
+        <!-- (optional) Mini-Vorschau darunter -->
+        <div class="mt-3">
+            <img src="{{ banner.image_url }}" alt="خريطة هذا الأسبوع" class="max-w-full rounded-lg border">
+        </div>
+        {% else %}
+        <p class="text-gray-500" dir="rtl">لا توجد خريطة لهذا الأسبوع بعد.</p>
+
+        {% endif %}
     </div>
-    </form>
+
 </div>
 </div>
 {% endblock %}

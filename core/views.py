@@ -1,4 +1,4 @@
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Profile, Assignment
 from .forms import ProfileForm
@@ -17,6 +17,9 @@ from django.views.decorators.http import require_POST, require_GET
 from .models import ClassRoom, ChecklistItem, StudentChecklist
 from django.contrib.auth.models import User
 from django.db.models import Q
+from .forms import WeeklyBannerForm
+from .models import WeeklyBanner
+
 
 ARABIC_BLOCK_MSG = "يمكن وضع علامة الغياب فقط من يوم الجمعة الساعة 10:00 حتى السبت الساعة 10:00."
 ARABIC_ALREADY_MARKED = "لقد تم وضع علامة الغياب لهذا اليوم من قبل."
@@ -142,6 +145,9 @@ def mark_absence(request):
     return JsonResponse({"ok": True})
 
 def home(request):
+
+    banner = WeeklyBanner.objects.order_by("-updated_at").first()
+   
     assignments = []
     today = dt.date.today()
     try:
@@ -210,6 +216,7 @@ def home(request):
 
     # Kontext IMMER zusammenbauen
     ctx = {
+        "banner": banner,
         "assignments": assignments,
         "cal_year": y, "cal_month": m, "cal_weeks": weeks,
         "cal_month_name": calendar.month_name[m],
@@ -261,6 +268,8 @@ def home(request):
 def profile_view(request):
     profile, _ = Profile.objects.get_or_create(user=request.user)
 
+    banner = WeeklyBanner.objects.order_by("-updated_at").first()
+
     if request.method == "POST":
         # prüfen, welcher Button gedrückt wurde
         if request.POST.get("action") == "delete":
@@ -280,7 +289,7 @@ def profile_view(request):
     else:
         form = ProfileForm(instance=profile)  
 
-    return render(request, "core/profile.html", {"form": form, "profile": profile})
+    return render(request, "core/profile.html", {"form": form, "profile": profile, "banner": banner})
 
 @login_required
 def assignment_detail(request, pk):
@@ -335,3 +344,18 @@ def toggle_check(request):
     done = StudentChecklist.objects.filter(student=student, checked=True, item_id__in=vis_ids).count()
     total = len(vis_ids)
     return JsonResponse({"ok": True, "done": done, "total": total})
+
+def admin_required(user):
+    return user.is_superuser  
+
+@login_required
+@user_passes_test(admin_required)
+def set_banner(request):
+    if request.method == "POST":
+        form = WeeklyBannerForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("home")
+    else:
+        form = WeeklyBannerForm()
+    return render(request, "set_banner.html", {"form": form})
