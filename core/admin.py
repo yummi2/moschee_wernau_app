@@ -1,8 +1,7 @@
 from django.contrib import admin
-from .models import ClassRoom, Assignment, Absence, ChecklistItem, StudentChecklist
+from .models import ClassRoom, Assignment, Absence, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote
 from django.contrib.auth import get_user_model
 from django.db.models import Q
-from .models import WeeklyBanner
 
 User = get_user_model()
 @admin.register(ClassRoom)
@@ -89,3 +88,8 @@ class StudentChecklistAdmin(admin.ModelAdmin):
 @admin.register(WeeklyBanner)
 class WeeklyBannerAdmin(admin.ModelAdmin):
     list_display = ("image_url", "updated_at")
+
+@admin.register(TeacherNote)
+class TeacherNoteAdmin(admin.ModelAdmin):
+    list_display = ("student","teacher","classroom","created_at")
+    search_fields = ("student__username","teacher__username","body")

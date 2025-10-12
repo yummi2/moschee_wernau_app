@@ -1,22 +1,19 @@
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Profile, Assignment
+from .models import Profile, Assignment, Absence, ClassRoom, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote  
 from .forms import ProfileForm
 from django.contrib import messages
 import calendar
 import datetime as dt
-from .models import Absence
 from zoneinfo import ZoneInfo
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.utils import timezone 
 import json
 from django.conf import settings
 from django.views.decorators.http import require_POST, require_GET
-from .models import ClassRoom, ChecklistItem, StudentChecklist
 from django.contrib.auth.models import User
 from django.db.models import Q
 from .forms import WeeklyBannerForm
-from .models import WeeklyBanner
 
 
 ARABIC_BLOCK_MSG = "يمكن وضع علامة الغياب فقط من يوم الجمعة الساعة 10:00 حتى السبت الساعة 10:00."
@@ -287,6 +284,36 @@ def profile_view(request):
             "checked_item_ids": checked_ids,
         })
 
+    if ctx.get("is_teacher"):
+        # Lehrerblick: gewählten Schüler ermitteln (du hast already selected_student im ctx)
+        selected_student = ctx.get("selected_student")
+        if request.method == "POST" and request.POST.get("action") == "add_note":
+            # Sicherheitscheck: Lehrer & gleicher Klassenverband
+            if selected_student and ClassRoom.objects.filter(teachers=request.user, students=selected_student).exists():
+                body = (request.POST.get("note_body") or "").strip()
+                if body:
+                    TeacherNote.objects.create(
+                        teacher=request.user,
+                        student=selected_student,
+                        classroom=ClassRoom.objects.filter(teachers=request.user, students=selected_student).first(),
+                        body=body,
+                    )
+                    messages.success(request, "تمت إضافة الملاحظة.")
+                else:
+                    messages.error(request, "النص فارغ.")
+            else:
+                messages.error(request, "لا يمكنك إضافة ملاحظات لهذا الطالب.")
+            return redirect("profile")  # PRG
+
+        notes_qs = TeacherNote.objects.filter(
+        student=selected_student,
+        teacher=request.user
+        ).select_related("teacher", "classroom") if selected_student else TeacherNote.objects.none()
+        ctx["teacher_notes"] = notes_qs[:30]
+    else:
+        # Schülerblick: Notizen, die an mich adressiert sind
+        notes_qs = TeacherNote.objects.filter(student=request.user).select_related("teacher","classroom")
+        ctx["teacher_notes"] = notes_qs[:30]
     
     return render(request, "core/profile.html", ctx)
 

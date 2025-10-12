@@ -97,4 +97,17 @@ class WeeklyBanner(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Banner ({self.updated_at:%Y-%m-%d %H:%M})"              
+        return f"Banner ({self.updated_at:%Y-%m-%d %H:%M})" 
+
+class TeacherNote(models.Model):
+    teacher   = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notes_written")
+    student   = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notes_received")
+    classroom = models.ForeignKey("ClassRoom", on_delete=models.SET_NULL, null=True, blank=True)
+    body      = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"Note to {self.student} by {self.teacher} @ {self.created_at:%Y-%m-%d}"                     
