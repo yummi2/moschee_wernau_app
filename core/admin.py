@@ -91,5 +91,37 @@ class WeeklyBannerAdmin(admin.ModelAdmin):
 
 @admin.register(TeacherNote)
 class TeacherNoteAdmin(admin.ModelAdmin):
-    list_display = ("student","teacher","classroom","created_at")
-    search_fields = ("student__username","teacher__username","body")
+    list_display = ("student", "teacher", "classroom", "created_at", "short_body")
+    search_fields = ("student__username", "teacher__username", "body")
+    list_filter = ("teacher", "classroom", "created_at")
+    exclude = ("teacher",)
+    date_hierarchy = "created_at"
+
+    # verkürzte Body-Spalte
+    def short_body(self, obj):
+        return (obj.body or "")[:60]
+    short_body.short_description = "Body"
+
+    # Nicht-Superuser: Auswahl einschränken
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if not request.user.is_superuser:
+            if db_field.name == "student":
+                kwargs["queryset"] = User.objects.filter(
+                    classes_as_student__teachers=request.user
+                ).distinct()
+            if db_field.name == "classroom":
+                kwargs["queryset"] = ClassRoom.objects.filter(
+                    teachers=request.user
+                ).distinct()
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+    # teacher automatisch auf den eingeloggten Benutzer setzen
+    def save_model(self, request, obj, form, change):
+        if not obj.teacher_id:
+            obj.teacher = request.user
+        super().save_model(request, obj, form, change)
+
+    # Superuser: alle Notizen; sonst nur eigene
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs if request.user.is_superuser else qs.filter(teacher=request.user)
