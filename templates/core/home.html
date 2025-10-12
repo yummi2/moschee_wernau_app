@@ -8,41 +8,106 @@
         <main class="space-y-6">
 
             <div class="bg-white rounded-2xl shadow p-6" dir="rtl">
-                <h2 class="text-2xl font-semibold mb-4 text-blue-600">مرحبًا {{ user.username }}</h2>
-
                 {% if user.is_authenticated %}
-                {% if assignments %}
-                <h3 class="font-semibold mb-2">واجباتك</h3>
-                <ul class="space-y-3">
-                    {% for a in assignments %}
-                    <li class="p-4 border rounded-xl" dir="rtl">
-                        <div class="font-medium">
-                            {% if a.title %}
-                        <p class="text-black-600">
-                            {{ a.title }}
-                        </p>
-                        {% endif %}
-                        </div>
-                        <div class="text-sm text-gray-600">
-                            المعلم: {{ a.created_by.get_full_name|default:a.created_by.username }}
-                            الصف: {{ a.classroom.name }}
-                            التاريخ: {{ a.created_at|date:"d.m.Y" }}
-                        </div>
-                        {% if a.description %}
-                        <p class="text-red-600">
-                            {{ a.description }}
-                        </p>
-                        {% endif %}
-                    </li>
-                    {% endfor %}
-                </ul>
-                {% else %}
-                <p class="text-gray-600">لا توجد واجبات (ربما لم يتم تعيينك إلى صف بعد).</p>
-                {% endif %}
-                {% else %}
-                <p class="text-gray-600">2025/2026</p>
+                <h2 class="text-2xl font-semibold mb-4 text-black-600">
+                    مرحبًا {{ user.username }}
+                </h2>
+
+                {% with active_tab=request.GET.tab|default:"assignments" %}
+                <div class="flex gap-2 mb-2">
+                    <a href="?tab=assignments" class="px-3 py-1 rounded-lg border
+           {% if active_tab == 'assignments' %} bg-blue-600 text-white border-blue-600
+           {% else %} text-blue-700 hover:bg-blue-50 border-blue-200 {% endif %}">
+                        واجباتك
+                    </a>
+
+                    <a href="?tab=notes" class="px-3 py-1 rounded-lg border
+           {% if active_tab == 'notes' %} bg-blue-600 text-white border-blue-600
+           {% else %} text-blue-700 hover:bg-blue-50 border-blue-200 {% endif %}">
+                        الملاحظات
+                    </a>
+
+                    {% if not is_teacher %}
+                    <a href="?tab=checklist" class="px-3 py-1 rounded-lg border
+           {% if active_tab == 'checklist' %} bg-blue-600 text-white border-blue-600
+           {% else %} text-blue-700 hover:bg-blue-50 border-blue-200 {% endif %}">
+                        ما تم تسميعه
+                    </a>
+                    {% endif %}
+                </div>
+
+                {# --- Inhalt: Hausaufgaben --- #}
+                <div class="mt-4 {% if active_tab != 'assignments' %}hidden{% endif %}">
+                    {% if user.is_authenticated and assignments %}
+                    <ul class="space-y-3">
+                        {% for a in assignments %}
+                        <li class="p-4 border rounded-xl" dir="rtl">
+                            {% if a.title %}<p class="font-medium">{{ a.title }}</p>{% endif %}
+                            <div class="text-sm text-gray-600">
+                                المعلم: {{ a.created_by.get_full_name|default:a.created_by.username }}
+                                | الصف: {{ a.classroom.name }}
+                                | التاريخ: {{ a.created_at|date:"d.m.Y" }}
+                            </div>
+                            {% if a.description %}<p class="text-red-600">{{ a.description }}</p>{% endif %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-gray-600">لا توجد واجبات (ربما لم يتم تعيينك إلى صف بعد).</p>
+                    {% endif %}
+                </div>
+
+                {# --- Inhalt: Notizen --- #}
+                <div class="mt-4 {% if active_tab != 'notes' %}hidden{% endif %}">
+                    {% if teacher_notes and teacher_notes|length > 0 %}
+                    <ul class="space-y-3">
+                        {% for n in teacher_notes %}
+                        <li class="p-3 border rounded-xl">
+                            <div class="text-sm text-gray-600 mb-1">
+                                {% if is_teacher %}
+                                إلى: <span
+                                    class="font-medium">{{n.student.get_full_name|default:n.student.username}}</span>
+                                {% else %}
+                                من: <span
+                                    class="font-medium">{{n.teacher.get_full_name|default:n.teacher.username}}</span>
+                                {% endif %}
+                                {% if n.classroom %} — الصف: {{ n.classroom.name }}{% endif %}
+                                — <span dir="ltr">{{ n.created_at|date:"d.m.Y H:i" }}</span>
+                            </div>
+                            <p class="text-gray-900">{{ n.body|linebreaksbr }}</p>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-gray-500">لا توجد ملاحظات.</p>
+                    {% endif %}
+                </div>
+
+
+                <!-- --- Inhalt: ما تم تسميعه (Checkliste) --- -->
+                {% if not is_teacher %}
+                <div class="mt-4 {% if active_tab != 'checklist' %}hidden{% endif %}">
+                    <h4 class="font-semibold text-blue-700 mb-3">ما تم تسميعه</h4>
+                    {% if checklist_items %}
+                    <ul class="space-y-2">
+                        {% for it in checklist_items %}
+                        <li class="flex items-center gap-2">
+                            <input type="checkbox" disabled {% if it.id in checked_item_ids %}checked{% endif %}>
+                            <label>{{ it.title }}</label>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-gray-500">لا توجد عناصر.</p>
+                    {% endif %}
+                </div>
                 {% endif %}
 
+                {% endwith %}
+                {% else %}
+                <h2 class="text-2xl font-semibold mb-4 text-black-600">مرحبًا</h2>
+                <p class="text-gray-600 text-lg">2025 / 2026</p>
+                {% endif %}
             </div>
         </main>
 

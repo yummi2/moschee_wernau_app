@@ -225,6 +225,43 @@ def home(request):
         "absences": absences,
         "absences_total": absences_total,
     }
+
+    if request.user.is_authenticated:
+        if is_user_teacher(request.user):
+            # Lehrer: eigene Notizen (optional per ?student filtern)
+            sel_id = request.GET.get('student')
+            selected_student = None
+            if sel_id:
+                selected_student = User.objects.filter(pk=sel_id).first()
+            notes_qs = TeacherNote.objects.filter(teacher=request.user)
+            if selected_student:
+                notes_qs = notes_qs.filter(student=selected_student)
+
+            ctx.update({
+                "is_teacher": True,
+                "selected_student": selected_student,
+                "teacher_notes": notes_qs.select_related("student", "classroom").order_by("-created_at")[:30],
+            })
+
+        else:
+            # Schüler: Notizen an mich + eigene Checkliste
+            items = visible_items_for_student(request.user)
+            checked_ids = set(StudentChecklist.objects
+                              .filter(student=request.user, checked=True)
+                              .values_list('item_id', flat=True))
+
+            notes_qs = (TeacherNote.objects
+                        .filter(student=request.user)
+                        .select_related("teacher", "classroom")
+                        .order_by("-created_at")[:30])
+
+            ctx.update({
+                "is_teacher": False,
+                "checklist_items": items,
+                "checked_item_ids": checked_ids,
+                "teacher_notes": notes_qs,
+            })
+
     return render(request, "core/home.html", ctx)
 
 @login_required
@@ -254,66 +291,6 @@ def profile_view(request):
 
     # Grund-Kontext
     ctx = {"form": form, "profile": profile, "banner": banner}
-
-    # @login_required => user ist authentifiziert; das äußere if kannst du weglassen
-    if is_user_teacher(request.user):
-        students = (User.objects
-                    .filter(classes_as_student__in=ClassRoom.objects.filter(teachers=request.user))
-                    .distinct().order_by('username'))
-        sel_id = request.GET.get('student')
-        selected_student = students.filter(pk=sel_id).first() if sel_id else students.first()
-        items = visible_items_for_student(selected_student) if selected_student else ChecklistItem.objects.none()
-        checked_ids = set(StudentChecklist.objects
-                          .filter(student=selected_student, checked=True)
-                          .values_list('item_id', flat=True)) if selected_student else set()
-        ctx.update({
-            "is_teacher": True,
-            "students": students,
-            "selected_student": selected_student,
-            "checklist_items": items,
-            "checked_item_ids": checked_ids,
-        })
-    else:
-        items = visible_items_for_student(request.user)
-        checked_ids = set(StudentChecklist.objects
-                          .filter(student=request.user, checked=True)
-                          .values_list('item_id', flat=True))
-        ctx.update({
-            "is_teacher": False,
-            "checklist_items": items,
-            "checked_item_ids": checked_ids,
-        })
-
-    if ctx.get("is_teacher"):
-        # Lehrerblick: gewählten Schüler ermitteln (du hast already selected_student im ctx)
-        selected_student = ctx.get("selected_student")
-        if request.method == "POST" and request.POST.get("action") == "add_note":
-            # Sicherheitscheck: Lehrer & gleicher Klassenverband
-            if selected_student and ClassRoom.objects.filter(teachers=request.user, students=selected_student).exists():
-                body = (request.POST.get("note_body") or "").strip()
-                if body:
-                    TeacherNote.objects.create(
-                        teacher=request.user,
-                        student=selected_student,
-                        classroom=ClassRoom.objects.filter(teachers=request.user, students=selected_student).first(),
-                        body=body,
-                    )
-                    messages.success(request, "تمت إضافة الملاحظة.")
-                else:
-                    messages.error(request, "النص فارغ.")
-            else:
-                messages.error(request, "لا يمكنك إضافة ملاحظات لهذا الطالب.")
-            return redirect("profile")  # PRG
-
-        notes_qs = TeacherNote.objects.filter(
-        student=selected_student,
-        teacher=request.user
-        ).select_related("teacher", "classroom") if selected_student else TeacherNote.objects.none()
-        ctx["teacher_notes"] = notes_qs[:30]
-    else:
-        # Schülerblick: Notizen, die an mich adressiert sind
-        notes_qs = TeacherNote.objects.filter(student=request.user).select_related("teacher","classroom")
-        ctx["teacher_notes"] = notes_qs[:30]
     
     return render(request, "core/profile.html", ctx)
 
