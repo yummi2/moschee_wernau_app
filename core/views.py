@@ -11,8 +11,6 @@ from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseForbid
 from django.utils import timezone 
 import json
 from django.conf import settings
-from django.http import HttpResponseForbidden
-from .forms import ProfileForm
 from django.views.decorators.http import require_POST, require_GET
 from .models import ClassRoom, ChecklistItem, StudentChecklist
 from django.contrib.auth.models import User
@@ -230,38 +228,6 @@ def home(request):
         "absences": absences,
         "absences_total": absences_total,
     }
-
-    if request.user.is_authenticated:
-        if is_user_teacher(request.user):
-            # Schüler aus allen Klassen des Lehrers
-            students = (User.objects
-                        .filter(classes_as_student__in=ClassRoom.objects.filter(teachers=request.user))
-                        .distinct()
-                        .order_by('username'))
-            sel_id = request.GET.get('student')
-            selected_student = students.filter(pk=sel_id).first() if sel_id else students.first()
-            items = visible_items_for_student(selected_student) if selected_student else ChecklistItem.objects.none()
-            checked_ids = set(StudentChecklist.objects
-                              .filter(student=selected_student, checked=True)
-                              .values_list('item_id', flat=True)) if selected_student else set()
-            ctx.update({
-                "is_teacher": True,
-                "students": students,
-                "selected_student": selected_student,
-                "checklist_items": items,
-                "checked_item_ids": checked_ids,
-            })
-        else:
-            items = visible_items_for_student(request.user)
-            checked_ids = set(StudentChecklist.objects
-                              .filter(student=request.user, checked=True)
-                              .values_list('item_id', flat=True))
-            ctx.update({
-                "is_teacher": False,
-                "checklist_items": items,
-                "checked_item_ids": checked_ids,
-            })
-
     return render(request, "core/home.html", ctx)
 
 @login_required
@@ -287,9 +253,42 @@ def profile_view(request):
             messages.success(request, "تم حفظ الصورة بنجاح.")  
             return redirect("home")
     else:
-        form = ProfileForm(instance=profile)  
+        form = ProfileForm(instance=profile)
 
-    return render(request, "core/profile.html", {"form": form, "profile": profile, "banner": banner})
+    # Grund-Kontext
+    ctx = {"form": form, "profile": profile, "banner": banner}
+
+    # @login_required => user ist authentifiziert; das äußere if kannst du weglassen
+    if is_user_teacher(request.user):
+        students = (User.objects
+                    .filter(classes_as_student__in=ClassRoom.objects.filter(teachers=request.user))
+                    .distinct().order_by('username'))
+        sel_id = request.GET.get('student')
+        selected_student = students.filter(pk=sel_id).first() if sel_id else students.first()
+        items = visible_items_for_student(selected_student) if selected_student else ChecklistItem.objects.none()
+        checked_ids = set(StudentChecklist.objects
+                          .filter(student=selected_student, checked=True)
+                          .values_list('item_id', flat=True)) if selected_student else set()
+        ctx.update({
+            "is_teacher": True,
+            "students": students,
+            "selected_student": selected_student,
+            "checklist_items": items,
+            "checked_item_ids": checked_ids,
+        })
+    else:
+        items = visible_items_for_student(request.user)
+        checked_ids = set(StudentChecklist.objects
+                          .filter(student=request.user, checked=True)
+                          .values_list('item_id', flat=True))
+        ctx.update({
+            "is_teacher": False,
+            "checklist_items": items,
+            "checked_item_ids": checked_ids,
+        })
+
+    
+    return render(request, "core/profile.html", ctx)
 
 @login_required
 def assignment_detail(request, pk):
