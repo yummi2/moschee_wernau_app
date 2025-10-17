@@ -15,7 +15,12 @@ class AssignmentAdmin(admin.ModelAdmin):
     list_display = ("title", "classroom", "due_at", "created_by", "created_at")
     list_filter = ("classroom",)
     search_fields = ("title",)
-
+    
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "created_by":
+            # Nur Benutzer aus der Gruppe "Lehrer" anzeigen
+            kwargs["queryset"] = User.objects.filter(groups__name="Lehrer")
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 @admin.register(Absence)
 class AbsenceAdmin(admin.ModelAdmin):
