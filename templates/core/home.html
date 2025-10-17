@@ -149,7 +149,7 @@
                         <a href="?y={{ cal_prev_y }}&m={{ cal_prev_m }}" class="text-blue-600">&larr;</a>
                     </div>
 
-                    <table class="w-full text-center text-xs">
+                    <table class="w-full text-center text-sm sm:text-xs">
                         <thead>
                             <tr>
                                 {% for d in cal_weekday_names %}
@@ -165,7 +165,7 @@
                                 <td class="py-1"></td>
                                 {% else %}
                                 <td class="py-1">
-                                    <button type="button" class="cal-day px-2 py-1 rounded
+                                    <button type="button" class="cal-day px-2 py-1 min-w-[44px] min-h-[44px] rounded
                      {% if day in absences %} bg-red-600 text-white is-absent
                      {% elif special_map|dict_get:day %} {{ special_map|dict_get:day }}
                      {% endif %}

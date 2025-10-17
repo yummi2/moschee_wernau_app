@@ -4,6 +4,7 @@
 
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>{% block title %}دار الفرح {% endblock %}</title>
   {% load static i18n %}
   <link rel="stylesheet" href="{% static 'css/app.css' %}">
@@ -13,11 +14,12 @@
   <header class="border-b bg-white">
     <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
       <p class="text-xl font-bold">دار الفرح </p>
+      <nav class="flex items-center gap-4 text-sm">
       <!-- Link zum Bild öffnen -->
       <a href="{{ banner.image_url }}" target="_blank" rel="noopener" class="text-blue-600 hover:underline" dir="rtl">
         خريطة المسابقة
       </a>
-      <nav class="space-s-4 text-sm">
+      
         <a href="{% url 'home' %}" class="hover:underline">الصفحة الرئيسية</a>
         {% if user.is_authenticated %}
 
