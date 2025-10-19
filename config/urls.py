@@ -30,5 +30,6 @@ urlpatterns = [
     path("assignments/<int:pk>/", views.assignment_detail, name="assignment_detail"),
     path("checklist/toggle/", views.toggle_check, name="toggle_check"),
     path("admin/banner/", views.set_banner, name="set_banner"),
+    path('library/', views.library, name='library'),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

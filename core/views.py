@@ -14,6 +14,7 @@ from django.views.decorators.http import require_POST, require_GET
 from django.contrib.auth.models import User
 from django.db.models import Q
 from .forms import WeeklyBannerForm
+from django.urls import reverse
 
 
 ARABIC_BLOCK_MSG = "يمكن وضع علامة الغياب فقط من يوم الجمعة الساعة 10:00 حتى السبت الساعة 10:00."
@@ -362,3 +363,21 @@ def set_banner(request):
     else:
         form = WeeklyBannerForm()
     return render(request, "set_banner.html", {"form": form})
+
+def library(request):  
+    level = request.GET.get("level")
+    valid_levels = {"beginner": "المبتدئ", "intermediate": "المتوسط", "advanced": "المتقدم"}
+
+    context = {"level": level}
+
+    if level == "beginner":
+        context.update({
+            "level_title": "المبتدئ",
+            "sentences": [
+                {"title": "جملة 1", "href": "#"},
+                {"title": "جملة 2", "href": "#"},
+                {"title": "جملة 3", "href": "#"},
+                {"title": "جملة 4", "href": "#"},
+            ]
+        })
+    return render(request, 'core/library.html', context)

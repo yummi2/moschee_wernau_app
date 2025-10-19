@@ -15,13 +15,14 @@
     <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
       <p class="text-xl font-bold">دار الفرح </p>
       <nav class="flex items-center gap-4 text-sm">
-      <!-- Link zum Bild öffnen -->
-      <a href="{{ banner.image_url }}" target="_blank" rel="noopener" class="text-blue-600 hover:underline" dir="rtl">
-        خريطة المسابقة
-      </a>
-      
-        <a href="{% url 'home' %}" class="hover:underline">الصفحة الرئيسية</a>
+
+        <a href="{% url 'home' %}" class="hover:underline text-blue-600">الصفحة الرئيسية</a>
         {% if user.is_authenticated %}
+        <a href="{% url 'library' %}" class="hover:underline text-blue-600">مكتبتي</a>
+        <!-- Link zum Bild öffnen -->
+        <a href="{{ banner.image_url }}" target="_blank" rel="noopener" class="text-blue-600 hover:underline" dir="rtl">
+          خريطة المسابقة
+        </a>
 
         <a href="#" onclick="event.preventDefault(); document.getElementById('logoutForm').submit();"
           class="px-3 py-1 rounded bg-gray-900 text-white hover:bg-gray-700">

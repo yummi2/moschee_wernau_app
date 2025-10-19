@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}مكتبتي{% endblock %}
+
+{% block content %}
+<div class="mt-8" dir="rtl">
+    {% if not level %}
+    <div class="mx-auto max-w-5xl bg-white rounded-2xl shadow p-6">
+        <h3 class="text-xl font-semibold mb-4 text-right">اختر مستوى </h3>
+
+
+        <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            <!-- Card: المبتدئ -->
+            <a href="?level=beginner"
+                class="group block rounded-2xl bg-white shadow hover:shadow-xl transition p-3 h-full">
+                <div class="flex flex-col h-full text-right">
+                    <div class="w-32 h-32 rounded-xl overflow-hidden mb-3">
+                    </div>
+                    <h4 class="text-lg font-bold text-blue-600 mb-1 group-hover:underline">المبتدئ</h4>
+                </div>
+            </a>
+
+            <!-- Card: المتوسط -->
+            <a href="?level=intermediate"
+                class="group block rounded-2xl bg-white shadow hover:shadow-lg transition p-3 h-full">
+                <div class="flex flex-col h-full text-right">
+                    <h4 class="text-lg font-bold text-blue-600 mb-1 group-hover:underline">المتوسط</h4>
+                </div>
+            </a>
+
+            <!-- Card: المتقدم -->
+            <a href="?level=advanced"
+                class="group block rounded-2xl bg-white shadow hover:shadow-lg transition p-3 h-full">
+                <div class="flex flex-col h-full text-right">
+                    <h4 class="text-lg font-bold text-blue-600 mb-1 group-hover:underline">المتقدم</h4>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+{% elif level == "beginner" %}
+<!-- ===== Detailansicht für المبتدئ ===== -->
+<div class="mx-auto max-w-5xl px-4">
+    <div class="bg-white rounded-2xl shadow p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-2xl font-semibold text-blue-800">المبتدئ</h2>
+        </div>
+
+        <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {% for s in sentences %}
+            <a href="{{ s.href }}"
+                class="block bg-blue-50 hover:bg-blue-100 rounded-xl shadow p-6 text-right transition">
+                <h3 class="text-lg font-bold text-blue-600 mb-2">{{ s.title }}</h3>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endif %}
+</div>
+{% endblock %}
