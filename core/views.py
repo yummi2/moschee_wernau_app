@@ -366,18 +366,107 @@ def set_banner(request):
 
 def library(request):  
     level = request.GET.get("level")
+    sid = request.GET.get("sid") 
+    p_str = request.GET.get("p", "1")  
     valid_levels = {"beginner": "المبتدئ", "intermediate": "المتوسط", "advanced": "المتقدم"}
 
     context = {"level": level}
+    STORIES = {
+        "beginner": {
+            "1": {
+                "title": "جملة 1",
+                "body": [
+                    {
+                        "text": "قَمَرٌ مُنِيرٌ",
+                        "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/w_300,h_200,c_fill/v1761307112/unnamed_srp4ov.png"
+                    },
+                    {
+                        "text":"وَرْدٌ أَحْمَرٌ",
+                        
+                        "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/w_300,h_300,c_fill/v1761308536/unnamed_jjffci.png"
+                    },
+                    {
+                        "text":"طريقٌ طَويلٌ",
+                        
+                        "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/w_300,h_200,c_fill/v1761308547/unnamed_eww7ki.jpg"
+                    },
+                    {
+                        "text":"طِفْلٌ سَعِيدٌ",
+                        "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/w_300,h_300,c_fill/v1761308554/unnamed_v54mt6.jpg"
+                    },
+                    {
+                        "text":"بَحْرٌ هَادِئٌ",
+                        "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/w_300,h_200,c_fill/v1761308561/unnamed_fqyxhl.jpg"
+                    },
+                    
+                ],
+            },"2": {
+                "title": "جملة 2",
+                "body": ["نص آخر للمبتدئين.", "سطر ثانٍ للتدريب."],
+            },
+            "3": {"title": "جملة 3", "body": ["كان يا ما كان في قديم الزمان…", "هذه قصة قصيرة وبسيطة للمبتدئين."]},
+            "4": {"title": "جملة 4", "body": ["كان يا ما كان في قديم الزمان…", "هذه قصة قصيرة وبسيطة للمبتدئين."]},
+        },
+        "intermediate": {"1": {"title": "نص متوسط 1", "body": ["…"]}},
+        "advanced": {"1": {"title": "نص متقدم 1", "body": ["…"]}},
+    }
 
-    if level == "beginner":
-        context.update({
-            "level_title": "المبتدئ",
-            "sentences": [
-                {"title": "جملة 1", "href": "#"},
-                {"title": "جملة 2", "href": "#"},
-                {"title": "جملة 3", "href": "#"},
-                {"title": "جملة 4", "href": "#"},
-            ]
+    if not level:
+        return render(request, "core/library.html", {"level": None})
+
+    if level not in valid_levels:
+        return redirect(reverse("library"))
+
+    if sid:
+        story_map = STORIES.get(level, {})
+        story = story_map.get(sid)
+        if not story:
+            return redirect(f"{reverse('library')}?level={level}")
+        
+
+        # Prev/Next berechnen anhand sortierter numerischer IDs
+        try:
+            p = int(p_str)
+        except ValueError:
+            p = 1
+        total = max(1, len(story["body"]))
+        if p < 1: p = 1
+        if p > total: p = total
+
+        # Aktueller Absatz
+        raw_para = story["body"][p - 1]
+
+        if isinstance(raw_para, dict):
+            current_text  = raw_para.get("text", "")
+            current_image = raw_para.get("image")
+        else:
+            current_text  = str(raw_para)
+            current_image = None
+
+        # Prev/Next innerhalb der Geschichte (KEIN Wechsel der Story!)
+        prev_href = f"{reverse('library')}?level={level}&sid={sid}&p={p-1}" if p > 1 else None
+        next_href = f"{reverse('library')}?level={level}&sid={sid}&p={p+1}" if p < total else None
+
+        return render(request, "core/library.html", {
+            "level": level,
+            "level_title": valid_levels[level],
+            "sid": sid,
+            "story": story,
+            "p":p,
+            "total": total,  
+            "current_text": current_text,
+            "current_image": current_image,
+            "prev_href": prev_href,
+            "next_href": next_href,
         })
-    return render(request, 'core/library.html', context)
+
+    sentences = []
+    for s_id, s_data in STORIES.get(level, {}).items():
+        href = f"{reverse('library')}?level={level}&sid={s_id}"   # <<--- NICHT "#"
+        sentences.append({"title": s_data["title"], "href": href})
+
+    return render(request, "core/library.html", {
+        "level": level,
+        "level_title": valid_levels[level],
+        "sentences": sentences,
+    })
