@@ -402,7 +402,31 @@ def library(request):
                 ],
             },"2": {
                 "title": "جملة 2",
-                "body": ["نص آخر للمبتدئين.", "سطر ثانٍ للتدريب."],
+                "body": [
+                    {
+                        "text": "حِصَانٌ سَرِيعٌ",
+                        "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/w_300,h_200,c_fill/v1761310629/pexels-helenalopes-1996333_dykak1.jpg"
+                    },
+                    {
+                        "text":"سَمَاءٌ صَافيَةٌ",
+                        
+                        "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/w_400,h_300,c_fill/v1761310764/pexels-zozz-544554_a5dfxt.jpg"
+                    },
+                    {
+                        "text":"زَهْرَةٌ بَيْضَاءُ",
+                        
+                        "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/w_300,h_400,c_fill/v1761310829/pexels-julia-mayer-325140421-16811625_n8jn8n.jpg"
+                    },
+                    {
+                        "text":"جَبَلٌ شَاهِقٌ",
+                        "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/w_300,h_300,c_fill/v1761310882/pexels-pixabay-417173_ghyqhd.jpg"
+                    },
+                    {
+                        "text":"نَجْمٌ لَامِعٌ",
+                        "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/w_300,h_300,c_fill/v1761311380/71083_aur_2-3umr_jw2k5o.jpg"
+                    },
+                    
+                ],
             },
             "3": {"title": "جملة 3", "body": ["كان يا ما كان في قديم الزمان…", "هذه قصة قصيرة وبسيطة للمبتدئين."]},
             "4": {"title": "جملة 4", "body": ["كان يا ما كان في قديم الزمان…", "هذه قصة قصيرة وبسيطة للمبتدئين."]},
