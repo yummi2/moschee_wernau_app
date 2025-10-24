@@ -428,8 +428,54 @@ def library(request):
                     
                 ],
             },
-            "3": {"title": "جملة 3", "body": ["كان يا ما كان في قديم الزمان…", "هذه قصة قصيرة وبسيطة للمبتدئين."]},
-            "4": {"title": "جملة 4", "body": ["كان يا ما كان في قديم الزمان…", "هذه قصة قصيرة وبسيطة للمبتدئين."]},
+            "3": {
+                "title": "جملة 3",
+             "body": [
+                {
+                        "text": "طَائِرٌ جَمِيلٌ",
+                        "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/w_300,h_200,c_fill/v1761311915/pexels-pixabay-255435_py3tt5.jpg"
+                    },
+                    {
+                        "text":"كِتَابٌ جَدِيدٌ",
+                        "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/w_400,h_300,c_fill/v1761312003/pexels-pixabay-415071_lk76to.jpg"
+                    },
+                    {
+                        "text":"بَيْتٌ كَبِيرٌ",
+                        "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/w_500,h_400,c_fill/v1761312058/pexels-binyaminmellish-106399_melme1.jpg"
+                    },
+                    {
+                        "text":"قِطٌّ لَطِيفٌ",
+                        "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/w_500,h_300,c_fill/v1761312102/pexels-didsss-1276553_douktw.jpg"
+                    },
+                    {
+                        "text":"كَلْبٌ وَفِيٌّ",
+                        "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/w_300,h_300,c_fill/v1761312117/pexels-svetozar-milashevich-99573-1490908_llqjzf.jpg"
+                    },
+                ]},
+            "4": {
+                "title": "جملة 4",
+             "body": [
+                {
+                        "text": "سَيَّارَةٌ سَرِيعَةٌ",
+                        "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/w_300,h_200,c_fill/v1761312309/pexels-garvin-st-villier-719266-3311574_peianw.jpg"
+                    },
+                    {
+                        "text":"شَجَرَةٌ خَضْرَاءُ",
+                        "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/w_400,h_300,c_fill/v1761312307/pexels-minan1398-1313807_gga6av.jpg"
+                    },
+                    {
+                        "text":"نَهْرٌ صَافٍ",
+                        "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/w_300,h_400,c_fill/v1761312305/pexels-pixabay-2438_uuupla.jpg"
+                    },
+                    {
+                        "text":"قِمَّةٌ جَلِيلَةٌ",
+                        "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/w_300,h_300,c_fill/v1761312375/pexels-christopher-politano-978995-34273345_nzvbv4.jpg"
+                    },
+                    {
+                        "text":"مَطَرٌ غَزِيرٌ",
+                        "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/w_500,h_300,c_fill/v1761312304/pexels-pixabay-459451_wb52uu.jpg"
+                    },
+                ]},
         },
         "intermediate": {"1": {"title": "نص متوسط 1", "body": ["…"]}},
         "advanced": {"1": {"title": "نص متقدم 1", "body": ["…"]}},
