@@ -60,10 +60,12 @@
             <p class="text-sm text-gray-500 mb-4">{{ level_title }} • {{ p }} / {{ total }}</p>
 
             {% if current_image %}
-            <img src="{{ current_image }}" alt="{{ story.title }}" class="w-1/2 h-48 object-contain rounded-xl mx-auto mb-6">
+            <img src="{{ current_image }}" alt="{{ story.title }}"
+                class="w-1/2 h-48 object-contain rounded-xl mx-auto mb-6">
             {% endif %}
-            <p class="mb-6 leading-8 text-xl text-center">{{ current_text }}</p>
+            <p class="text-xl leading-loose text-center whitespace-pre-line">{{ current_text }}</p>
 
+            {% if level == "beginner" %}
             <div class="mt-6 flex items-center justify-between">
                 {# Zurück-Button #}
                 {% if prev_href %}
@@ -81,6 +83,7 @@
                     <span class="px-4 py-2 rounded-xl bg-blue-100 text-blue-300 cursor-not-allowed">التالي</span>
                     {% endif %}
                 </div>
+                {% endif %}
             </div>
         </div>
     </div>
