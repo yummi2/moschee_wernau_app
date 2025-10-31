@@ -63,7 +63,8 @@
             <img src="{{ current_image }}" alt="{{ story.title }}"
                 class="w-1/2 h-48 object-contain rounded-xl mx-auto mb-6">
             {% endif %}
-            <p class="text-xl leading-loose text-center whitespace-pre-line">{{ current_text }}</p>
+            <p class="text-xl leading-loose text-center whitespace-pre-line">{{ current_text|safe }}</p>
+
 
             {% if level == "beginner" %}
             <div class="mt-6 flex items-center justify-between">
