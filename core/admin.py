@@ -1,7 +1,8 @@
 from django.contrib import admin
-from .models import ClassRoom, Assignment, Absence, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote
+from .models import ClassRoom, Assignment, Absence, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead
 from django.contrib.auth import get_user_model
 from django.db.models import Q
+from .views import STORIES
 
 User = get_user_model()
 @admin.register(ClassRoom)
@@ -130,3 +131,16 @@ class TeacherNoteAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         return qs if request.user.is_superuser else qs.filter(teacher=request.user)
+
+@admin.register(StoryRead)
+class StoryReadAdmin(admin.ModelAdmin):
+    list_display = ("user", "story_title", "read_at")
+    list_filter = ("level",)
+    search_fields = ("user__username", "user__first_name", "user__last_name", "sid")
+    autocomplete_fields = ("user",)
+
+    def story_title(self, obj):
+        story = STORIES.get(obj.level, {}).get(obj.sid)
+        return story["title"] if story else f"{obj.level}:{obj.sid}"
+
+    story_title.short_description = "Story Titel"

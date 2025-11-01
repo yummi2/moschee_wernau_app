@@ -65,30 +65,95 @@
             {% endif %}
             <p class="text-xl leading-loose text-center whitespace-pre-line">{{ current_text|safe }}</p>
 
-
             {% if level == "beginner" %}
             <div class="mt-6 flex items-center justify-between">
-                {# Zurück-Button #}
                 {% if prev_href %}
                 <a href="{{ prev_href }}" class="px-4 py-2 rounded-xl bg-gray-200 hover:bg-gray-300">السابق</a>
                 {% else %}
                 <span class="px-4 py-2 rounded-xl bg-gray-100 text-gray-400 cursor-not-allowed">السابق</span>
                 {% endif %}
 
-                <div class="flex items-center gap-3">
-                    {# Weiter-Button #}
-                    {% if next_href %}
-                    <a href="{{ next_href }}"
-                        class="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700">التالي</a>
-                    {% else %}
-                    <span class="px-4 py-2 rounded-xl bg-blue-100 text-blue-300 cursor-not-allowed">التالي</span>
-                    {% endif %}
-                </div>
+                {% if next_href %}
+                <a href="{{ next_href }}"
+                    class="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700">التالي</a>
+                {% else %}
+                <span class="px-4 py-2 rounded-xl bg-blue-100 text-blue-300 cursor-not-allowed">التالي</span>
                 {% endif %}
             </div>
+            {% endif %}
+            {# Ende Navigation nur für Beginner #}
+
+            {# "Gelesen" nur auf der letzten Seite und wenn eingeloggt #}
+            {% if p == total %}
+            <div class="mt-8">
+                {% if request.user.is_authenticated %}
+                {% if already_read %}
+                <button id="mark-read-btn" class="px-4 py-2 rounded bg-green-600 text-white cursor-default" disabled>
+                    ✅ تمّت القراءة
+                </button>
+                {% else %}
+                <button id="mark-read-btn" class="px-4 py-2 rounded bg-purple-600 text-white">
+                    وضع علامة تمت القراءة
+                </button>
+                {% endif %}
+                <p id="mark-read-msg" class="mt-2 text-sm text-gray-600"></p>
+                {% else %}
+                <a href="{% url 'login' %}?next={{ request.path|urlencode }}"
+                    class="px-4 py-2 rounded bg-purple-600 text-white inline-block">
+                    سجّل الدخول لوضع علامة "تمت القراءة"
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
         </div>
     </div>
     {% endif %}
 
+    {# CSRF + Ajax Skript #}
+    <script>
+        (function () {
+            const btn = document.getElementById('mark-read-btn');
+            if (!btn) return;
+
+            function getCookie(name) {
+                const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+                return v ? v.pop() : '';
+            }
+            const csrftoken = getCookie('csrftoken');
+
+            btn.addEventListener('click', async function () {
+                if (btn.disabled) return;
+                btn.disabled = true;
+
+                try {
+                    const res = await fetch("{% url 'mark_story_read' %}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": csrftoken
+                        },
+                        body: JSON.stringify({
+                            level: "{{ level }}",
+                            sid: "{{ sid }}"
+                        })
+                    });
+
+                    const data = await res.json();
+                    if (!res.ok || !data.ok) {
+                        throw new Error((data && (data.error || data.detail)) || "Request failed");
+                    }
+
+                    btn.textContent = "✅ تمّت القراءة";
+                    btn.classList.remove("bg-purple-600");
+                    btn.classList.add("bg-green-600");
+                    document.getElementById('mark-read-msg').textContent = "تم الحفظ";
+                } catch (e) {
+                    btn.disabled = false;
+                    document.getElementById('mark-read-msg').textContent = "حدث خطأ، حاول مرة أخرى.";
+                    console.error(e);
+                }
+            });
+        })();
+    </script>
 </div>
 {% endblock %}

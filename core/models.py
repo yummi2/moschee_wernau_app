@@ -110,4 +110,19 @@ class TeacherNote(models.Model):
         ordering = ["-created_at"]
 
     def __str__(self):
-        return f"Note to {self.student} by {self.teacher} @ {self.created_at:%Y-%m-%d}"                     
+        return f"Note to {self.student} by {self.teacher} @ {self.created_at:%Y-%m-%d}" 
+
+class StoryRead(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="story_reads")
+    level = models.CharField(max_length=32)   
+    sid   = models.CharField(max_length=32)  
+    read_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("user", "level", "sid")  # idempotent
+        indexes = [
+            models.Index(fields=["user", "level", "sid"]),
+        ]
+
+    def __str__(self):
+        return f"{self.user} read {self.level}:{self.sid}"                    
