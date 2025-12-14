@@ -111,7 +111,23 @@
                 {% endif %}
                 {# --- Inhalt: الصلاة --- #}
                 {% if active_tab == "prayer" %}
-                <h4 class="font-semibold text-blue-700 mb-3">صلوات اليوم</h4>
+                <h4 class="font-semibold text-blue-700 mb-3 flex items-center justify-between">
+                <span>
+                    صلوات اليوم — {{ active_date|date:"d.m.Y" }}
+                </span>
+
+                    <span class="flex gap-2 text-sm">
+                        <a href="?tab=prayer&date={{ prev_day|date:'Y-m-d' }}"
+                        class="px-3 py-1 rounded border hover:bg-blue-50">
+                        السابق
+                        </a>
+
+                        <a href="?tab=prayer&date={{ next_day|date:'Y-m-d' }}"
+                        class="px-3 py-1 rounded border hover:bg-blue-50">
+                        التالي
+                        </a>
+                    </span>
+                </h4>
 
                 <table class="w-full text-center rounded-lg overflow-hidden">
                     <thead class="bg-gray-100">
@@ -132,7 +148,8 @@
                                 {% else %}
                                     bg-gray-300
                                 {% endif %}"
-                                data-prayer="{{ p.key }}">
+                                data-prayer="{{ p.key }}"
+                                data-date="{{ active_date|date:'Y-m-d' }}">
                                 {% if p.prayed %}
                                     تمت
                                 {% else %}
@@ -325,7 +342,7 @@
 
     </div>
 </div>
-           <script>
+            <script>
             document.addEventListener("DOMContentLoaded", () => {
                 function getCsrfFromCookie() {
                     const m = document.cookie.match(/csrftoken=([^;]+)/);
@@ -337,6 +354,7 @@
                 document.querySelectorAll(".prayer-toggle").forEach(btn => {
                     btn.addEventListener("click", async () => {
                         const prayer = btn.dataset.prayer;
+                        const date   = btn.dataset.date;
 
                         try {
                             const resp = await fetch("{% url 'toggle_prayer' %}", {
@@ -345,13 +363,12 @@
                                     "Content-Type": "application/json",
                                     "X-CSRFToken": csrfToken
                                 },
-                                body: JSON.stringify({ prayer })
+                                body: JSON.stringify({ prayer, date })
                             });
 
                             const data = await resp.json();
                             if (!data.ok) return;
 
-                            // UI umschalten
                             if (data.prayed) {
                                 btn.classList.remove("bg-gray-300");
                                 btn.classList.add("bg-green-500", "text-white");

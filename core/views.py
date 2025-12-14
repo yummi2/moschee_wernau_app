@@ -899,18 +899,29 @@ def home(request):
    
     assignments = []
     today = dt.date.today()
-    statuses = {
-    ps.prayer: ps.prayed
-    for ps in PrayerStatus.objects.filter(user=request.user, date=today)
-    }
+    if request.GET.get("date"):
+        try:
+            active_date = dt.date.fromisoformat(request.GET["date"])
+        except ValueError:
+            active_date = today
+    else:
+        active_date = today
+
+    next_day = active_date + dt.timedelta(days=1)
+    prev_day = active_date - dt.timedelta(days=1)
+    statuses = PrayerStatus.objects.filter(
+    user=request.user,
+    date=active_date
+    )
+    status_map = {s.prayer: s.prayed for s in statuses}
 
     prayers_with_status = [
         {
-            "key": key,
-            "name": name,
-            "prayed": statuses.get(key, False),
+            "key": k,
+            "name": n,
+            "prayed": status_map.get(k, False)
         }
-        for key, name in PRAYERS
+        for k, n in PRAYERS
     ]
 
     try:
@@ -1010,6 +1021,9 @@ def home(request):
                 "is_teacher": True,
                 "selected_student": selected_student,
                 "teacher_notes": notes_qs.select_related("student", "classroom").order_by("-created_at")[:30],
+                "active_date": active_date,
+                "next_day": next_day,
+                "prev_day": prev_day,
             })
 
         else:
@@ -1029,6 +1043,9 @@ def home(request):
                 "checklist_items": items,
                 "checked_item_ids": checked_ids,
                 "teacher_notes": notes_qs,
+                "active_date": active_date,
+                "next_day": next_day,
+                "prev_day": prev_day,
             })
 
     return render(request, "core/home.html", ctx)
@@ -1224,19 +1241,17 @@ def mark_story_read(request):
 def toggle_prayer(request):
     try:
         data = json.loads(request.body.decode("utf-8"))
-        prayer_raw = data.get("prayer")
-        prayer = int(prayer_raw)
-    except (TypeError, ValueError):
-        return HttpResponseBadRequest("Invalid prayer value")
+        prayer = int(data["prayer"])
+        date = dt.date.fromisoformat(data["date"])
+    except Exception:
+        return HttpResponseBadRequest("Bad payload")
 
     if prayer not in dict(PRAYERS):
         return HttpResponseBadRequest("Unknown prayer")
 
-    today = dt.date.today()
-
     obj, _ = PrayerStatus.objects.get_or_create(
         user=request.user,
-        date=today,
+        date=date,
         prayer=prayer
     )
     obj.prayed = not obj.prayed
