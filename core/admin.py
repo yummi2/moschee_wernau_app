@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ClassRoom, Assignment, Absence, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead
+from .models import ClassRoom, Assignment, Absence, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStar
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from .views import STORIES
@@ -144,3 +144,9 @@ class StoryReadAdmin(admin.ModelAdmin):
         return story["title"] if story else f"{obj.level}:{obj.sid}"
 
     story_title.short_description = "Story Titel"
+    
+@admin.register(PrayerStar)
+class PrayerStarAdmin(admin.ModelAdmin):
+    list_display = ("user", "date", "stars")
+    list_filter = ("date",)
+    search_fields = ("user__username",)

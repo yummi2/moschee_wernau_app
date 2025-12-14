@@ -125,4 +125,18 @@ class StoryRead(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.user} read {self.level}:{self.sid}"                    
+        return f"{self.user} read {self.level}:{self.sid}"     
+          
+class PrayerStar(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE
+    )
+    date = models.DateField()
+    stars = models.PositiveSmallIntegerField(default=0)  # 0–5
+
+    class Meta:
+        unique_together = ("user", "date")
+
+    def __str__(self):
+        return f"{self.user} – {self.date} – {self.stars}"             

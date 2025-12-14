@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Profile, Assignment, Absence, ClassRoom, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead 
+from .models import Profile, Assignment, Absence, ClassRoom, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStar 
 from .forms import ProfileForm
 from django.contrib import messages
 import calendar
@@ -15,7 +15,6 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from .forms import WeeklyBannerForm
 from django.urls import reverse
-
 
 ARABIC_BLOCK_MSG = "يمكن وضع علامة الغياب فقط من يوم الجمعة الساعة 10:00 حتى السبت الساعة 10:00."
 ARABIC_ALREADY_MARKED = "لقد تم وضع علامة الغياب لهذا اليوم من قبل."
@@ -893,6 +892,14 @@ def home(request):
    
     assignments = []
     today = dt.date.today()
+    prayer_stars = 0
+    if request.user.is_authenticated:
+        obj = PrayerStar.objects.filter(
+            user=request.user,
+            date=today
+        ).first()
+        if obj:
+            prayer_stars = obj.stars
     try:
         y = int(request.GET.get("y", today.year))
         m = int(request.GET.get("m", today.month))
@@ -989,6 +996,7 @@ def home(request):
                 "is_teacher": True,
                 "selected_student": selected_student,
                 "teacher_notes": notes_qs.select_related("student", "classroom").order_by("-created_at")[:30],
+                "prayer_stars": prayer_stars,
             })
 
         else:
@@ -1009,6 +1017,19 @@ def home(request):
                 "checked_item_ids": checked_ids,
                 "teacher_notes": notes_qs,
             })
+            prayer_stars = {}
+            if request.user.is_authenticated:
+                month_start = dt.date(y, m, 1)
+                next_first = (month_start.replace(day=28) + dt.timedelta(days=4)).replace(day=1)
+
+                prayer_stars = {
+                    ps.date.day: ps.stars
+                    for ps in PrayerStar.objects.filter(
+                        user=request.user,
+                        date__gte=month_start,
+                        date__lt=next_first
+                    )
+                }
 
     return render(request, "core/home.html", ctx)
 
@@ -1197,3 +1218,27 @@ def mark_story_read(request):
 
     obj, created = StoryRead.objects.get_or_create(user=request.user, level=level, sid=sid)
     return JsonResponse({"ok": True, "created": created})
+
+@login_required
+@require_POST
+def toggle_prayer_star(request):
+    try:
+        data = json.loads(request.body.decode("utf-8"))
+        date_str = data["date"]          # YYYY-MM-DD
+        stars = int(data["stars"])       # 1–5
+        target_date = dt.date.fromisoformat(date_str)
+    except Exception:
+        return HttpResponseBadRequest("Bad payload")
+
+    if stars < 0 or stars > 5:
+        return HttpResponseBadRequest("Invalid stars")
+
+    obj, _ = PrayerStar.objects.get_or_create(
+        user=request.user,
+        date=target_date
+    )
+
+    obj.stars = 0 if obj.stars == stars else stars
+    obj.save()
+
+    return JsonResponse({"ok": True, "stars": obj.stars})
