@@ -111,57 +111,86 @@
                 {% endif %}
                 {# --- Inhalt: الصلاة --- #}
                 {% if active_tab == "prayer" %}
-                <h4 class="font-semibold text-blue-700 mb-3 flex items-center justify-between">
-                <span>
-                    صلوات اليوم — {{ active_date|date:"d.m.Y" }}
-                </span>
+                <div class="flex justify-between items-center mb-4">
+                <!-- السابق -->
+                <a href="?tab=prayer&date={{ prev_week_date|date:'Y-m-d' }}"
+                class="px-3 py-1 rounded-lg border
+           {% if active_tab == 'checklist' %} bg-blue-600 text-white border-blue-600
+           {% else %} text-blue-700 hover:bg-blue-50 border-blue-200 {% endif %}">
+                     السابق
+                </a>
 
-                    <span class="flex gap-2 text-sm">
-                        <a href="?tab=prayer&date={{ prev_day|date:'Y-m-d' }}"
-                        class="px-3 py-1 rounded border hover:bg-blue-50">
-                        السابق
-                        </a>
-
-                        <a href="?tab=prayer&date={{ next_day|date:'Y-m-d' }}"
-                        class="px-3 py-1 rounded border hover:bg-blue-50">
-                        التالي
-                        </a>
+                <!-- Überschrift -->
+                <h4 class="font-semibold text-blue-700 text-center">
+                    صلوات الأسبوع
+                    <br>
+                    <span class="text-sm text-gray-600">
+                        ({{ week_days.0.date|date:"d.m" }} – {{ week_days.6.date|date:"d.m.Y" }})
                     </span>
                 </h4>
 
-                <table class="w-full text-center rounded-lg overflow-hidden">
+                <!-- التالي -->
+                <a href="?tab=prayer&date={{ next_week_date|date:'Y-m-d' }}"
+                class="px-3 py-1 rounded-lg border
+           {% if active_tab == 'checklist' %} bg-blue-600 text-white border-blue-600
+           {% else %} text-blue-700 hover:bg-blue-50 border-blue-200 {% endif %}">
+                    التالي 
+                </a>
+
+
+            </div>
+
+
+                <table class="w-full text-center rounded-lg overflow-hidden text-sm">
                     <thead class="bg-gray-100">
                         <tr>
                             <th class="p-2">الصلاة</th>
-                            <th class="p-2">الحالة</th>
+                            {% for d in week_days %}
+                            <th>
+                                {{ d.weekday_ar }}<br>
+                                {{ d.day }}.{{ d.month }}
+                            </th>
+                        {% endfor %}
                         </tr>
                     </thead>
+
                     <tbody>
-                        {% for p in prayers %}
-                    <tr>
-                        <td class="p-2 font-medium">{{ p.name }}</td>
-                        <td class="p-2">
+                        {% for p in weekly_prayers %}
+                        <tr class="border-t">
+                            <td class="p-2 font-medium">{{ p.name }}</td>
+
+                            {% for day in p.days %}
+                            <td class="p-2">
+                                {% if day.date >= current_week_start and day.date <= current_week_end %}
+                            <!-- klickbar -->
                             <button
-                                class="prayer-toggle px-3 py-1 rounded
-                                {% if p.prayed %}
+                                class="prayer-toggle px-2 py-1 rounded text-xs
+                                {% if day.prayed %}
                                     bg-green-500 text-white
                                 {% else %}
                                     bg-gray-300
                                 {% endif %}"
                                 data-prayer="{{ p.key }}"
-                                data-date="{{ active_date|date:'Y-m-d' }}">
-                                {% if p.prayed %}
-                                    تمت
-                                {% else %}
-                                    غير مصلّى
-                                {% endif %}
+                                data-date="{{ day.date|date:'Y-m-d' }}">
+                                {% if day.prayed %}✓{% else %}–{% endif %}
                             </button>
-                        </td>
-                    </tr>
-                    {% endfor %}
+                        {% else %}
+                            <!-- gesperrt -->
+                            <span
+                                class="inline-block px-2 py-1 rounded text-xs font-semibold
+                                bg-gray-100 text-gray-400 cursor-not-allowed">
+                                غير ممكن
+                            </span>
+                        {% endif %}
+
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
                 {% endif %}
+
 
                 {% endwith %}
                 {% else %}
@@ -370,14 +399,14 @@
                             if (!data.ok) return;
 
                             if (data.prayed) {
-                                btn.classList.remove("bg-gray-300");
-                                btn.classList.add("bg-green-500", "text-white");
-                                btn.textContent = "تمت";
-                            } else {
-                                btn.classList.remove("bg-green-500", "text-white");
-                                btn.classList.add("bg-gray-300");
-                                btn.textContent = "غير مصلّى";
-                            }
+                            btn.classList.remove("bg-gray-300");
+                            btn.classList.add("bg-green-500", "text-white");
+                            btn.textContent = "✓";
+                        } else {
+                            btn.classList.remove("bg-green-500", "text-white");
+                            btn.classList.add("bg-gray-300");
+                            btn.textContent = "–";
+                        }
 
                         } catch (e) {
                             console.error("toggle prayer failed", e);

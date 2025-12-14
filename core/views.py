@@ -29,6 +29,15 @@ PRAYERS = [
     (4, "المغرب"),
     (5, "العشاء"),
 ]
+ARABIC_WEEKDAYS = {
+    0: "الاثنين",
+    1: "الثلاثاء",
+    2: "الأربعاء",
+    3: "الخميس",
+    4: "الجمعة",
+    5: "السبت",
+    6: "الأحد",
+}
 
 STORIES = {
         "beginner": {
@@ -907,23 +916,59 @@ def home(request):
     else:
         active_date = today
 
-    next_day = active_date + dt.timedelta(days=1)
-    prev_day = active_date - dt.timedelta(days=1)
+    prev_week_date = active_date - dt.timedelta(days=7)
+    next_week_date = active_date + dt.timedelta(days=7)
+
+    today_real = dt.date.today()
+    weekday_real = today_real.weekday()          # 0=Mo … 6=So
+    days_since_sunday_real = (weekday_real + 1) % 7
+    current_week_start = today_real - dt.timedelta(days=days_since_sunday_real)
+    current_week_end = current_week_start + dt.timedelta(days=6)
+
+    weekday_active = active_date.weekday()
+    days_since_sunday = (weekday_active + 1) % 7
+    week_start = active_date  - dt.timedelta(days=days_since_sunday)
+    
+    week_days = []
+    for i in range(7):
+        d = week_start + dt.timedelta(days=i)
+        week_days.append({
+            "date": d,
+            "weekday_ar": ARABIC_WEEKDAYS[d.weekday()],
+            "day": d.day,
+            "month": d.month,
+        })
+
     statuses = PrayerStatus.objects.filter(
     user=request.user,
-    date=active_date
+    date__range=(
+        week_days[0]["date"],
+        week_days[-1]["date"]
     )
-    status_map = {s.prayer: s.prayed for s in statuses}
+    )
+    status_map = {
+    (s.prayer, s.date): s.prayed
+    for s in statuses
+    }
 
-    prayers_with_status = [
-        {
-            "key": k,
-            "name": n,
-            "prayed": status_map.get(k, False)
+    weekly_prayers = []
+
+    for prayer_key, prayer_name in PRAYERS:
+        row = {
+            "key": prayer_key,
+            "name": prayer_name,
+            "days": []
         }
-        for k, n in PRAYERS
-    ]
+        for d in week_days:
+            row["days"].append({
+                "date": d["date"],
+                "weekday_ar": d["weekday_ar"],
+                "day": d["day"],
+                "month": d["month"],
+                "prayed": status_map.get((prayer_key, d["date"]), False),
+            })
 
+        weekly_prayers.append(row)
     try:
         y = int(request.GET.get("y", today.year))
         m = int(request.GET.get("m", today.month))
@@ -991,8 +1036,14 @@ def home(request):
     # Kontext IMMER zusammenbauen
     ctx = {
         "banner": banner,
-        "assignments": assignments,
-        "prayers": prayers_with_status, 
+        "assignments": assignments, 
+        "week_days": week_days,
+        "weekly_prayers": weekly_prayers,
+        "active_date": active_date,
+        "prev_week_date": prev_week_date,
+        "next_week_date": next_week_date,
+        "current_week_start": current_week_start,
+        "current_week_end": current_week_end,
         "cal_year": y, "cal_month": m, "cal_weeks": weeks,
         "cal_month_name": calendar.month_name[m],
         "cal_prev_y": (dt.date(y, m, 1) - dt.timedelta(days=1)).year,
@@ -1022,8 +1073,8 @@ def home(request):
                 "selected_student": selected_student,
                 "teacher_notes": notes_qs.select_related("student", "classroom").order_by("-created_at")[:30],
                 "active_date": active_date,
-                "next_day": next_day,
-                "prev_day": prev_day,
+                "week_days": week_days,
+                "weekly_prayers": weekly_prayers,
             })
 
         else:
@@ -1044,8 +1095,8 @@ def home(request):
                 "checked_item_ids": checked_ids,
                 "teacher_notes": notes_qs,
                 "active_date": active_date,
-                "next_day": next_day,
-                "prev_day": prev_day,
+                "week_days": week_days,
+                "weekly_prayers": weekly_prayers,
             })
 
     return render(request, "core/home.html", ctx)
@@ -1248,6 +1299,18 @@ def toggle_prayer(request):
 
     if prayer not in dict(PRAYERS):
         return HttpResponseBadRequest("Unknown prayer")
+
+    today = dt.date.today()
+    weekday = today.weekday()
+    days_since_sunday = (weekday + 1) % 7
+    week_start = today - dt.timedelta(days=days_since_sunday)
+    week_end = week_start + dt.timedelta(days=6)
+
+    if not (week_start <= date <= week_end):
+        return JsonResponse(
+            {"ok": False, "error": "outside_current_week"},
+            status=403
+        )
 
     obj, _ = PrayerStatus.objects.get_or_create(
         user=request.user,
