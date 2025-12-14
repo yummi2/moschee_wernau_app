@@ -32,6 +32,6 @@ urlpatterns = [
     path("admin/banner/", views.set_banner, name="set_banner"),
     path('library/', views.library, name='library'),
     path("ajax/mark-story-read/", views.mark_story_read, name="mark_story_read"),
-    path("toggle-prayer-star/", views.toggle_prayer_star, name="toggle_prayer_star"),
+    path("prayer/toggle/", views.toggle_prayer, name="toggle_prayer"),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

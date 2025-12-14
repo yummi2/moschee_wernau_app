@@ -126,17 +126,21 @@ class StoryRead(models.Model):
 
     def __str__(self):
         return f"{self.user} read {self.level}:{self.sid}"     
-          
-class PrayerStar(models.Model):
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE
-    )
+
+
+PRAYERS = [
+    (1, "الفجر"),
+    (2, "الظهر"),
+    (3, "العصر"),
+    (4, "المغرب"),
+    (5, "العشاء"),
+]
+
+class PrayerStatus(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     date = models.DateField()
-    stars = models.PositiveSmallIntegerField(default=0)  # 0–5
+    prayer = models.IntegerField(choices=PRAYERS)
+    prayed = models.BooleanField(default=False)
 
     class Meta:
-        unique_together = ("user", "date")
-
-    def __str__(self):
-        return f"{self.user} – {self.date} – {self.stars}"             
+        unique_together = ("user", "date", "prayer")

@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Profile, Assignment, Absence, ClassRoom, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStar 
+from .models import Profile, Assignment, Absence, ClassRoom, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStatus 
 from .forms import ProfileForm
 from django.contrib import messages
 import calendar
@@ -22,6 +22,13 @@ ARABIC_NOT_PURPLE = "لا يمكن وضع علامة الغياب إلا في ا
 
 ACADEMIC_START = dt.date(2025, 9, 1)
 ACADEMIC_END_EXCL = dt.date(2026, 9, 1)
+PRAYERS = [
+    (1, "الفجر"),
+    (2, "الظهر"),
+    (3, "العصر"),
+    (4, "المغرب"),
+    (5, "العشاء"),
+]
 
 STORIES = {
         "beginner": {
@@ -892,14 +899,20 @@ def home(request):
    
     assignments = []
     today = dt.date.today()
-    prayer_stars = 0
-    if request.user.is_authenticated:
-        obj = PrayerStar.objects.filter(
-            user=request.user,
-            date=today
-        ).first()
-        if obj:
-            prayer_stars = obj.stars
+    statuses = {
+    ps.prayer: ps.prayed
+    for ps in PrayerStatus.objects.filter(user=request.user, date=today)
+    }
+
+    prayers_with_status = [
+        {
+            "key": key,
+            "name": name,
+            "prayed": statuses.get(key, False),
+        }
+        for key, name in PRAYERS
+    ]
+
     try:
         y = int(request.GET.get("y", today.year))
         m = int(request.GET.get("m", today.month))
@@ -968,6 +981,7 @@ def home(request):
     ctx = {
         "banner": banner,
         "assignments": assignments,
+        "prayers": prayers_with_status, 
         "cal_year": y, "cal_month": m, "cal_weeks": weeks,
         "cal_month_name": calendar.month_name[m],
         "cal_prev_y": (dt.date(y, m, 1) - dt.timedelta(days=1)).year,
@@ -996,7 +1010,6 @@ def home(request):
                 "is_teacher": True,
                 "selected_student": selected_student,
                 "teacher_notes": notes_qs.select_related("student", "classroom").order_by("-created_at")[:30],
-                "prayer_stars": prayer_stars,
             })
 
         else:
@@ -1017,19 +1030,6 @@ def home(request):
                 "checked_item_ids": checked_ids,
                 "teacher_notes": notes_qs,
             })
-            prayer_stars = {}
-            if request.user.is_authenticated:
-                month_start = dt.date(y, m, 1)
-                next_first = (month_start.replace(day=28) + dt.timedelta(days=4)).replace(day=1)
-
-                prayer_stars = {
-                    ps.date.day: ps.stars
-                    for ps in PrayerStar.objects.filter(
-                        user=request.user,
-                        date__gte=month_start,
-                        date__lt=next_first
-                    )
-                }
 
     return render(request, "core/home.html", ctx)
 
@@ -1221,24 +1221,25 @@ def mark_story_read(request):
 
 @login_required
 @require_POST
-def toggle_prayer_star(request):
+def toggle_prayer(request):
     try:
         data = json.loads(request.body.decode("utf-8"))
-        date_str = data["date"]          # YYYY-MM-DD
-        stars = int(data["stars"])       # 1–5
-        target_date = dt.date.fromisoformat(date_str)
-    except Exception:
-        return HttpResponseBadRequest("Bad payload")
+        prayer_raw = data.get("prayer")
+        prayer = int(prayer_raw)
+    except (TypeError, ValueError):
+        return HttpResponseBadRequest("Invalid prayer value")
 
-    if stars < 0 or stars > 5:
-        return HttpResponseBadRequest("Invalid stars")
+    if prayer not in dict(PRAYERS):
+        return HttpResponseBadRequest("Unknown prayer")
 
-    obj, _ = PrayerStar.objects.get_or_create(
+    today = dt.date.today()
+
+    obj, _ = PrayerStatus.objects.get_or_create(
         user=request.user,
-        date=target_date
+        date=today,
+        prayer=prayer
     )
-
-    obj.stars = 0 if obj.stars == stars else stars
+    obj.prayed = not obj.prayed
     obj.save()
 
-    return JsonResponse({"ok": True, "stars": obj.stars})
+    return JsonResponse({"ok": True, "prayed": obj.prayed})
