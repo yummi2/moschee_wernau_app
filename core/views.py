@@ -939,13 +939,13 @@ def home(request):
             "month": d.month,
         })
 
-    statuses = PrayerStatus.objects.filter(
-    user=request.user,
-    date__range=(
-        week_days[0]["date"],
-        week_days[-1]["date"]
-    )
-    )
+    if request.user.is_authenticated:
+        statuses = PrayerStatus.objects.filter(
+            user=request.user,
+            date__range=(week_days[0]["date"], week_days[-1]["date"])
+        )
+    else:
+        statuses = PrayerStatus.objects.none()
     status_map = {
     (s.prayer, s.date): s.prayed
     for s in statuses
