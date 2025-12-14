@@ -161,27 +161,41 @@
 
                             {% for day in p.days %}
                             <td class="p-2">
-                                {% if day.date >= current_week_start and day.date <= current_week_end %}
-                            <!-- klickbar -->
-                            <button
-                                class="prayer-toggle px-2 py-1 rounded text-xs
-                                {% if day.prayed %}
-                                    bg-green-500 text-white
-                                {% else %}
-                                    bg-gray-300
-                                {% endif %}"
-                                data-prayer="{{ p.key }}"
-                                data-date="{{ day.date|date:'Y-m-d' }}">
-                                {% if day.prayed %}✓{% else %}–{% endif %}
-                            </button>
-                        {% else %}
-                            <!-- gesperrt -->
-                            <span
-                                class="inline-block px-2 py-1 rounded text-xs font-semibold
-                                bg-gray-100 text-gray-400 cursor-not-allowed">
-                                غير ممكن
-                            </span>
-                        {% endif %}
+                               {% if day.date >= current_week_start and day.date <= current_week_end %}
+                                {# AKTUELLE WOCHE → klickbar #}
+                                <button
+                                    class="prayer-toggle px-2 py-1 rounded text-xs
+                                    {% if day.prayed %}
+                                        bg-green-500 text-white
+                                    {% else %}
+                                        bg-gray-300
+                                    {% endif %}"
+                                    data-prayer="{{ p.key }}"
+                                    data-date="{{ day.date|date:'Y-m-d' }}">
+                                    {% if day.prayed %}✓{% else %}–{% endif %}
+                                </button>
+
+                            {% elif day.date < current_week_start %}
+                                {# VERGANGENE WOCHEN → nur anzeigen #}
+                                <span
+                                    class="inline-block px-2 py-1 rounded text-xs
+                                    {% if day.prayed %}
+                                        bg-green-500 text-white
+                                    {% else %}
+                                        bg-gray-200 text-gray-600
+                                    {% endif %}">
+                                    {% if day.prayed %}✓{% else %}–{% endif %}
+                                </span>
+
+                            {% else %}
+                                {# ZUKUNFT → unmöglich #}
+                                <span
+                                    class="inline-block px-2 py-1 rounded text-xs font-semibold
+                                    bg-gray-100 text-gray-400 cursor-not-allowed">
+                                    غير ممكن
+                                </span>
+                            {% endif %}
+
 
                             </td>
                             {% endfor %}
