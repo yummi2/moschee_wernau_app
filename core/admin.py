@@ -13,9 +13,10 @@ class ClassRoomAdmin(admin.ModelAdmin):
 
 @admin.register(Assignment)
 class AssignmentAdmin(admin.ModelAdmin):
-    list_display = ("title", "classroom", "due_at", "created_by", "created_at")
+    list_display = ("title", "classroom", "due_at", "created_by", "created_at", 
+    "link")
     list_filter = ("classroom",)
-    search_fields = ("title",)
+    search_fields = ("title","link")
     
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "created_by":

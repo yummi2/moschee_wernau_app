@@ -19,7 +19,7 @@ class Assignment(models.Model):
     due_at = models.DateTimeField(blank=True, null=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="assignments_created")
     created_at = models.DateTimeField(auto_now_add=True)
-
+    link = models.URLField("Link", blank=True, null=True)
     def __str__(self):
         return f"{self.title} ({self.classroom})"
 

@@ -56,6 +56,16 @@
                                 | التاريخ: {{ a.created_at|date:"d.m.Y" }}
                             </div>
                             {% if a.description %}<p class="text-red-600">{{ a.description }}</p>{% endif %}
+                            {% if a.link %}
+                            <p class="mt-2">
+                                <a href="{{ a.link }}" target="_blank" rel="noopener noreferrer"
+                                class="text-blue-700 underline break-all">
+                                فتح الرابط
+                                </a>
+                            </p>
+                            {% endif %}
+
+
                         </li>
                         {% endfor %}
                     </ul>
