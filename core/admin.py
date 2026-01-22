@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ClassRoom, Assignment, Absence, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStatus
+from .models import ClassRoom, Assignment, Absence, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStatus, RamadanItemDone
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from .views import STORIES
@@ -27,6 +27,7 @@ class AssignmentAdmin(admin.ModelAdmin):
 @admin.register(Absence)
 class AbsenceAdmin(admin.ModelAdmin):
     list_display = ("user", "date", "marked_at")
+    search_fields = ("user__username", "user__first_name", "user__last_name", "sid")
 
 @admin.register(ChecklistItem)
 class ChecklistItemAdmin(admin.ModelAdmin):
@@ -150,4 +151,10 @@ class StoryReadAdmin(admin.ModelAdmin):
 class PrayerStatusAdmin(admin.ModelAdmin):
     list_display = ("user", "date", "prayer", "prayed")
     list_filter = ("date", "prayer", "prayed")
+    search_fields = ("user__username",)
+
+@admin.register(RamadanItemDone)
+class RamadanItemDoneAdmin(admin.ModelAdmin):
+    list_display = ("user", "day", "item_key", "done")
+    list_filter = ("day", "item_key", "done")
     search_fields = ("user__username",)

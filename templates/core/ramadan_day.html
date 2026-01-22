@@ -2,15 +2,103 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-<div class="mx-auto max-w-3xl px-4" dir="rtl">
+<div class="mx-auto max-w-5xl px-4 mt-8" dir="rtl">
   <div class="bg-white rounded-2xl shadow p-6">
+
     <div class="flex items-center justify-between mb-4">
       <h2 class="text-2xl font-bold text-blue-800">{{ title }}</h2>
+      
     </div>
 
-    <div class="text-gray-700 leading-loose whitespace-pre-line">
-      {{ body|safe }}
+    {# === Detail: immer da (weil item_key immer gesetzt ist) === #}
+    <div class="text-center mb-8">
+      <h3 class="text-xl font-bold text-blue-800 mb-2">{{ item_title }}</h3>
+      <p class="text-sm text-gray-500 mb-4">{{ p }} / {{ total }}</p>
+
+      {% if current_image %}
+        <img src="{{ current_image }}" alt="{{ item_title }}"
+            class="mx-auto w-64 h-64 object-contain rounded-xl mb-4">
+      {% endif %}
+
+      <div class="text-lg leading-loose whitespace-pre-line">
+        {{ current_text|safe }}
+      </div>
+
+      <div class="mt-6 flex items-center justify-between">
+        {% if prev_href %}
+          <a href="{{ prev_href }}" class="px-4 py-2 rounded-xl bg-gray-200 hover:bg-gray-300">السابق</a>
+        {% else %}
+          <span class="px-4 py-2 rounded-xl bg-gray-100 text-gray-400 cursor-not-allowed">السابق</span>
+        {% endif %}
+
+        {% if next_href %}
+          <a href="{{ next_href }}" class="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700">التالي</a>
+        {% else %}
+          <span class="px-4 py-2 rounded-xl bg-blue-100 text-blue-300 cursor-not-allowed">التالي</span>
+        {% endif %}
+      </div>
+
+      {% if p == total %}
+        <div class="mt-6">
+          {% if already_done %}
+            <button id="mark-done-btn" class="px-4 py-2 rounded bg-green-600 text-white cursor-default" disabled>
+              ✅ تمّت القراءة
+            </button>
+          {% else %}
+            <button id="mark-done-btn" class="px-4 py-2 rounded bg-purple-600 text-white">
+              وضع علامة تمت القراءة
+            </button>
+          {% endif %}
+          <p id="mark-done-msg" class="mt-2 text-sm text-gray-600"></p>
+        </div>
+      {% endif %}
     </div>
+
+
   </div>
 </div>
+
+<script>
+  (function () {
+    const btn = document.getElementById('mark-done-btn');
+    if (!btn) return;
+
+    function getCookie(name) {
+      const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+      return v ? v.pop() : '';
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    btn.addEventListener('click', async function () {
+      if (btn.disabled) return;
+      btn.disabled = true;
+
+      try {
+        const res = await fetch("{% url 'mark_ramadan_item_done' %}", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken
+          },
+          body: JSON.stringify({
+            day: {{ day }},
+            item_key: "{{ item_key }}"
+          })
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.ok) throw new Error("Request failed");
+
+        btn.textContent = "✅ تمّت القراءة";
+        btn.classList.remove("bg-purple-600");
+        btn.classList.add("bg-green-600");
+        document.getElementById('mark-done-msg').textContent = "تم الحفظ";
+      } catch (e) {
+        btn.disabled = false;
+        document.getElementById('mark-done-msg').textContent = "حدث خطأ، حاول مرة أخرى.";
+        console.error(e);
+      }
+    });
+  })();
+</script>
 {% endblock %}
