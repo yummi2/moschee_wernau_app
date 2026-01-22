@@ -144,3 +144,13 @@ class PrayerStatus(models.Model):
 
     class Meta:
         unique_together = ("user", "date", "prayer")
+
+class RamadanItemDone(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    day = models.PositiveSmallIntegerField()
+    item_key = models.CharField(max_length=20)
+    done = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("user", "day", "item_key")

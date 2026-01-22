@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}مسابقة رمضان{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-5xl px-4" dir="rtl">
+  <div class="bg-white rounded-2xl shadow p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-2xl font-semibold text-blue-800">مسابقة رمضان</h2>
+    </div>
+
+    <div class="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
+      {% for d in days %}
+        <a href="{% url 'ramadan_day' d.day %}"
+           class="block bg-blue-50 hover:bg-blue-100 rounded-xl shadow p-6  transition">
+          <div class="text-lg font-bold text-blue-700">{{ d.title }}</div>
+        </a>
+
+        
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Profile, Assignment, Absence, ClassRoom, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStatus 
+from .models import Profile, Assignment, Absence, ClassRoom, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStatus, RamadanItemDone
 from .forms import ProfileForm
 from django.contrib import messages
 import calendar
@@ -15,6 +15,7 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from .forms import WeeklyBannerForm
 from django.urls import reverse
+from django.shortcuts import render
 
 ARABIC_BLOCK_MSG = "يمكن وضع علامة الغياب فقط من يوم الجمعة الساعة 10:00 حتى السبت الساعة 10:00."
 ARABIC_ALREADY_MARKED = "لقد تم وضع علامة الغياب لهذا اليوم من قبل."
@@ -786,6 +787,60 @@ STORIES = {
         }
     }
 
+RAMADAN_ITEMS_ORDER = ["fasting", "athkar", "duaa", "quran", "hadith"]
+
+RAMADAN_ITEMS_META = {
+    "fasting": {"label_de": "Fasten", "label_ar": "الصيام"},
+    "athkar":  {"label_de": "Athkar", "label_ar": "الأذكار"},
+    "duaa":    {"label_de": "Duaa", "label_ar": "الدعاء"},
+    "quran":   {"label_de": "Koran", "label_ar": "القرآن"},
+    "hadith":  {"label_de": "Hadith", "label_ar": "الحديث"},
+}
+
+RAMADAN_CONTENT = {
+    1: {
+        "title": "1 رمضان",
+        "items": {
+            "fasting": {
+                "title": "Fasten",
+                "body": [
+                    {"text": "نِيَّةُ الصِّيَامِ ..."},
+                ],
+            },
+            "athkar": {
+                "title": "Gebete für heute (Athkar)",
+                "body": [
+                    {"text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ ..."},
+                    {"text": "اللهم بك أصبحنا ..."},
+                ],
+            },
+            "duaa": {
+                "title": "Duaa",
+                "body": [{"text": "اللهم إنك عفو تحب العفو فاعف عني"}],
+            },
+            "quran": {
+                "title": "Koran",
+                "body": [{"text": "اقرأ صفحة/جزء ..."}],
+            },
+            "hadith": {
+                "title": "Hadith",
+                "body": [{"text": "قال رسول الله ﷺ ..."}],
+            },
+        },
+    },
+
+    2: {
+        "title": "2 رمضان",
+        "items": {
+            "fasting": {"title": "Fasten", "body": [{"text": "محتوى اليوم 2 للصيام"}]},
+            "athkar":  {"title": "Gebete für heute (Athkar)", "body": [{"text": "أذكار اليوم 2"}]},
+            "duaa":    {"title": "Duaa", "body": [{"text": "دعاء اليوم 2"}]},
+            "quran":   {"title": "Koran", "body": [{"text": "ورد القرآن اليوم 2"}]},
+            "hadith":  {"title": "Hadith", "body": [{"text": "حديث اليوم 2"}]},
+        },
+    },
+}
+
 def is_user_teacher(user):
     return user.is_authenticated and ClassRoom.objects.filter(teachers=user).exists()
 
@@ -1321,3 +1376,138 @@ def toggle_prayer(request):
     obj.save()
 
     return JsonResponse({"ok": True, "prayed": obj.prayed})
+@login_required
+def ramadan_plan(request):
+    days = [{"day": d, "title": f"{d} رمضان"} for d in range(1, 31)]
+    return render(request, "core/ramadan_plan.html", {"days": days})
+
+
+@login_required
+def ramadan_day(request, day: int):
+    from django.http import Http404
+
+    if day < 1 or day > 30:
+        raise Http404("Invalid day")
+
+    day_data = RAMADAN_CONTENT.get(day, {"title": f"{day} رمضان", "items": {}})
+    title = day_data.get("title", f"{day} رمضان")
+
+    # done status aus DB
+    done_qs = RamadanItemDone.objects.filter(user=request.user, day=day, done=True)
+    done_keys = set(done_qs.values_list("item_key", flat=True))
+
+    # items aufbauen in fixer Reihenfolge (damit immer 5 Kacheln da sind)
+    items = []
+    for key in RAMADAN_ITEMS_ORDER:
+        item_data = (day_data.get("items", {}) or {}).get(key, {})
+        items.append({
+            "key": key,
+            "title": item_data.get("title") or RAMADAN_ITEMS_META[key]["label_de"],
+            "done": key in done_keys,
+            "href": reverse("ramadan_item", args=[day]) + f"?item={key}&p=1",
+        })
+
+    ctx = {"day": day, "title": title, "items": items}
+    return render(request, "core/ramadan_day.html", ctx)
+
+@login_required
+def ramadan_item(request, day: int):
+    from django.http import Http404
+
+    if day < 1 or day > 30:
+        raise Http404("Invalid day")
+
+    item_key = request.GET.get("item", "fasting")
+    if item_key not in RAMADAN_ITEMS_ORDER:
+        item_key = "fasting"
+
+    try:
+        p = int(request.GET.get("p", "1"))
+    except ValueError:
+        p = 1
+
+    day_data = RAMADAN_CONTENT.get(day, {"title": f"{day} رمضان", "items": {}})
+    item_data = (day_data.get("items", {}) or {}).get(item_key, {})
+
+    item_title = item_data.get("title") or RAMADAN_ITEMS_META[item_key]["label_de"]
+    body = item_data.get("body") or [{"text": "لا يوجد محتوى بعد."}]
+
+    total = max(1, len(body))
+    if p < 1: p = 1
+    if p > total: p = total
+
+    raw_para = body[p - 1]
+    if isinstance(raw_para, dict):
+        current_text  = raw_para.get("text", "")
+        current_image = raw_para.get("image")
+    else:
+        current_text  = str(raw_para)
+        current_image = None
+
+    # Prev/Next nur innerhalb des gleichen item (Seiten)
+    prev_href = None
+    next_href = None
+    if p > 1:
+        prev_href = reverse("ramadan_item", args=[day]) + f"?item={item_key}&p={p-1}"
+    if p < total:
+        next_href = reverse("ramadan_item", args=[day]) + f"?item={item_key}&p={p+1}"
+
+    # Navigation zwischen items (aber weiterhin gleicher day)
+    idx = RAMADAN_ITEMS_ORDER.index(item_key)
+    prev_item_key = RAMADAN_ITEMS_ORDER[idx - 1] if idx > 0 else None
+    next_item_key = RAMADAN_ITEMS_ORDER[idx + 1] if idx < len(RAMADAN_ITEMS_ORDER) - 1 else None
+
+    prev_item_href = reverse("ramadan_item", args=[day]) + f"?item={prev_item_key}&p=1" if prev_item_key else None
+    next_item_href = reverse("ramadan_item", args=[day]) + f"?item={next_item_key}&p=1" if next_item_key else None
+
+    # done status
+    already_done = RamadanItemDone.objects.filter(
+        user=request.user, day=day, item_key=item_key, done=True
+    ).exists()
+
+    ctx = {
+        "day": day,
+        "day_title": day_data.get("title", f"{day} رمضان"),
+        "item_key": item_key,
+        "item_title": item_title,
+        "p": p,
+        "total": total,
+        "current_text": current_text,
+        "current_image": current_image,
+
+        "prev_href": prev_href,
+        "next_href": next_href,
+        "prev_item_href": prev_item_href,
+        "next_item_href": next_item_href,
+
+        "already_done": already_done,
+    }
+    return render(request, "core/ramadan_item.html", ctx)
+
+@login_required
+@require_POST
+def mark_ramadan_item_done(request):
+    try:
+        data = json.loads(request.body.decode("utf-8"))
+        day = int(data["day"])
+        item_key = str(data["item_key"])
+    except Exception:
+        return HttpResponseBadRequest("Bad payload")
+
+    if day < 1 or day > 30:
+        return HttpResponseBadRequest("Invalid day")
+
+    if item_key not in RAMADAN_ITEMS_ORDER:
+        return HttpResponseBadRequest("Invalid item_key")
+
+    obj, created = RamadanItemDone.objects.get_or_create(
+        user=request.user, day=day, item_key=item_key,
+        defaults={"done": True}
+    )
+    if not created and not obj.done:
+        obj.done = True
+        obj.save()
+
+    return JsonResponse({"ok": True})
+
+

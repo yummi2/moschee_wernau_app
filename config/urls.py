@@ -33,5 +33,10 @@ urlpatterns = [
     path('library/', views.library, name='library'),
     path("ajax/mark-story-read/", views.mark_story_read, name="mark_story_read"),
     path("prayer/toggle/", views.toggle_prayer, name="toggle_prayer"),
+    path("ramadan-plan/", views.ramadan_plan, name="ramadan_plan"),
+    path("ramadan/<int:day>/", views.ramadan_day, name="ramadan_day"),
+    path("ramadan/<int:day>/item/", views.ramadan_item, name="ramadan_item"),
+    path("ramadan/mark-done/", views.mark_ramadan_item_done, name="mark_ramadan_item_done"),
+
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
