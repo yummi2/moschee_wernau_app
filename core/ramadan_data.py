@@ -2,11 +2,11 @@
 RAMADAN_ITEMS_ORDER = ["fasting", "athkar", "duaa", "quran", "hadith"]
 
 RAMADAN_ITEMS_META = {
-    "fasting": {"label_de": "Fasten", "label_ar": "الصيام", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/w_400,h_300,c_fill/v1769106860/ChatGPT_Image_22._Jan._2026_19_34_06_cmxzct.jpg"},
-    "athkar":  {"label_de": "Athkar", "label_ar": "الأذكار", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/w_400,h_300,c_fill/v1769108367/ChatGPT_Image_22._Jan._2026_19_59_18_wilnnq.jpg"},
-    "duaa":    {"label_de": "Duaa", "label_ar": "الدعاء", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/w_400,h_300,c_fill/v1769108646/3667038_a84e85abcb6b6a8b7cb55e3cd10b50b6_ulqz2k.jpg"},
-    "quran":   {"label_de": "Koran", "label_ar": "القرآن", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/w_400,h_300,c_fill/v1769108672/OIP_x1q90e.webp"},
-    "hadith":  {"label_de": "Hadith", "label_ar": "الحديث", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/w_400,h_300,c_fill/v1769108844/8xIOHiFRWEU6DwNdTJqFgB05fnQvaLa2h2IPACiB_cwsfpa.webp"},
+    "fasting": {"label_de": "Fasten", "label_ar": "الصيام", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/w_300,h_200,c_fill/v1769106860/ChatGPT_Image_22._Jan._2026_19_34_06_cmxzct.jpg"},
+    "athkar":  {"label_de": "Athkar", "label_ar": "الأذكار", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/w_300,h_200,c_fill/v1769108367/ChatGPT_Image_22._Jan._2026_19_59_18_wilnnq.jpg"},
+    "duaa":    {"label_de": "Duaa", "label_ar": "الدعاء", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/w_300,h_200,c_fill/v1769108646/3667038_a84e85abcb6b6a8b7cb55e3cd10b50b6_ulqz2k.jpg"},
+    "quran":   {"label_de": "Koran", "label_ar": "القرآن", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/w_300,h_200,c_fill/v1769108672/OIP_x1q90e.webp"},
+    "hadith":  {"label_de": "Hadith", "label_ar": "الحديث", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/w_300,h_200,c_fill/v1769108844/8xIOHiFRWEU6DwNdTJqFgB05fnQvaLa2h2IPACiB_cwsfpa.webp"},
 }
 
 RAMADAN_CONTENT = {
@@ -23,7 +23,6 @@ RAMADAN_CONTENT = {
                 "title": "الأذكار",
                 "body": [
                     {"text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ ..."},
-                    {"text": "اللهم بك أصبحنا ..."},
                 ],
             },
             "duaa": {
@@ -54,7 +53,6 @@ RAMADAN_CONTENT = {
                 "title": "الأذكار",
                 "body": [
                     {"text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ ..."},
-                    {"text": "اللهم بك أصبحنا ..."},
                 ],
             },
             "duaa": {
@@ -85,7 +83,6 @@ RAMADAN_CONTENT = {
                 "title": "الأذكار",
                 "body": [
                     {"text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ ..."},
-                    {"text": "اللهم بك أصبحنا ..."},
                 ],
             },
             "duaa": {
@@ -115,7 +112,7 @@ RAMADAN_CONTENT = {
                 "title": "الأذكار",
                 "body": [
                     {"text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ ..."},
-                    {"text": "اللهم بك أصبحنا ..."},
+                    
                 ],
             },
             "duaa": {
@@ -145,7 +142,7 @@ RAMADAN_CONTENT = {
                 "title": "الأذكار",
                 "body": [
                     {"text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ ..."},
-                    {"text": "اللهم بك أصبحنا ..."},
+                    
                 ],
             },
             "duaa": {
@@ -175,7 +172,6 @@ RAMADAN_CONTENT = {
                 "title": "الأذكار",
                 "body": [
                     {"text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ ..."},
-                    {"text": "اللهم بك أصبحنا ..."},
                 ],
             },
             "duaa": {
@@ -205,7 +201,7 @@ RAMADAN_CONTENT = {
                 "title": "الأذكار",
                 "body": [
                     {"text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ ..."},
-                    {"text": "اللهم بك أصبحنا ..."},
+                    
                 ],
             },
             "duaa": {
@@ -235,7 +231,7 @@ RAMADAN_CONTENT = {
                 "title": "الأذكار",
                 "body": [
                     {"text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ ..."},
-                    {"text": "اللهم بك أصبحنا ..."},
+                    
                 ],
             },
             "duaa": {
@@ -265,7 +261,7 @@ RAMADAN_CONTENT = {
                 "title": "الأذكار",
                 "body": [
                     {"text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ ..."},
-                    {"text": "اللهم بك أصبحنا ..."},
+                   
                 ],
             },
             "duaa": {
@@ -295,7 +291,7 @@ RAMADAN_CONTENT = {
                 "title": "الأذكار",
                 "body": [
                     {"text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ ..."},
-                    {"text": "اللهم بك أصبحنا ..."},
+                    
                 ],
             },
             "duaa": {
@@ -325,7 +321,7 @@ RAMADAN_CONTENT = {
                 "title": "الأذكار",
                 "body": [
                     {"text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ ..."},
-                    {"text": "اللهم بك أصبحنا ..."},
+                    
                 ],
             },
             "duaa": {
@@ -355,7 +351,7 @@ RAMADAN_CONTENT = {
                 "title": "الأذكار",
                 "body": [
                     {"text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ ..."},
-                    {"text": "اللهم بك أصبحنا ..."},
+                    
                 ],
             },
             "duaa": {
@@ -385,7 +381,7 @@ RAMADAN_CONTENT = {
                 "title": "الأذكار",
                 "body": [
                     {"text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ ..."},
-                    {"text": "اللهم بك أصبحنا ..."},
+                
                 ],
             },
             "duaa": {
@@ -415,7 +411,7 @@ RAMADAN_CONTENT = {
                 "title": "الأذكار",
                 "body": [
                     {"text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ ..."},
-                    {"text": "اللهم بك أصبحنا ..."},
+                    
                 ],
             },
             "duaa": {
@@ -445,7 +441,7 @@ RAMADAN_CONTENT = {
                 "title": "الأذكار",
                 "body": [
                     {"text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ ..."},
-                    {"text": "اللهم بك أصبحنا ..."},
+                    
                 ],
             },
             "duaa": {
@@ -475,7 +471,7 @@ RAMADAN_CONTENT = {
                 "title": "الأذكار",
                 "body": [
                     {"text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ ..."},
-                    {"text": "اللهم بك أصبحنا ..."},
+                   
                 ],
             },
             "duaa": {
@@ -505,7 +501,7 @@ RAMADAN_CONTENT = {
                 "title": "الأذكار",
                 "body": [
                     {"text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ ..."},
-                    {"text": "اللهم بك أصبحنا ..."},
+                    
                 ],
             },
             "duaa": {
@@ -535,7 +531,7 @@ RAMADAN_CONTENT = {
                 "title": "الأذكار",
                 "body": [
                     {"text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ ..."},
-                    {"text": "اللهم بك أصبحنا ..."},
+                    
                 ],
             },
             "duaa": {
@@ -565,7 +561,7 @@ RAMADAN_CONTENT = {
                 "title": "الأذكار",
                 "body": [
                     {"text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ ..."},
-                    {"text": "اللهم بك أصبحنا ..."},
+                   
                 ],
             },
             "duaa": {
@@ -595,7 +591,307 @@ RAMADAN_CONTENT = {
                 "title": "الأذكار",
                 "body": [
                     {"text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ ..."},
-                    {"text": "اللهم بك أصبحنا ..."},
+                    
+                ],
+            },
+            "duaa": {
+                "title":"الدعاء",
+                "body": [{"text": "اللهم إنك عفو تحب العفو فاعف عني"}],
+            },
+            "quran": {
+                "title": "القرآن",
+                "body": [{"text": "اقرأ صفحة/جزء ..."}],
+            },
+            "hadith": {
+                "title": "الحديث",
+                "body": [{"text": "قال رسول الله ﷺ ..."}],
+            },
+        },
+    },
+    21: {
+        "title": "21 رمضان",
+        "items": {
+            "fasting": {
+                "title": "الصيام",
+                "body": [
+                    {"text": "نِيَّةُ الصِّيَامِ ..."},
+                ],
+            },
+            "athkar": {
+                "title": "الأذكار",
+                "body": [
+                    {"text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ ..."},
+                   
+                ],
+            },
+            "duaa": {
+                "title":"الدعاء",
+                "body": [{"text": "اللهم إنك عفو تحب العفو فاعف عني"}],
+            },
+            "quran": {
+                "title": "القرآن",
+                "body": [{"text": "اقرأ صفحة/جزء ..."}],
+            },
+            "hadith": {
+                "title": "الحديث",
+                "body": [{"text": "قال رسول الله ﷺ ..."}],
+            },
+        },
+    },
+    22: {
+        "title": "22 رمضان",
+        "items": {
+            "fasting": {
+                "title": "الصيام",
+                "body": [
+                    {"text": "نِيَّةُ الصِّيَامِ ..."},
+                ],
+            },
+            "athkar": {
+                "title": "الأذكار",
+                "body": [
+                    {"text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ ..."},
+                    
+                ],
+            },
+            "duaa": {
+                "title":"الدعاء",
+                "body": [{"text": "اللهم إنك عفو تحب العفو فاعف عني"}],
+            },
+            "quran": {
+                "title": "القرآن",
+                "body": [{"text": "اقرأ صفحة/جزء ..."}],
+            },
+            "hadith": {
+                "title": "الحديث",
+                "body": [{"text": "قال رسول الله ﷺ ..."}],
+            },
+        },
+    },
+    23: {
+        "title": "23 رمضان",
+        "items": {
+            "fasting": {
+                "title": "الصيام",
+                "body": [
+                    {"text": "نِيَّةُ الصِّيَامِ ..."},
+                ],
+            },
+            "athkar": {
+                "title": "الأذكار",
+                "body": [
+                    {"text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ ..."},
+                    
+                ],
+            },
+            "duaa": {
+                "title":"الدعاء",
+                "body": [{"text": "اللهم إنك عفو تحب العفو فاعف عني"}],
+            },
+            "quran": {
+                "title": "القرآن",
+                "body": [{"text": "اقرأ صفحة/جزء ..."}],
+            },
+            "hadith": {
+                "title": "الحديث",
+                "body": [{"text": "قال رسول الله ﷺ ..."}],
+            },
+        },
+    },
+    24: {
+        "title": "24 رمضان",
+        "items": {
+            "fasting": {
+                "title": "الصيام",
+                "body": [
+                    {"text": "نِيَّةُ الصِّيَامِ ..."},
+                ],
+            },
+            "athkar": {
+                "title": "الأذكار",
+                "body": [
+                    {"text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ ..."},
+                   
+                ],
+            },
+            "duaa": {
+                "title":"الدعاء",
+                "body": [{"text": "اللهم إنك عفو تحب العفو فاعف عني"}],
+            },
+            "quran": {
+                "title": "القرآن",
+                "body": [{"text": "اقرأ صفحة/جزء ..."}],
+            },
+            "hadith": {
+                "title": "الحديث",
+                "body": [{"text": "قال رسول الله ﷺ ..."}],
+            },
+        },
+    },
+    25: {
+        "title": "25 رمضان",
+        "items": {
+            "fasting": {
+                "title": "الصيام",
+                "body": [
+                    {"text": "نِيَّةُ الصِّيَامِ ..."},
+                ],
+            },
+            "athkar": {
+                "title": "الأذكار",
+                "body": [
+                    {"text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ ..."},
+                    
+                ],
+            },
+            "duaa": {
+                "title":"الدعاء",
+                "body": [{"text": "اللهم إنك عفو تحب العفو فاعف عني"}],
+            },
+            "quran": {
+                "title": "القرآن",
+                "body": [{"text": "اقرأ صفحة/جزء ..."}],
+            },
+            "hadith": {
+                "title": "الحديث",
+                "body": [{"text": "قال رسول الله ﷺ ..."}],
+            },
+        },
+    },
+    26: {
+        "title": "26 رمضان",
+        "items": {
+            "fasting": {
+                "title": "الصيام",
+                "body": [
+                    {"text": "نِيَّةُ الصِّيَامِ ..."},
+                ],
+            },
+            "athkar": {
+                "title": "الأذكار",
+                "body": [
+                    {"text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ ..."},
+             
+                ],
+            },
+            "duaa": {
+                "title":"الدعاء",
+                "body": [{"text": "اللهم إنك عفو تحب العفو فاعف عني"}],
+            },
+            "quran": {
+                "title": "القرآن",
+                "body": [{"text": "اقرأ صفحة/جزء ..."}],
+            },
+            "hadith": {
+                "title": "الحديث",
+                "body": [{"text": "قال رسول الله ﷺ ..."}],
+            },
+        },
+    },
+    27: {
+        "title": "27 رمضان",
+        "items": {
+            "fasting": {
+                "title": "الصيام",
+                "body": [
+                    {"text": "نِيَّةُ الصِّيَامِ ..."},
+                ],
+            },
+            "athkar": {
+                "title": "الأذكار",
+                "body": [
+                    {"text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ ..."},
+               
+                ],
+            },
+            "duaa": {
+                "title":"الدعاء",
+                "body": [{"text": "اللهم إنك عفو تحب العفو فاعف عني"}],
+            },
+            "quran": {
+                "title": "القرآن",
+                "body": [{"text": "اقرأ صفحة/جزء ..."}],
+            },
+            "hadith": {
+                "title": "الحديث",
+                "body": [{"text": "قال رسول الله ﷺ ..."}],
+            },
+        },
+    },
+    28: {
+        "title": "28 رمضان",
+        "items": {
+            "fasting": {
+                "title": "الصيام",
+                "body": [
+                    {"text": "نِيَّةُ الصِّيَامِ ..."},
+                ],
+            },
+            "athkar": {
+                "title": "الأذكار",
+                "body": [
+                    {"text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ ..."},
+            
+                ],
+            },
+            "duaa": {
+                "title":"الدعاء",
+                "body": [{"text": "اللهم إنك عفو تحب العفو فاعف عني"}],
+            },
+            "quran": {
+                "title": "القرآن",
+                "body": [{"text": "اقرأ صفحة/جزء ..."}],
+            },
+            "hadith": {
+                "title": "الحديث",
+                "body": [{"text": "قال رسول الله ﷺ ..."}],
+            },
+        },
+    },
+    29: {
+        "title": "29 رمضان",
+        "items": {
+            "fasting": {
+                "title": "الصيام",
+                "body": [
+                    {"text": "نِيَّةُ الصِّيَامِ ..."},
+                ],
+            },
+            "athkar": {
+                "title": "الأذكار",
+                "body": [
+                    {"text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ ..."},
+               
+                ],
+            },
+            "duaa": {
+                "title":"الدعاء",
+                "body": [{"text": "اللهم إنك عفو تحب العفو فاعف عني"}],
+            },
+            "quran": {
+                "title": "القرآن",
+                "body": [{"text": "اقرأ صفحة/جزء ..."}],
+            },
+            "hadith": {
+                "title": "الحديث",
+                "body": [{"text": "قال رسول الله ﷺ ..."}],
+            },
+        },
+    },
+    30: {
+        "title": "30 رمضان",
+        "items": {
+            "fasting": {
+                "title": "الصيام",
+                "body": [
+                    {"text": "نِيَّةُ الصِّيَامِ ..."},
+                ],
+            },
+            "athkar": {
+                "title": "الأذكار",
+                "body": [
+                    {"text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ ..."},
+                  
                 ],
             },
             "duaa": {
