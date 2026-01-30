@@ -13,7 +13,6 @@
     {# === Detail: immer da (weil item_key immer gesetzt ist) === #}
     <div class="text-center mb-8">
       <h3 class="text-xl font-bold text-blue-800 mb-2">{{ item_title }}</h3>
-      <p class="text-sm text-gray-500 mb-4">{{ p }} / {{ total }}</p>
 
       {% if current_image %}
         <img src="{{ current_image }}" alt="{{ item_title }}"
@@ -42,11 +41,11 @@
         <div class="mt-6">
           {% if already_done %}
             <button id="mark-done-btn" class="px-4 py-2 rounded bg-green-600 text-white cursor-default" disabled>
-              ✅ تمّت القراءة
+              ✅ تمّ
             </button>
           {% else %}
             <button id="mark-done-btn" class="px-4 py-2 rounded bg-purple-600 text-white">
-              وضع علامة تمت القراءة
+              وضع علامة تم
             </button>
           {% endif %}
           <p id="mark-done-msg" class="mt-2 text-sm text-gray-600"></p>
