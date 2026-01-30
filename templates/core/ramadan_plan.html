@@ -85,8 +85,14 @@
               <a href="{{ it.url }}"
                 target="_blank" rel="noopener noreferrer"
                 class="block bg-blue-50 hover:bg-blue-100 rounded-xl shadow p-6 transition">
-                <div class="text-lg font-bold text-blue-700">رابط {{ it.n }}</div>
+                <div class="text-lg font-bold text-blue-700">الصورة {{ it.n }}</div>
               </a>
+              <a href="{{ it.url }}"
+                download
+                 class="block bg-blue-50 hover:bg-blue-100 rounded-xl shadow p-6 transition">
+                ⬇️ تحميل الصورة {{ it.n }}
+              </a>
+
             {% endfor %}
           </div>
         </div>
