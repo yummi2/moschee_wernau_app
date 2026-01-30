@@ -63,18 +63,44 @@
       </a>
     </div>
 
-  {% elif active_act == "questions" %}
-    <div class="bg-white border-gray-200">
-      <h2 class="text-xl font-bold text-blue-700 mb-3">أسئلة</h2>
+        {% elif active_act == "questions" %}
+        <div class="bg-white">
+          <h2 class="text-xl font-bold text-blue-700 mb-3">أسئلة</h2>
 
-      <ul class="list-disc pr-6 space-y-2">
-        {% for q in questions %}
-          <li class="text-gray-800">{{ q }}</li>
-        {% empty %}
-          <li class="text-gray-500">لا توجد أسئلة حالياً</li>
-        {% endfor %}
-      </ul>
-    </div>
+          {% if quiz_score is not None %}
+            <div class="mb-4 p-4 rounded-2xl border border-gray-200 bg-green-50 text-green-800 font-bold">
+              نتيجتك: {{ quiz_score }} / {{ quiz_total }}
+            </div>
+          {% endif %}
+
+          <form method="post" class="space-y-6">
+            {% csrf_token %}
+            <input type="hidden" name="quiz" value="1">
+
+            {% for item in quiz_questions %}
+              <div class="border border-gray-200 rounded-2xl p-4">
+                <div class="font-bold text-gray-900 mb-3">
+                  {{ forloop.counter }}. {{ item.q }}
+                </div>
+
+                <div class="space-y-2">
+                  {% for opt in item.opts %}
+                    <label class="flex items-center gap-2 cursor-pointer">
+                      <input type="radio" name="q{{ item.id }}" value="{{ forloop.counter0 }}" class="h-4 w-4">
+                      <span class="text-gray-800">{{ opt }}</span>
+                    </label>
+                  {% endfor %}
+                </div>
+              </div>
+            {% endfor %}
+
+            <button type="submit"
+                    class="w-full py-3 rounded-xl bg-blue-600 text-white hover:bg-blue-700">
+              إرسال الإجابات
+            </button>
+          </form>
+        </div>
+
 
       {% elif active_act == "drawing" %}
         <div class="bg-white">
