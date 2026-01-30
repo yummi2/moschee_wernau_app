@@ -579,8 +579,15 @@ def toggle_prayer(request):
     return JsonResponse({"ok": True, "prayed": obj.prayed})
 @login_required
 def ramadan_plan(request):
-    days = [{"day": d, "title": f"{d} رمضان"} for d in range(1, 31)]
-    return render(request, "core/ramadan_plan.html", {"days": days})
+    ctx = {
+        # Wettbewerb (Tage)
+        "days": [{"day": d, "title": f"{d} رمضان"} for d in range(1, 31)],
+
+        # Aktivität (Video)
+        "video_url": "/static/ramadan/videos/activity1.mp4",
+        "action_url": "/ramadan-plan/",
+    }
+    return render(request, "core/ramadan_plan.html", ctx)
 
 
 @login_required
@@ -728,5 +735,3 @@ def mark_ramadan_item_done(request):
         obj.save()
 
     return JsonResponse({"ok": True})
-
-

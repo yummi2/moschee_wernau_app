@@ -2,22 +2,60 @@
 {% block title %}مسابقة رمضان{% endblock %}
 
 {% block content %}
-<div class="mx-auto max-w-5xl px-4" dir="rtl">
+<div class="mx-auto max-w-6xl px-4" dir="rtl">
   <div class="bg-white rounded-2xl shadow p-6">
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-2xl font-semibold text-blue-800">مسابقة رمضان</h2>
+
+    {% with active_tab=request.GET.tab|default:"contest" %}
+    <!-- Tabs -->
+    <div class="flex gap-2 mb-4">
+      <a href="?tab=contest"
+         class="px-3 py-1 rounded-lg border
+         {% if active_tab == 'contest' %} bg-blue-600 text-white border-blue-600
+         {% else %} text-blue-700 hover:bg-blue-50 border-blue-200 {% endif %}">
+        مسابقة رمضان
+      </a>
+
+      <a href="?tab=activity"
+         class="px-3 py-1 rounded-lg border
+         {% if active_tab == 'activity' %} bg-blue-600 text-white border-blue-600
+         {% else %} text-blue-700 hover:bg-blue-50 border-blue-200 {% endif %}">
+        أنشطة رمضان
+      </a>
     </div>
 
-    <div class="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
-      {% for d in days %}
-        <a href="{% url 'ramadan_day' d.day %}"
-           class="block bg-blue-50 hover:bg-blue-100 rounded-xl shadow p-6  transition">
-          <div class="text-lg font-bold text-blue-700">{{ d.title }}</div>
-        </a>
+    <!-- Content -->
+    <div class="grid gap-6 lg:grid-cols-2 items-start">
 
-        
-      {% endfor %}
+      <!-- Contest -->
+      <section class="bg-white border rounded-2xl p-4 {% if active_tab != 'contest' %}hidden{% endif %}">
+        <h2 class="text-lg font-semibold mb-3 text-blue-700">مسابقة رمضان</h2>
+
+        <div class="max-h-[70vh] overflow-auto pr-1">
+          <div class="grid gap-3 grid-cols-2 sm:grid-cols-3">
+            {% for d in days %}
+              <a href="{% url 'ramadan_day' d.day %}"
+                 class="block bg-blue-50 rounded-xl p-4 hover:bg-blue-100 transition">
+                {{ d.title }}
+              </a>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+
+      <!-- Activity -->
+      <section class="bg-white border rounded-2xl p-4 {% if active_tab != 'activity' %}hidden{% endif %}">
+        <h2 class="text-lg font-semibold mb-3 text-blue-700">أنشطة رمضان</h2>
+
+        <div class="rounded-2xl overflow-hidden shadow">
+          <video class="w-full" controls>
+            <source src="{{ video_url }}" type="video/mp4">
+          </video>
+        </div>
+      </section>
+
     </div>
+    {% endwith %}
+
   </div>
 </div>
 {% endblock %}
