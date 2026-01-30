@@ -45,18 +45,57 @@
       </section>
 
       <!-- Activity -->
-      <section class="bg-white border rounded-2xl p-4 {% if active_tab != 'activity' %}hidden{% endif %}">
+<section class="bg-white border border-gray-200 rounded-2xl p-4 {% if active_tab != 'activity' %}hidden{% endif %}">
 
-        <div class="rounded-2xl overflow-hidden shadow">
-          <video class="w-full" controls>
-            <source src="{{ video_url }}" type="video/mp4">
-          </video>
+  {% with active_act=request.GET.act|default:"menu" %}
+
+  {% if active_act == "menu" %}
+    <!-- Activity Menü -->
+    <div class="grid gap-3 grid-cols-2 sm:grid-cols-3">
+      <a href="?tab=activity&act=questions"
+         class="block bg-blue-50 hover:bg-blue-100 rounded-xl shadow p-6 transition">
+        <div class="text-lg font-bold text-blue-700">❓ أسئلة</div>
+      </a>
+
+      <a href="?tab=activity&act=drawing"
+         class="block bg-blue-50 hover:bg-blue-100 rounded-xl shadow p-6 transition">
+        <div class="text-lg font-bold text-blue-700">🎨 تلوين</div>
+      </a>
+    </div>
+
+  {% elif active_act == "questions" %}
+    <div class="bg-white border-gray-200">
+      <h2 class="text-xl font-bold text-blue-700 mb-3">أسئلة</h2>
+
+      <ul class="list-disc pr-6 space-y-2">
+        {% for q in questions %}
+          <li class="text-gray-800">{{ q }}</li>
+        {% empty %}
+          <li class="text-gray-500">لا توجد أسئلة حالياً</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+      {% elif active_act == "drawing" %}
+        <div class="bg-white">
+          <h2 class="text-xl font-bold text-blue-700 mb-3">تلوين</h2>
+
+          <div class="grid gap-3 grid-cols-2 sm:grid-cols-3">
+            {% for it in drawing_items %}
+              <a href="{{ it.url }}"
+                target="_blank" rel="noopener noreferrer"
+                class="block bg-blue-50 hover:bg-blue-100 rounded-xl shadow p-6 transition">
+                <div class="text-lg font-bold text-blue-700">رابط {{ it.n }}</div>
+              </a>
+            {% endfor %}
+          </div>
         </div>
-      </section>
+      {% endif %}
 
+      {% endwith %}
+    </section>
     </div>
     {% endwith %}
-
   </div>
 </div>
 {% endblock %}
