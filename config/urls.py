@@ -37,6 +37,7 @@ urlpatterns = [
     path("ramadan/<int:day>/", views.ramadan_day, name="ramadan_day"),
     path("ramadan/mark-done/", views.mark_ramadan_item_done, name="mark_ramadan_item_done"),
     path("ramadan-activity/", views.ramadan_plan, name="ramadan_activity"),
+     path("ramadan/results/", views.ramadan_results, name="ramadan_results"),
 
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

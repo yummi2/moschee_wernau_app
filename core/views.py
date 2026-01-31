@@ -22,7 +22,7 @@ from .fiqh_questions import FIQH_QUESTIONS_ADVANCED
 import math
 from .islam_questions import ISLAM_QUESTIONS
 from .drawing_links import DRAWING_LINKS_VIEW, DRAWING_LINKS_DOWNLOAD
-
+from django.db.models import Count
 
 ARABIC_BLOCK_MSG = "يمكن وضع علامة الغياب فقط من يوم الجمعة الساعة 10:00 حتى السبت الساعة 10:00."
 ARABIC_ALREADY_MARKED = "لقد تم وضع علامة الغياب لهذا اليوم من قبل."
@@ -872,3 +872,31 @@ def mark_ramadan_item_done(request):
         obj.save()
 
     return JsonResponse({"ok": True})
+
+@login_required
+def ramadan_results(request):
+    TOTAL_DAYS = 30
+
+    agg = (RamadanItemDone.objects
+           .filter(user=request.user, done=True)
+           .values("item_key")
+           .annotate(done_days=Count("day", distinct=True)))
+
+    done_map = {row["item_key"]: row["done_days"] for row in agg}
+
+    rows = []
+    for key in RAMADAN_ITEMS_ORDER:
+        label = RAMADAN_ITEMS_META.get(key, {}).get("label_ar") \
+                or RAMADAN_ITEMS_META.get(key, {}).get("label_de") \
+                or key
+        rows.append({
+            "key": key,
+            "label": label,
+            "done": done_map.get(key, 0),
+            "total": TOTAL_DAYS,
+        })
+
+    return render(request, "core/ramadan_results.html", {
+        "rows": rows,
+        "total_days": TOTAL_DAYS,
+    })

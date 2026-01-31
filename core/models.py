@@ -147,13 +147,15 @@ class PrayerStatus(models.Model):
 
 class RamadanItemDone(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    day = models.PositiveSmallIntegerField()
-    item_key = models.CharField(max_length=20)
-    done = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    day = models.IntegerField()
+    item_key = models.CharField(max_length=50)
+    done = models.BooleanField(default=False)
 
     class Meta:
-        unique_together = ("user", "day", "item_key")
+        constraints = [
+            models.UniqueConstraint(fields=["user", "day", "item_key"], name="uniq_user_day_item")
+        ]
+
 
 
 class QuizScore(models.Model):

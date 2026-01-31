@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}نتائج رمضان{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-3xl px-4" dir="rtl">
+  <div class="bg-white rounded-2xl shadow p-6">
+    <h1 class="text-2xl font-bold text-blue-700">نتائج شهر رمضان</h1>
+    <div style="margin-top:6px; font-size:12px; color:#6b7280;">
+      ملخص إنجازاتك في شهر رمضان
+    </div>
+
+    <div style="margin-top:16px; display:grid; gap:12px;">
+    {% for r in rows %}
+        <div style="
+        background:#f8fafc;
+        border-radius:16px;
+        padding:14px;
+        box-shadow:0 2px 8px rgba(0,0,0,.06);
+        ">
+
+        <!-- Titel + Zahl -->
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="font-weight:800; color:#111827; font-size:15px;">
+            🌙 {{ r.label }}
+            </div>
+            <div style="font-weight:800; color:#1d4ed8;">
+            {{ r.done }} / {{ r.total }}
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div style="margin-top:10px; background:#e5e7eb; border-radius:999px; height:10px;">
+            <div style="
+            width: {{ r.done|floatformat:0|add:0 }}%;
+            background:#3b82f6;
+            height:10px;
+            border-radius:999px;
+            "></div>
+        </div>
+
+        </div>
+    {% endfor %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}
