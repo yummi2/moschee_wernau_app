@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Profile, Assignment, Absence, ClassRoom, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStatus, RamadanItemDone
+from .models import Profile, Assignment, Absence, ClassRoom, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStatus, RamadanItemDone,  QuizScore
 from .forms import ProfileForm
 from django.contrib import messages
 import calendar
@@ -738,6 +738,16 @@ def ramadan_plan(request):
             islam_score = correct
             islam_total = len(page_questions)
 
+            QuizScore.objects.update_or_create(
+                user=request.user,
+                quiz_type="islam",
+                page=posted_p,
+                defaults={
+                    "score": islam_score,
+                    "total": islam_total,
+                }
+            )
+
             # nach Submit auf derselben Seite bleiben
             p_islam = posted_p
             islam_page = page_questions
@@ -762,6 +772,16 @@ def ramadan_plan(request):
 
             fiqh_score = correct
             fiqh_total = len(page_questions)
+
+            QuizScore.objects.update_or_create(
+                user=request.user,
+                quiz_type="fiqh",
+                page=posted_p,
+                defaults={
+                    "score": fiqh_score,
+                    "total": fiqh_total,
+                }
+            )
 
             p_fiqh = posted_p
             fiqh_page = page_questions

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ClassRoom, Assignment, Absence, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStatus, RamadanItemDone
+from .models import ClassRoom, Assignment, Absence, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStatus, RamadanItemDone, QuizScore
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from .views import STORIES
@@ -158,3 +158,21 @@ class RamadanItemDoneAdmin(admin.ModelAdmin):
     list_display = ("user", "day", "item_key", "done")
     list_filter = ("day", "item_key", "done")
     search_fields = ("user__username",)
+
+@admin.register(QuizScore)
+class QuizScoreAdmin(admin.ModelAdmin):
+    list_display = ("user", "quiz_type", "page", "score", "total", "submitted_at")
+    list_filter = ("quiz_type", "page", "submitted_at")
+    search_fields = ("user__username", "user__first_name", "user__last_name")
+    autocomplete_fields = ("user",)
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+
+        # Lehrer sieht nur Schüler aus seinen Klassen
+        student_ids = (ClassRoom.objects
+                       .filter(teachers=request.user)
+                       .values_list("students__id", flat=True))
+        return qs.filter(user_id__in=student_ids).distinct()

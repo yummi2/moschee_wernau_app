@@ -154,3 +154,30 @@ class RamadanItemDone(models.Model):
 
     class Meta:
         unique_together = ("user", "day", "item_key")
+
+
+class QuizScore(models.Model):
+    QUIZ_TYPES = [
+        ("islam", "Islam"),
+        ("fiqh", "Fiqh"),
+    ]
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    quiz_type = models.CharField(max_length=20, choices=QUIZ_TYPES)
+
+    # optional: falls du 5er-Seiten hast
+    page = models.PositiveIntegerField(default=1)
+
+    score = models.PositiveIntegerField(default=0)
+    total = models.PositiveIntegerField(default=0)
+
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-submitted_at"]
+        indexes = [
+            models.Index(fields=["quiz_type", "user", "submitted_at"]),
+        ]
+
+    def __str__(self):
+        return f"{self.user} {self.quiz_type} p{self.page}: {self.score}/{self.total}"
