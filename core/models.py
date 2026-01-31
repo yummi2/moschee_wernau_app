@@ -150,11 +150,11 @@ class RamadanItemDone(models.Model):
     day = models.IntegerField()
     item_key = models.CharField(max_length=50)
     done = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=["user", "day", "item_key"], name="uniq_user_day_item")
-        ]
+        unique_together = ("user", "day", "item_key")
 
 
 

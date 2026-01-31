@@ -31,13 +31,14 @@
         
 
         <div class="max-h-[70vh] overflow-auto pr-1">
-            <div style="
-            display:grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap:12px;
-            max-width:560px;
-            margin:0 auto;
-          ">
+          <div style="
+          display:grid;
+          grid-template-columns: repeat(4, 1fr) 1.2fr; /* 4 Tage + نتائج */
+          gap:12px;
+          max-width:700px;
+          margin:0 auto;
+        ">
+
 
           {% for d in days %}
         <a href="{% url 'ramadan_day' d.day %}"
@@ -59,16 +60,18 @@
       {% endfor %}
       <a href="{% url 'ramadan_results' %}"
         style="
-          grid-column: span 4;
-          background:#111827;
-          border-radius:16px;
-          padding:12px;
-          text-align:center;
-          font-weight:800;
-          color:white;
-          box-shadow:0 2px 8px rgba(0,0,0,.12);
-        ">
-        📊 نتائج رمضان
+          background:#eff6ff;
+           border-radius:16px;
+           padding:12px;
+           text-align:center;
+           font-weight:700;
+           color:#1d4ed8;
+           box-shadow:0 2px 8px rgba(0,0,0,.12);
+          transition:background .2s;
+        "
+        onmouseover="this.style.background='#dbeafe'"
+         onmouseout="this.style.background='#eff6ff'">
+        📊 النتائج
       </a>
 
           </div>
