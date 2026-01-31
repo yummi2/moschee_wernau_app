@@ -18,6 +18,7 @@ from django.urls import reverse
 from .ramadan_data import RAMADAN_CONTENT, RAMADAN_ITEMS_META, RAMADAN_ITEMS_ORDER
 from django.shortcuts import render
 from .stories_data import STORIES
+from .fiqh_questions import FIQH_QUESTIONS_ADVANCED
 
 ARABIC_BLOCK_MSG = "يمكن وضع علامة الغياب فقط من يوم الجمعة الساعة 10:00 حتى السبت الساعة 10:00."
 ARABIC_ALREADY_MARKED = "لقد تم وضع علامة الغياب لهذا اليوم من قبل."
@@ -582,6 +583,7 @@ def toggle_prayer(request):
 def ramadan_plan(request):
     # Wettbewerb (Tage)
     days = [{"day": d, "title": f"{d} رمضان"} for d in range(1, 31)]
+    fiqh_questions = FIQH_QUESTIONS_ADVANCED
 
     # Aktivität
     quiz_questions = [
@@ -680,33 +682,42 @@ def ramadan_plan(request):
     ]
 
     score = None
-    total = len(quiz_questions)
+    total = 0
     user_answers = {}
 
-    # --- QUIZ Auswertung ---
-    if request.method == "POST" and request.POST.get("quiz") == "1":
-        correct_count = 0
-        for item in quiz_questions:
-            picked = request.POST.get(f"q{item['id']}")
-            if picked is not None:
+    if request.method == "POST":
+        quiz_type = request.POST.get("quiz_type")  # "islam" or "fiqh"
+
+        if quiz_type == "islam":
+            questions = quiz_questions
+        elif quiz_type == "fiqh":
+            questions = fiqh_questions
+        else:
+            questions = []
+
+        total = len(questions)
+
+        if questions:
+            correct_count = 0
+            for item in questions:
+                picked = request.POST.get(f"q{item['id']}")
                 try:
-                    picked_i = int(picked)
+                    picked_i = int(picked) if picked is not None else None
                 except ValueError:
                     picked_i = None
-            else:
-                picked_i = None
 
-            user_answers[item["id"]] = picked_i
+                user_answers[item["id"]] = picked_i
+                if picked_i == item["correct"]:
+                    correct_count += 1
 
-            if picked_i == item["correct"]:
-                correct_count += 1
+            score = correct_count
 
-        score = correct_count  # Anzahl richtige Antworten
 
 
     return render(request, "core/ramadan_plan.html", {
         "days": days,
         "quiz_questions": quiz_questions,
+        "fiqh_questions": fiqh_questions,
         "quiz_score": score,
         "quiz_total": total,
         "drawing_items": drawing_items,
