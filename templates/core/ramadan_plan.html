@@ -122,17 +122,18 @@
 
         {% elif active_act == "questions" %}
         <div class="bg-white">
-          <h2 class="text-xl font-bold text-blue-700 mb-3">ثقافة إسلامية </h2>
+          <h2 class="text-xl font-bold text-blue-700 mb-3">ثقافة إسلامية  {{ p_islam }} / {{ pages_islam }}</h2>
 
-          {% if quiz_score is not None %}
+          {% if islam_score is not None %}
             <div class="mb-4 p-4 rounded-2xl border border-gray-200 bg-green-50 text-green-800 font-bold">
-              نتيجتك: {{ quiz_score }} / {{ quiz_total }}
+              نتيجتك: {{ islam_score }} / {{ islam_total }}
             </div>
           {% endif %}
 
           <form method="post" class="space-y-6">
             {% csrf_token %}
-            <input type="hidden" name="quiz_type" value="1">
+            <input type="hidden" name="quiz_type" value="islam">
+            <input type="hidden" name="p_islam" value="{{ p_islam }}">
 
             {% for item in quiz_questions %}
               <div class="border border-gray-200 rounded-2xl p-4">
@@ -151,12 +152,33 @@
               </div>
             {% endfor %}
 
-            <button type="submit"
-                    class="w-full py-3 rounded-xl bg-blue-600 text-white hover:bg-blue-700">
+            <button type="submit" class="w-full py-3 rounded-xl bg-blue-600 text-white hover:bg-blue-700">
               إرسال الإجابات
             </button>
           </form>
+
+          <div style="display:flex; gap:12px; margin-top:12px;">
+          {% if p_islam > 1 %}
+            <a href="?tab=activity&act=questions&p_islam={{ p_islam|add:-1 }}"
+              style="flex:1; text-align:center; padding:12px; border-radius:12px;
+                      background:#eff6ff; color:#1d4ed8; font-weight:700;">
+              ➡️ السابق
+            </a>
+          {% else %}
+            <div style="flex:1;"></div>
+          {% endif %}
+
+          {% if p_islam < pages_islam %}
+            <a href="?tab=activity&act=questions&p_islam={{ p_islam|add:1 }}"
+              style="flex:1; text-align:center; padding:12px; border-radius:12px;
+                      background:#eff6ff; color:#1d4ed8; font-weight:700;">
+              التالي ⬅️
+            </a>
+          {% else %}
+            <div style="flex:1;"></div>
+          {% endif %}
         </div>
+
 
 
       {% elif active_act == "drawing" %}
@@ -180,20 +202,22 @@
           </div>
         </div>
      
+      
 
-      {% elif active_act == "fiqh" %}
+       {% elif active_act == "fiqh" %}
         <div class="bg-white">
-          <h2 class="text-xl font-bold text-blue-700 mb-3">أسئلة فقهية</h2>
-
-          {% if quiz_score is not None %}
+          <h2 class="text-xl font-bold text-blue-700 mb-3">  أسئلة فقهية {{ p_fiqh }} / {{ pages_fiqh }}  </h2>
+          
+          {% if fiqh_score is not None %}
             <div class="mb-4 p-4 rounded-2xl border border-gray-200 bg-green-50 text-green-800 font-bold">
-              نتيجتك: {{ quiz_score }} / {{ quiz_total }}
+              نتيجتك: {{ fiqh_score }} / {{ fiqh_total }}
             </div>
           {% endif %}
 
           <form method="post" class="space-y-6">
             {% csrf_token %}
             <input type="hidden" name="quiz_type" value="fiqh">
+            <input type="hidden" name="p_fiqh" value="{{ p_fiqh }}">
 
             {% for item in fiqh_questions %}
               <div class="border border-gray-200 rounded-2xl p-4">
@@ -212,12 +236,34 @@
               </div>
             {% endfor %}
 
-            <button type="submit"
-                    class="w-full py-3 rounded-xl bg-blue-600 text-white hover:bg-blue-700">
+            <button type="submit" class="w-full py-3 rounded-xl bg-blue-600 text-white hover:bg-blue-700">
               إرسال الإجابات
             </button>
           </form>
+
+          <div style="display:flex; gap:12px; margin-top:12px;">
+          {% if p_fiqh > 1 %}
+            <a href="?tab=activity&act=fiqh&p_fiqh={{ p_fiqh|add:-1 }}"
+              style="flex:1; text-align:center; padding:12px; border-radius:12px;
+                      background:#eff6ff; color:#1d4ed8; font-weight:700;">
+              ➡️ السابق
+            </a>
+          {% else %}
+            <div style="flex:1;"></div>
+          {% endif %}
+
+          {% if p_fiqh < pages_fiqh %}
+            <a href="?tab=activity&act=fiqh&p_fiqh={{ p_fiqh|add:1 }}"
+              style="flex:1; text-align:center; padding:12px; border-radius:12px;
+                      background:#eff6ff; color:#1d4ed8; font-weight:700;">
+               التالي ⬅️
+            </a>
+          {% else %}
+            <div style="flex:1;"></div>
+          {% endif %}
         </div>
+
+
          {% endif %}
 
       {% endwith %}

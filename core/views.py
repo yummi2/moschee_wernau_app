@@ -19,7 +19,7 @@ from .ramadan_data import RAMADAN_CONTENT, RAMADAN_ITEMS_META, RAMADAN_ITEMS_ORD
 from django.shortcuts import render
 from .stories_data import STORIES
 from .fiqh_questions import FIQH_QUESTIONS_ADVANCED
-
+import math
 ARABIC_BLOCK_MSG = "يمكن وضع علامة الغياب فقط من يوم الجمعة الساعة 10:00 حتى السبت الساعة 10:00."
 ARABIC_ALREADY_MARKED = "لقد تم وضع علامة الغياب لهذا اليوم من قبل."
 ARABIC_NOT_PURPLE = "لا يمكن وضع علامة الغياب إلا في الأيام المحددة (باللون البنفسجي)."
@@ -582,11 +582,12 @@ def toggle_prayer(request):
 @login_required
 def ramadan_plan(request):
     # Wettbewerb (Tage)
-    days = [{"day": d, "title": f"{d} رمضان"} for d in range(1, 31)]
-    fiqh_questions = FIQH_QUESTIONS_ADVANCED
+    days = [{"day": d, "title": f"🌙 {d} رمضان"} for d in range(1, 31)]
+    fiqh_questions_all = FIQH_QUESTIONS_ADVANCED
+    page_size = 5
 
     # Aktivität
-    quiz_questions = [
+    quiz_questions_all = [
         {"id": 1, "q": "من هو رفيق رسولنا الكريم صلى الله عليه وسلم في رحلة الهجرة؟", "opts": ["عمر بن الخطاب", "أبو بكر الصديق", "علي بن أبي طالب"], "correct": 1},
         {"id": 2, "q": " ما هي آخر الكتب السماوية التي أنزلها الله؟", "opts": ["القرآن الكريم", "الزبور", "الإنجيل"], "correct": 0},
         {"id": 3, "q": "ما هو الشيء الذي ذُكر في القرآن الكريم أنه يتنفس  ولكنه ليس إنساناً ولا حيواناً ولا نباتاً؟", "opts": ["السماء", "الصبح", "البحر"], "correct": 1},
@@ -681,47 +682,109 @@ def ramadan_plan(request):
     for n in sorted(drawing_links_view.keys())
     ]
 
-    score = None
-    total = 0
-    user_answers = {}
+    def get_page_param(name: str) -> int:
+        try:
+            p = int(request.GET.get(name, "1"))
+        except ValueError:
+            p = 1
+        return max(1, p)
 
+    def slice_questions(all_qs: list, p: int):
+        pages = max(1, math.ceil(len(all_qs) / page_size))
+        p = min(p, pages)
+        start = (p - 1) * page_size
+        end = start + page_size
+        return p, pages, all_qs[start:end]
+
+    # --- Aktuelle Seiten (GET) ---
+    p_islam = get_page_param("p_islam")
+    p_fiqh  = get_page_param("p_fiqh")
+
+    p_islam, pages_islam, islam_page = slice_questions(quiz_questions_all, p_islam)
+    p_fiqh,  pages_fiqh,  fiqh_page  = slice_questions(fiqh_questions_all, p_fiqh)
+
+    # --- Scores pro Quiz (nur für aktuelle Seite) ---
+    islam_score = None
+    islam_total = len(islam_page)
+    fiqh_score = None
+    fiqh_total = len(fiqh_page)
+
+    #Antworten speichern (falls du sie später anzeigen willst)
+    islam_user_answers = {}
+    fiqh_user_answers = {}
+
+    # --- POST Auswertung: nur die Seite, die abgeschickt wurde ---
     if request.method == "POST":
-        quiz_type = request.POST.get("quiz_type")  # "islam" or "fiqh"
+        quiz_type = request.POST.get("quiz_type")  # "islam" oder "fiqh"
 
         if quiz_type == "islam":
-            questions = quiz_questions
-        elif quiz_type == "fiqh":
-            questions = fiqh_questions
-        else:
-            questions = []
+            try:
+                posted_p = int(request.POST.get("p_islam", str(p_islam)))
+            except ValueError:
+                posted_p = p_islam
+            posted_p, _, page_questions = slice_questions(quiz_questions_all, posted_p)
 
-        total = len(questions)
-
-        if questions:
-            correct_count = 0
-            for item in questions:
+            correct = 0
+            for item in page_questions:
                 picked = request.POST.get(f"q{item['id']}")
                 try:
                     picked_i = int(picked) if picked is not None else None
                 except ValueError:
                     picked_i = None
-
-                user_answers[item["id"]] = picked_i
+                islam_user_answers[item["id"]] = picked_i
                 if picked_i == item["correct"]:
-                    correct_count += 1
+                    correct += 1
 
-            score = correct_count
+            islam_score = correct
+            islam_total = len(page_questions)
 
+            # nach Submit auf derselben Seite bleiben
+            p_islam = posted_p
+            islam_page = page_questions
 
+        elif quiz_type == "fiqh":
+            try:
+                posted_p = int(request.POST.get("p_fiqh", str(p_fiqh)))
+            except ValueError:
+                posted_p = p_fiqh
+            posted_p, _, page_questions = slice_questions(fiqh_questions_all, posted_p)
+
+            correct = 0
+            for item in page_questions:
+                picked = request.POST.get(f"q{item['id']}")
+                try:
+                    picked_i = int(picked) if picked is not None else None
+                except ValueError:
+                    picked_i = None
+                fiqh_user_answers[item["id"]] = picked_i
+                if picked_i == item["correct"]:
+                    correct += 1
+
+            fiqh_score = correct
+            fiqh_total = len(page_questions)
+
+            p_fiqh = posted_p
+            fiqh_page = page_questions
 
     return render(request, "core/ramadan_plan.html", {
         "days": days,
-        "quiz_questions": quiz_questions,
-        "fiqh_questions": fiqh_questions,
-        "quiz_score": score,
-        "quiz_total": total,
+
+        # Islam (5 pro Seite)
+        "quiz_questions": islam_page,
+        "islam_score": islam_score,
+        "islam_total": islam_total,
+        "p_islam": p_islam,
+        "pages_islam": pages_islam,
+
+        # Fiqh (5 pro Seite)
+        "fiqh_questions": fiqh_page,
+        "fiqh_score": fiqh_score,
+        "fiqh_total": fiqh_total,
+        "p_fiqh": p_fiqh,
+        "pages_fiqh": pages_fiqh,
+
+        # drawing
         "drawing_items": drawing_items,
-        "user_answers": user_answers,
     })
 
 
