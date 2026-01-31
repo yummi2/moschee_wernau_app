@@ -108,12 +108,12 @@
 
           <div class="grid gap-3 grid-cols-2 sm:grid-cols-3">
             {% for it in drawing_items %}
-              <a href="{{ it.url }}"
+              <a href="{{ it.view_url }}"
                 target="_blank" rel="noopener noreferrer"
                 class="block bg-blue-50 hover:bg-blue-100 rounded-xl shadow p-6 transition">
                 <div class="text-lg font-bold text-blue-700">الصورة {{ it.n }}</div>
               </a>
-              <a href="{{ it.url }}"
+              <a href="{{ it.download_url }}"
                 download
                  class="block bg-blue-50 hover:bg-blue-100 rounded-xl shadow p-6 transition">
                 ⬇️ تحميل الصورة {{ it.n }}

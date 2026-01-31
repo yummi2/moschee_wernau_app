@@ -623,7 +623,32 @@ def ramadan_plan(request):
         {"id": 36, "q": "ماذا يجب علينا أن نفعل بعد انتهاء رمضان؟", "opts": ["نترك الصلاة والقرآن.", "نستمر على طاعة الله وفعل الخير", "ننام طوال اليوم"], "correct": 1},
     ]
 
-    drawing_links = {
+    drawing_links_view = {
+        1: "https://res.cloudinary.com/drlpkuf9q/image/upload/v1769792822/IMG_3965_tpmixw.jpg",
+        2: "https://res.cloudinary.com/drlpkuf9q/image/upload/v1769793718/IMG_3977_url95l.jpg",
+        3: "https://res.cloudinary.com/drlpkuf9q/image/upload/v1769793718/IMG_3976_ezmu7h.jpg",
+        4: "https://res.cloudinary.com/drlpkuf9q/image/upload/v1769793718/IMG_3986_thkzrr.jpg",
+        5: "https://res.cloudinary.com/drlpkuf9q/image/upload/v1769793718/IMG_3966_xvsnen.jpg",
+        6: "https://res.cloudinary.com/drlpkuf9q/image/upload/v1769793718/IMG_3987_p2is1t.jpg",
+        7: "https://res.cloudinary.com/drlpkuf9q/image/upload/v1769793719/IMG_3985_f3onia.jpg",
+        8: "https://res.cloudinary.com/drlpkuf9q/image/upload/v1769793719/IMG_3989_sbuqtr.jpg",
+        9: "https://res.cloudinary.com/drlpkuf9q/image/upload/v1769793719/IMG_3971_rnbcmy.jpg",
+        10: "https://res.cloudinary.com/drlpkuf9q/image/upload/v1769793719/IMG_3988_qof7r3.jpg",
+        11: "https://res.cloudinary.com/drlpkuf9q/image/upload/v1769793719/IMG_3968_du8hl4.jpg",
+        12: "https://res.cloudinary.com/drlpkuf9q/image/upload/v1769793719/IMG_3975_jhdhiv.jpg",
+        13: "https://res.cloudinary.com/drlpkuf9q/image/upload/v1769793719/IMG_3970_yju1dl.jpg",
+        14: "https://res.cloudinary.com/drlpkuf9q/image/upload/v1769793720/IMG_3969_gdp3pa.jpg",
+        15: "https://res.cloudinary.com/drlpkuf9q/image/upload/v1769793720/IMG_3967_ldtwgp.jpg",
+        16: "https://res.cloudinary.com/drlpkuf9q/image/upload/v1769793720/IMG_3984_fcupsw.jpg",
+        17: "https://res.cloudinary.com/drlpkuf9q/image/upload/v1769793720/IMG_3973_wrysyy.jpg",
+        18: "https://res.cloudinary.com/drlpkuf9q/image/upload/v1769793720/IMG_3974_tlfbzn.jpg",
+        19: "https://res.cloudinary.com/drlpkuf9q/image/upload/v1769793720/IMG_3982_jztvw0.jpg",
+        20: "https://res.cloudinary.com/drlpkuf9q/image/upload/v1769793720/IMG_3979_ln8xt2.jpg",
+        21: "https://res.cloudinary.com/drlpkuf9q/image/upload/v1769793720/IMG_3972_sd4eh4.jpg",
+        22: "https://res.cloudinary.com/drlpkuf9q/image/upload/v1769793721/IMG_3978_mbpv85.jpg",
+    }
+
+    drawing_links_download = {
         1: "https://res.cloudinary.com/drlpkuf9q/image/upload/fl_attachment/v1769792822/IMG_3965_tpmixw.jpg",
         2: "https://res.cloudinary.com/drlpkuf9q/image/upload/fl_attachment/v1769793718/IMG_3977_url95l.jpg",
         3: "https://res.cloudinary.com/drlpkuf9q/image/upload/fl_attachment/v1769793718/IMG_3976_ezmu7h.jpg",
@@ -649,7 +674,10 @@ def ramadan_plan(request):
     }
 
     # link Nummer aus GET
-    drawing_items = [{"n": n, "url": drawing_links[n]} for n in sorted(drawing_links.keys())]
+    drawing_items = [
+    {"n": n, "view_url": drawing_links_view[n], "download_url": drawing_links_download[n]}
+    for n in sorted(drawing_links_view.keys())
+    ]
 
     score = None
     total = len(quiz_questions)
