@@ -44,7 +44,7 @@ RAMADAN_CONTENT = {
             },
             "quran": {
                 "title": "القرآن",
-                "body": [{"text": "قراءة قرآن"}],
+                "body": [{"text": "تلاوة القرآن"}],
             },
             "hadith": {
                 "title": "الحديث",
@@ -87,7 +87,7 @@ RAMADAN_CONTENT = {
             },
             "quran": {
                 "title": "القرآن",
-               "body": [{"text": "قراءة قرآن"}],
+                "body": [{"text": "تلاوة القرآن"}],
             },
             "hadith": {
                 "title": "الحديث",
@@ -130,7 +130,7 @@ RAMADAN_CONTENT = {
             },
             "quran": {
                 "title": "القرآن",
-                "body": [{"text": "قراءة قرآن"}],
+                "body": [{"text": "تلاوة القرآن"}],
             },
             "hadith": {
                 "title": "الحديث",
@@ -172,7 +172,7 @@ RAMADAN_CONTENT = {
             },
             "quran": {
                 "title": "القرآن",
-                "body": [{"text": "قراءة قرآن"}],
+                "body": [{"text": "تلاوة القرآن"}],
             },
             "hadith": {
                 "title": "الحديث",
@@ -214,7 +214,7 @@ RAMADAN_CONTENT = {
             },
             "quran": {
                 "title": "القرآن",
-                "body": [{"text": "قراءة قرآن"}],
+                "body": [{"text": "تلاوة القرآن"}],
             },
             "hadith": {
                 "title": "الحديث",
@@ -256,7 +256,7 @@ RAMADAN_CONTENT = {
             },
             "quran": {
                 "title": "القرآن",
-                "body": [{"text": "قراءة قرآن"}],
+                "body": [{"text": "تلاوة القرآن"}],
             },
             "hadith": {
                 "title": "الحديث",
@@ -298,7 +298,7 @@ RAMADAN_CONTENT = {
             },
             "quran": {
                 "title": "القرآن",
-                "body": [{"text": "قراءة قرآن"}],
+                "body": [{"text": "تلاوة القرآن"}],
             },
             "hadith": {
                 "title": "الحديث",
@@ -340,7 +340,7 @@ RAMADAN_CONTENT = {
             },
             "quran": {
                 "title": "القرآن",
-                "body": [{"text": "قراءة قرآن"}],
+                "body": [{"text": "تلاوة القرآن"}],
             },
             "hadith": {
                 "title": "الحديث",
@@ -382,7 +382,7 @@ RAMADAN_CONTENT = {
             },
             "quran": {
                 "title": "القرآن",
-                "body": [{"text": "قراءة قرآن"}],
+                "body": [{"text": "تلاوة القرآن"}],
             },
             "hadith": {
                 "title": "الحديث",
@@ -424,7 +424,7 @@ RAMADAN_CONTENT = {
             },
             "quran": {
                 "title": "القرآن",
-                "body": [{"text": "قراءة قرآن"}],
+                "body": [{"text": "تلاوة القرآن"}],
             },
             "hadith": {
                 "title": "الحديث",
@@ -466,7 +466,7 @@ RAMADAN_CONTENT = {
             },
             "quran": {
                 "title": "القرآن",
-                "body": [{"text": "قراءة قرآن"}],
+                "body": [{"text": "تلاوة القرآن"}],
             },
             "hadith": {
                 "title": "الحديث",
@@ -508,7 +508,7 @@ RAMADAN_CONTENT = {
             },
             "quran": {
                 "title": "القرآن",
-                "body": [{"text": "قراءة قرآن"}],
+                "body": [{"text": "تلاوة القرآن"}],
             },
             "hadith": {
                 "title": "الحديث",
@@ -550,7 +550,7 @@ RAMADAN_CONTENT = {
             },
             "quran": {
                 "title": "القرآن",
-                "body": [{"text": "قراءة قرآن"}],
+                "body": [{"text": "تلاوة القرآن"}],
             },
             "hadith": {
                 "title": "الحديث",
@@ -592,7 +592,7 @@ RAMADAN_CONTENT = {
             },
             "quran": {
                 "title": "القرآن",
-                "body": [{"text": "قراءة قرآن"}],
+                "body": [{"text": "تلاوة القرآن"}],
             },
             "hadith": {
                 "title": "الحديث",
@@ -634,7 +634,7 @@ RAMADAN_CONTENT = {
             },
             "quran": {
                 "title": "القرآن",
-                "body": [{"text": "قراءة قرآن"}],
+                "body": [{"text": "تلاوة القرآن"}],
             },
             "hadith": {
                 "title": "الحديث",
@@ -676,7 +676,7 @@ RAMADAN_CONTENT = {
             },
             "quran": {
                 "title": "القرآن",
-                "body": [{"text": "قراءة قرآن"}],
+                "body": [{"text": "تلاوة القرآن"}],
             },
             "hadith": {
                 "title": "الحديث",
@@ -718,7 +718,7 @@ RAMADAN_CONTENT = {
             },
             "quran": {
                 "title": "القرآن",
-                "body": [{"text": "قراءة قرآن"}],
+                "body": [{"text": "تلاوة القرآن"}],
             },
             "hadith": {
                 "title": "الحديث",
@@ -760,7 +760,7 @@ RAMADAN_CONTENT = {
             },
             "quran": {
                 "title": "القرآن",
-                "body": [{"text": "قراءة قرآن"}],
+                "body": [{"text": "تلاوة القرآن"}],
             },
             "hadith": {
                 "title": "الحديث",
@@ -802,7 +802,7 @@ RAMADAN_CONTENT = {
             },
             "quran": {
                 "title": "القرآن",
-                "body": [{"text": "قراءة قرآن"}],
+                "body": [{"text": "تلاوة القرآن"}],
             },
             "hadith": {
                 "title": "الحديث",
@@ -844,7 +844,7 @@ RAMADAN_CONTENT = {
             },
             "quran": {
                 "title": "القرآن",
-                "body": [{"text": "قراءة قرآن"}],
+                "body": [{"text": "تلاوة القرآن"}],
             },
             "hadith": {
                 "title": "الحديث",
@@ -886,7 +886,7 @@ RAMADAN_CONTENT = {
             },
             "quran": {
                 "title": "القرآن",
-                "body": [{"text": "قراءة قرآن"}],
+                "body": [{"text": "تلاوة القرآن"}],
             },
             "hadith": {
                 "title": "الحديث",
@@ -928,7 +928,7 @@ RAMADAN_CONTENT = {
             },
             "quran": {
                 "title": "القرآن",
-                "body": [{"text": "قراءة قرآن"}],
+                "body": [{"text": "تلاوة القرآن"}],
             },
             "hadith": {
                 "title": "الحديث",
@@ -970,7 +970,7 @@ RAMADAN_CONTENT = {
             },
             "quran": {
                 "title": "القرآن",
-                "body": [{"text": "قراءة قرآن"}],
+                "body": [{"text": "تلاوة القرآن"}],
             },
             "hadith": {
                 "title": "الحديث",
@@ -1012,7 +1012,7 @@ RAMADAN_CONTENT = {
             },
             "quran": {
                 "title": "القرآن",
-                "body": [{"text": "قراءة قرآن"}],
+                "body": [{"text": "تلاوة القرآن"}],
             },
             "hadith": {
                 "title": "الحديث",
@@ -1054,7 +1054,7 @@ RAMADAN_CONTENT = {
             },
             "quran": {
                 "title": "القرآن",
-                "body": [{"text": "قراءة قرآن"}],
+                "body": [{"text": "تلاوة القرآن"}],
             },
             "hadith": {
                 "title": "الحديث",
@@ -1096,7 +1096,7 @@ RAMADAN_CONTENT = {
             },
             "quran": {
                 "title": "القرآن",
-                "body": [{"text": "قراءة قرآن"}],
+                "body": [{"text": "تلاوة القرآن"}],
             },
             "hadith": {
                 "title": "الحديث",
@@ -1138,7 +1138,7 @@ RAMADAN_CONTENT = {
             },
             "quran": {
                 "title": "القرآن",
-                "body": [{"text": "قراءة قرآن"}],
+                "body": [{"text": "تلاوة القرآن"}],
             },
             "hadith": {
                 "title": "الحديث",
@@ -1180,7 +1180,7 @@ RAMADAN_CONTENT = {
             },
             "quran": {
                 "title": "القرآن",
-                "body": [{"text": "قراءة قرآن"}],
+                "body": [{"text": "تلاوة القرآن"}],
             },
             "hadith": {
                 "title": "الحديث",
@@ -1222,7 +1222,7 @@ RAMADAN_CONTENT = {
             },
             "quran": {
                 "title": "القرآن",
-                "body": [{"text": "قراءة قرآن"}],
+                "body": [{"text": "تلاوة القرآن"}],
             },
             "hadith": {
                 "title": "الحديث",
@@ -1264,7 +1264,7 @@ RAMADAN_CONTENT = {
             },
             "quran": {
                 "title": "القرآن",
-                "body": [{"text": "قراءة قرآن"}],
+                "body": [{"text": "تلاوة القرآن"}],
             },
             "hadith": {
                 "title": "الحديث",

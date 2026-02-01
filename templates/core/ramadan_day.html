@@ -45,7 +45,7 @@
             </button>
           {% else %}
             <button id="mark-done-btn" class="px-4 py-2 rounded bg-purple-600 text-white">
-              وضع علامة تم
+               تم
             </button>
           {% endif %}
           <p id="mark-done-msg" class="mt-2 text-sm text-gray-600"></p>
@@ -88,10 +88,10 @@
         const data = await res.json();
         if (!res.ok || !data.ok) throw new Error("Request failed");
 
-        btn.textContent = "✅ تمّت القراءة";
+        btn.textContent = "✅ تمّت ة";
         btn.classList.remove("bg-purple-600");
         btn.classList.add("bg-green-600");
-        document.getElementById('mark-done-msg').textContent = "تم الحفظ";
+        document.getElementById('mark-done-msg').textContent = "تم ";
       } catch (e) {
         btn.disabled = false;
         document.getElementById('mark-done-msg').textContent = "حدث خطأ، حاول مرة أخرى.";
