@@ -36,6 +36,12 @@ class Profile(models.Model):
     # String 'Group' verwenden, weil die Klasse weiter unten definiert ist
     groups = models.ManyToManyField('Group', blank=True, related_name="profiles")
 
+    zeugnis_link = models.URLField(
+        blank=True,
+        null=True,
+        verbose_name="Zeugnis 1. Schulhalbjahr"
+    )
+
     def __str__(self):
         return f"Profile({self.user.username})"
 

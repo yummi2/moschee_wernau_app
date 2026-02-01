@@ -46,6 +46,15 @@
                     حذف
                 </button>
             </form>
+             {% if profile.zeugnis_link %}
+            <div class="mt-6 text-right" dir="rtl">
+                <a href="{{ profile.zeugnis_link }}"
+                target="_blank"
+                class="text-blue-600 hover:underline font-semibold">
+                    📄 شهادة الفصل الدراسي الأول
+                </a>
+            </div>
+        {% endif %}
 
             <script>
                 // Sobald ein Bild ausgewählt wird → Button aktivieren
@@ -61,5 +70,6 @@
                 });
             </script>
         </div>
+    </div>
     </div>
     {% endblock %}
