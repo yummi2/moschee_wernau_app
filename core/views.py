@@ -750,6 +750,11 @@ def ramadan_day(request, day: int):
     # done status aus DB
     done_qs = RamadanItemDone.objects.filter(user=request.user, day=day, done=True)
     done_keys = set(done_qs.values_list("item_key", flat=True))
+    all_done = set(RAMADAN_ITEMS_ORDER).issubset(done_keys)
+    is_last_item = (item_key == RAMADAN_ITEMS_ORDER[-1])
+    results_href = reverse("ramadan_results")
+
+
 
     # (optional) Karten-Daten – nur wenn du sie im Template noch nutzt
     items = []
@@ -774,6 +779,11 @@ def ramadan_day(request, day: int):
         p = 1
     if p > total: 
         p = total
+
+    #nur wenn letzte Seite (p == total)
+    on_last_page = (p == total)
+    at_end = is_last_item and on_last_page
+    show_success = all_done and at_end
 
     item_image = item_data.get("image") or RAMADAN_ITEMS_META.get(item_key, {}).get("image")
 
@@ -844,6 +854,12 @@ def ramadan_day(request, day: int):
         "next_href": next_href,
 
         "already_done": already_done,
+        "all_done": all_done,
+        "at_end": at_end,
+        "is_last_item": is_last_item,
+        "show_success": show_success,
+        "results_href": results_href,
+
     })
 
 
