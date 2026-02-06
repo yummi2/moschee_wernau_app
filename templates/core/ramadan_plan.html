@@ -79,6 +79,7 @@
         📊 النتائج
       </a>
 
+      {% if eid_unlocked %}
       <a href="https://res.cloudinary.com/drlpkuf9q/image/upload/v1770060951/IMG_3995_e22lgz.jpg"
         style="
           background:#fef3c7;
@@ -98,7 +99,9 @@
         onmouseout="this.style.background='#fef3c7'">
         🎉 العيد
       </a>
-
+      {% else %}
+        <div class="p-3 rounded-xl bg-gray-100 text-gray-400 cursor-not-allowed">🔒 العيد</div>
+      {% endif %}
 
           </div>
         </div>

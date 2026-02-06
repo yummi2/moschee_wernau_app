@@ -379,6 +379,7 @@ def home(request):
                 "weekly_prayers": weekly_prayers,
             })
 
+    ctx["ramadan_open"] = ramadan_is_open()
     return render(request, "core/home.html", ctx)
 
 @login_required
@@ -408,6 +409,7 @@ def profile_view(request):
 
     # Grund-Kontext
     ctx = {"form": form, "profile": profile, "banner": banner}
+    ctx["ramadan_open"] = ramadan_is_open()
     
     return render(request, "core/profile.html", ctx)
 
@@ -425,6 +427,7 @@ def assignment_detail(request, pk):
         "is_teacher": is_teacher,
         "is_student": is_student,
     }
+    ctx["ramadan_open"] = ramadan_is_open()
     return render(request, "core/assignment_detail.html", ctx)
 
     
@@ -488,7 +491,7 @@ def library(request):
     
     already_read = False
     if not level:
-        return render(request, "core/library.html", {"level": None})
+        return render(request, "core/library.html",  {"level": None, "ramadan_open": ramadan_is_open()})
 
     if level not in valid_levels:
         return redirect(reverse("library"))
@@ -540,6 +543,7 @@ def library(request):
             "prev_href": prev_href,
             "next_href": next_href,
             "already_read": already_read,
+            "ramadan_open": ramadan_is_open()
         })
 
     sentences = []
@@ -552,6 +556,7 @@ def library(request):
         "level_title": valid_levels[level],
         "sentences": sentences,
         "already_read": already_read,
+        "ramadan_open": ramadan_is_open()
     })
 
 @login_required
@@ -602,10 +607,21 @@ def toggle_prayer(request):
 
     return JsonResponse({"ok": True, "prayed": obj.prayed})
 
+def ramadan_is_open(now=None) -> bool:
+    tz = ZoneInfo("Europe/Berlin")
+    now = (now or timezone.now()).astimezone(tz)
+    return now.date() >= RAMADAN_START
+
+
 @login_required
 def ramadan_plan(request):
+    if not ramadan_is_open():
+        messages.error(request, "رمضان لم يبدأ بعد.")
+        return redirect("home")
+
     # Wettbewerb (Tage)
     unlocked_day = get_unlocked_ramadan_day()
+    eid_unlocked = unlocked_day >= 29
 
     days = []
     for d in range(1, 31):
@@ -738,6 +754,7 @@ def ramadan_plan(request):
     return render(request, "core/ramadan_plan.html", {
         "days": days,
         "unlocked_day": unlocked_day,
+        "eid_unlocked": eid_unlocked,
 
         # Islam (5 pro Seite)
         "quiz_questions": islam_page,
@@ -762,6 +779,9 @@ def ramadan_plan(request):
 def ramadan_day(request, day: int):
     from django.http import Http404
 
+    if not ramadan_is_open():
+        messages.error(request, "رمضان لم يبدأ بعد.")
+        return redirect("home")
     if day < 1 or day > 30:
         raise Http404("Invalid day")
     unlocked_day = get_unlocked_ramadan_day()
@@ -926,6 +946,10 @@ def mark_ramadan_item_done(request):
 
 @login_required
 def ramadan_results(request):
+    if not ramadan_is_open():
+        messages.error(request, "رمضان لم يبدأ بعد.")
+        return redirect("home")
+        
     TOTAL_DAYS = 30
 
     agg = (RamadanItemDone.objects
