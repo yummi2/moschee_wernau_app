@@ -74,7 +74,7 @@
         📊 النتائج
       </a>
 
-      <a href="https://res.cloudinary.com/drlpkuf9q/image/upload/v1769934455/IMG_3994_hwvka7.jpg"
+      <a href="https://res.cloudinary.com/drlpkuf9q/image/upload/v1770060951/IMG_3995_e22lgz.jpg"
         style="
           background:#fef3c7;
           border-radius:16px;
@@ -162,10 +162,11 @@
           <h2 class="text-xl font-bold text-blue-700 mb-3">ثقافة إسلامية  {{ p_islam }} / {{ pages_islam }}</h2>
 
           {% if islam_score is not None %}
-            <div class="mb-4 p-4 rounded-2xl border border-gray-200 bg-green-50 text-green-800 font-bold">
+            <div class="mb-4 p-5 rounded-2xl border border-red-300 bg-red-50 text-red-600 font-bold text-2xl text-center">
               نتيجتك: {{ islam_score }} / {{ islam_total }}
             </div>
           {% endif %}
+
 
           <form method="post" class="space-y-6">
             {% csrf_token %}
@@ -246,7 +247,7 @@
           <h2 class="text-xl font-bold text-blue-700 mb-3">  أسئلة فقهية {{ p_fiqh }} / {{ pages_fiqh }}  </h2>
           
           {% if fiqh_score is not None %}
-            <div class="mb-4 p-4 rounded-2xl border border-gray-200 bg-green-50 text-green-800 font-bold">
+            <div class="mb-4 p-5 rounded-2xl border border-red-300 bg-red-50 text-red-600 font-bold text-2xl text-center">
               نتيجتك: {{ fiqh_score }} / {{ fiqh_total }}
             </div>
           {% endif %}
