@@ -41,6 +41,11 @@
 
 
           {% for d in days %}
+          {% if d.locked %}
+          <div class="p-3 rounded-xl bg-gray-100 text-gray-400 cursor-not-allowed">
+            {{ d.title }} 🔒
+          </div>
+        {% else %}
         <a href="{% url 'ramadan_day' d.day %}"
          style="
            background:#eff6ff;
@@ -56,7 +61,7 @@
          onmouseout="this.style.background='#eff6ff'">
         {{ d.title }}
       </a>
-        
+        {% endif %}
       {% endfor %}
       <a href="{% url 'ramadan_results' %}"
         style="

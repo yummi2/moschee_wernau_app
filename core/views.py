@@ -46,6 +46,25 @@ ARABIC_WEEKDAYS = {
     5: "السبت",
     6: "الأحد",
 }
+RAMADAN_START = dt.date(2026, 2, 19)
+RAMADAN_DAYS = 30
+
+def get_unlocked_ramadan_day(now=None) -> int:
+    tz = ZoneInfo("Europe/Berlin")
+    now = (now or timezone.now()).astimezone(tz)
+    today = now.date()
+
+    delta = (today - RAMADAN_START).days
+    unlocked = delta + 1
+
+    if unlocked < 0:
+        return 0
+
+    # letzte 2 Tage zusammen öffnen
+    if unlocked >= 29:
+        return 30
+
+    return max(0, min(RAMADAN_DAYS, unlocked))
 
 def is_user_teacher(user):
     return user.is_authenticated and ClassRoom.objects.filter(teachers=user).exists()
@@ -586,7 +605,18 @@ def toggle_prayer(request):
 @login_required
 def ramadan_plan(request):
     # Wettbewerb (Tage)
-    days = [{"day": d, "title": f"🌙 {d} رمضان"} for d in range(1, 31)]
+    unlocked_day = get_unlocked_ramadan_day()
+
+    days = []
+    for d in range(1, 31):
+        locked = d > unlocked_day
+        days.append({
+            "day": d,
+            "title": f"🌙 {d} رمضان",
+            "locked": locked,
+            "href": None if locked else reverse("ramadan_day", args=[d]),
+        })
+
     fiqh_questions_all = FIQH_QUESTIONS_ADVANCED
     page_size = 5
 
@@ -707,6 +737,7 @@ def ramadan_plan(request):
 
     return render(request, "core/ramadan_plan.html", {
         "days": days,
+        "unlocked_day": unlocked_day,
 
         # Islam (5 pro Seite)
         "quiz_questions": islam_page,
@@ -733,6 +764,10 @@ def ramadan_day(request, day: int):
 
     if day < 1 or day > 30:
         raise Http404("Invalid day")
+    unlocked_day = get_unlocked_ramadan_day()
+    if day > unlocked_day:
+        messages.error(request, "هذا اليوم لم يُفتح بعد.")
+        return redirect("ramadan_plan")
 
     day_data = RAMADAN_CONTENT.get(day, {"title": f"{day} رمضان", "items": {}})
     title = day_data.get("title", f"{day} رمضان")
