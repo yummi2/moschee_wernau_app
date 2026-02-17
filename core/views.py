@@ -46,7 +46,7 @@ ARABIC_WEEKDAYS = {
     5: "السبت",
     6: "الأحد",
 }
-RAMADAN_START = dt.date(2026, 2, 19)
+RAMADAN_START = dt.date(2026, 2, 18)
 RAMADAN_DAYS = 30
 
 def get_unlocked_ramadan_day(now=None) -> int:
