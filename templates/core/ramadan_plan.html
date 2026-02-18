@@ -30,20 +30,16 @@
       <section class="bg-white border rounded-2xl p-4 {% if active_tab != 'contest' %}hidden{% endif %}">
         
 
-        <div class="max-h-[70vh] overflow-auto pr-1">
-          <div style="
+        <div style="
           display:grid;
-          grid-template-columns: repeat(4, 1fr) 1.2fr; /* 4 Tage + نتائج */
+          grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
           gap:12px;
-          max-width:700px;
-          margin:0 auto;
         ">
-
 
           {% for d in days %}
           {% if d.locked %}
           <div class="p-3 rounded-xl bg-gray-100 text-gray-400 cursor-not-allowed">
-            {{ d.title }} 🔒
+           🔒 {{ d.title }} 
           </div>
         {% else %}
         <a href="{% url 'ramadan_day' d.day %}"
@@ -103,7 +99,7 @@
         <div class="p-3 rounded-xl bg-gray-100 text-gray-400 cursor-not-allowed">🔒 العيد</div>
       {% endif %}
 
-          </div>
+          
         </div>
       </section>
 
@@ -114,13 +110,7 @@
 
   {% if active_act == "menu" %}
       <!-- Activity Menü -->
-      <div style="
-        display:grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap:12px;
-        max-width:280px;
-        margin:0 auto;
-      ">
+      <div class="act-grid">
         <a href="?tab=activity&act=questions"
         style="aspect-ratio:1/1; background:#eff6ff; border-radius:16px; padding:12px;
                 display:flex; align-items:center; justify-content:center; text-align:center;
@@ -147,11 +137,10 @@
           <div style="font-weight:700; color:#1d4ed8;">🎨 تلوين</div>
         </a>
         <a href="?tab=activity&act=fiqh"
+        class="act-wide"
         style="aspect-ratio:1/1; background:#eff6ff; border-radius:16px; padding:12px;
                 display:flex; align-items:center; justify-content:center; text-align:center;
-                box-shadow:0 2px 8px rgba(0,0,0,.08); grid-column: span 2;
-            max-width:140px;
-            margin:0 auto;
+                box-shadow:0 2px 8px rgba(0,0,0,.08);
                 transition: box-shadow .2s ease, transform .2s ease;"
         onmouseover="this.style.boxShadow='0 6px 16px rgba(0,0,0,.18)'; this.style.transform='translateY(-2px)'"
         onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,.08)'; this.style.transform='none'">

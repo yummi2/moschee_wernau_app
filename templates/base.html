@@ -8,6 +8,35 @@
   <title>{% block title %}دار الفرح {% endblock %}</title>
   {% load static i18n %}
   <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  <style>
+  .act-grid{
+    display: grid;
+    gap: 12px;
+    grid-template-columns: 1fr; /* Handy: untereinander */
+  }
+
+  /* iPad und größer */
+  @media (min-width: 768px){
+    .act-grid{
+      grid-template-columns: repeat(2, minmax(0, 1fr)); /* iPad: 2 Spalten */
+    }
+    .act-grid .act-wide{
+      grid-column: 1 / -1; /* über beide Spalten */
+      justify-self: stretch; /* volle Breite (wichtig!) */
+    }
+  }
+
+  /* Desktop */
+  @media (min-width: 1024px){
+    .act-grid{
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .act-grid .act-wide{
+      grid-column: auto; /* wieder normal */
+    }
+  }
+</style>
+
 </head>
 
 <body class="bg-gray-50 text-gray-900">
@@ -24,14 +53,11 @@
           خريطة المسابقة
         </a>
 
-        {% if ramadan_open %}
+        
           <a href="{% url 'ramadan_plan' %}"
           class="hover:underline text-blue-600">
           رمضان
           </a>
-        {% else %}
-          <span class="text-gray-500 cursor-not-allowed">رمضان 🔒</span>
-           {% endif %}
 
         <a href="#" onclick="event.preventDefault(); document.getElementById('logoutForm').submit();"
           class="px-3 py-1 rounded bg-gray-900 text-white hover:bg-gray-700">
