@@ -13,12 +13,14 @@
 
       {# ✅ Card-Overlay #}
       <div id="card-overlay"
-           class="absolute inset-0 z-40 hidden items-center justify-center bg-white/90 backdrop-blur-sm">
-        <div class="text-center">
-          <div id="lottie-success" class="mx-auto w-64 h-64"></div>
+     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm">
 
-          <div id="overlay-msg"
-               class="mt-2 text-xl font-semibold text-red-600 hidden"></div>
+      <div class="bg-white rounded-2xl shadow-xl p-6 w-[90%] max-w-md text-center relative">
+        <div id="lottie-success" class="mx-auto w-48 h-48"></div>
+
+        <div id="overlay-msg"
+            class="mt-4 text-lg font-semibold text-red-600 hidden">
+        </div>
         </div>
       </div>
 
@@ -103,10 +105,13 @@ function playSuccessAnimation() {
   function openOverlay() {
     overlay.classList.remove("hidden");
     overlay.classList.add("flex");
+    document.body.classList.add("overflow-hidden"); // kein Scroll
   }
+
   function closeOverlay() {
     overlay.classList.add("hidden");
     overlay.classList.remove("flex");
+    document.body.classList.remove("overflow-hidden");
   }
 
   finalBtn.addEventListener("click", function () {
@@ -121,18 +126,25 @@ function playSuccessAnimation() {
 
     msg.classList.add("hidden");
     playSuccessAnimation();
-
-    finalBtn.disabled = true;
-    finalBtn.classList.add("opacity-50", "cursor-not-allowed");
   });
 
-  closeBtn.addEventListener("click", closeOverlay);
+  // X Button
+  if (closeBtn) {
+    closeBtn.addEventListener("click", closeOverlay);
+  }
 
   // Klick auf Hintergrund schließt
   overlay.addEventListener("click", function (e) {
     if (e.target === overlay) closeOverlay();
   });
+
+  // ESC Taste schließt
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") closeOverlay();
+  });
+
 })();
+
 </script>
 
 <script>
