@@ -1,1 +1,15 @@
 @import "tailwindcss";
+
+.assignment-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 14rem));
+  justify-content: start;
+  gap: 1rem;
+}
+
+.assignment-card {
+  width: min(100%, 14rem);
+  aspect-ratio: 1;
+  font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+  letter-spacing: normal;
+}

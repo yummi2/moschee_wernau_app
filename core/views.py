@@ -269,15 +269,30 @@ def home(request):
         if teacher_classes.exists():
             assignments = Assignment.objects.filter(
                 classroom__in=teacher_classes
-            ).select_related("classroom").order_by("-created_at")[:20]
+            ).select_related("classroom", "created_by").order_by("-created_at")[:20]
         elif student_classes.exists():
             assignments = Assignment.objects.filter(
                 classroom__in=student_classes
-            ).select_related("classroom").order_by("-created_at")[:20]
+            ).select_related("classroom", "created_by").order_by("-created_at")[:20]
         else:
             assignments = (Assignment.objects
-                           .select_related("classroom")
+                           .select_related("classroom", "created_by")
                            .order_by("-created_at")[:10])
+
+    # Group the newest assignments into rows by ISO calendar week.
+    assignment_weeks = []
+    for assignment in assignments:
+        assignment_date = timezone.localtime(assignment.created_at).date()
+        monday = assignment_date - dt.timedelta(days=assignment_date.weekday())
+        week_key = monday.isocalendar()[:2]
+        if not assignment_weeks or assignment_weeks[-1]["key"] != week_key:
+            assignment_weeks.append({
+                "key": week_key,
+                "start": monday,
+                "end": monday + dt.timedelta(days=6),
+                "assignments": [],
+            })
+        assignment_weeks[-1]["assignments"].append(assignment)
    
     special_map = {
         d.day: cls
@@ -317,6 +332,7 @@ def home(request):
     ctx = {
         "banner": banner,
         "assignments": assignments, 
+        "assignment_weeks": assignment_weeks,
         "week_days": week_days,
         "weekly_prayers": weekly_prayers,
         "active_date": active_date,
