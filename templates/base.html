@@ -6,8 +6,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>{% block title %}دار الفرح {% endblock %}</title>
-  {% load static i18n %}
-  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  {% load static i18n extras %}
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260819-30">
   <style>
   .act-grid{
     display: grid;
@@ -40,43 +40,172 @@
 </head>
 
 <body class="bg-gray-50 text-gray-900">
-  <header class="border-b bg-white">
-    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-      <p class="text-xl font-bold">دار الفرح </p>
-      <nav class="flex items-center gap-4 text-sm">
+  <header class="app-sidebar" dir="rtl">
+    <a href="{% url 'home' %}" class="app-brand" aria-label="دار الفرح، الصفحة الرئيسية">
+      <span class="app-brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="27" height="27" fill="none">
+          <path d="M7 26V13.5L16 6l9 7.5V26H7Z" fill="currentColor" opacity=".18"/>
+          <path d="M11 26V15.5L16 11l5 4.5V26M14 26v-6a2 2 0 0 1 4 0v6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span>
+        <strong>دار الفرح</strong>
+        <small>للتعليم والتربية</small>
+      </span>
+    </a>
 
-        <a href="{% url 'home' %}" class="hover:underline text-blue-600">الصفحة الرئيسية</a>
-        {% if user.is_authenticated %}
-        <a href="{% url 'library' %}" class="hover:underline text-blue-600">مكتبتي</a>
-        <!-- Link zum Bild öffnen -->
-        <a href="{{ banner.image_url }}" target="_blank" rel="noopener" class="text-blue-600 hover:underline" dir="rtl">
-          خريطة المسابقة
-        </a>
+    <button type="button"
+            class="app-menu-toggle"
+            aria-expanded="false"
+            aria-controls="appPrimaryNav"
+            aria-label="فتح القائمة">
+      <svg class="app-menu-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M4 7h16M4 12h16M4 17h16"/>
+      </svg>
+      <svg class="app-menu-close-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="m6 6 12 12M18 6 6 18"/>
+      </svg>
+    </button>
 
-        
-          <a href="{% url 'ramadan_plan' %}"
-          class="hover:underline text-blue-600">
-          رمضان
+    <nav id="appPrimaryNav" class="app-nav" aria-label="التنقل الرئيسي">
+      <a href="{% url 'home' %}" class="app-nav-link {% if user.is_authenticated %}app-mobile-bottom-item{% else %}app-mobile-top{% endif %} {% if request.resolver_match.url_name == 'home' %}is-active{% endif %}">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5M5.5 10v10h13V10M9.5 20v-6h5v6"/></svg>
+        <span>الصفحة الرئيسية</span>
+      </a>
+      <a href="{% url 'calendar' %}" class="app-nav-link app-mobile-bottom-item {% if request.resolver_match.url_name == 'calendar' %}is-active{% endif %}">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14a2 2 0 0 1 2 2v14H3V6a2 2 0 0 1 2-2ZM8 2v4M16 2v4M3 9h18M7 13h2M11 13h2M15 13h2M7 17h2M11 17h2"/></svg>
+        <span>التقويم</span>
+      </a>
+
+      {% if user.is_authenticated %}
+      <a href="{% url 'library' %}" class="app-nav-link app-mobile-bottom-item {% if request.resolver_match.url_name == 'library' %}is-active{% endif %}">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11v16H6.5A2.5 2.5 0 0 0 4 21.5v-16ZM20 5.5A2.5 2.5 0 0 0 17.5 3H13v16h4.5a2.5 2.5 0 0 1 2.5 2.5v-16Z"/></svg>
+        <span>مكتبتي</span>
+      </a>
+
+      <a href="{% url 'ramadan_plan' %}" class="app-nav-link app-mobile-bottom-item {% if request.resolver_match.url_name == 'ramadan_plan' or request.resolver_match.url_name == 'ramadan_day' or request.resolver_match.url_name == 'ramadan_results' %}is-active{% endif %}">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 15.5A8 8 0 0 1 9 5a8 8 0 1 0 10 10.5ZM17.5 4v3M16 5.5h3"/></svg>
+        <span>رمضان</span>
+      </a>
+
+      {% if banner %}
+      <a href="{{ banner.image_url }}" target="_blank" rel="noopener" class="app-nav-link app-mobile-top">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5 9 4l6 2.5L20 4v13.5L15 20l-6-2.5L4 20V6.5ZM9 4v13.5M15 6.5V20"/></svg>
+        <span>خريطة المسابقة</span>
+      </a>
+      {% endif %}
+
+      <a href="{% url 'profile' %}" class="app-nav-link app-mobile-top {% if request.resolver_match.url_name == 'profile' %}is-active{% endif %}">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4.5 21a7.5 7.5 0 0 1 15 0"/></svg>
+        <span>الصفحة الشخصية</span>
+      </a>
+
+
+      {% if show_sidebar_calendar %}
+      <section class="mini-calendar app-sidebar-calendar" aria-label="التقويم الشهري">
+        <form id="csrf-helper" class="hidden">{% csrf_token %}</form>
+        <div class="mini-calendar-header">
+          <a href="?y={{ cal_next_y }}&m={{ cal_next_m }}" class="mini-calendar-nav" aria-label="الشهر التالي">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 18l6-6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </a>
+          <span class="mini-calendar-title"><bdi dir="ltr">{{ cal_month_name }} {{ cal_year }}</bdi></span>
+          <a href="?y={{ cal_prev_y }}&m={{ cal_prev_m }}" class="mini-calendar-nav" aria-label="الشهر السابق">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+        <table class="mini-calendar-table">
+          <thead><tr>{% for d in cal_weekday_names %}<th>{{ d }}</th>{% endfor %}</tr></thead>
+          <tbody>
+            {% for week in cal_weeks %}<tr>
+              {% for day in week %}
+              {% if day == 0 %}<td></td>{% else %}
+              <td><button type="button" class="cal-day
+                {% if day in absences %} bg-red-600 text-white is-absent
+                {% elif special_map|dict_get:day %} {{ special_map|dict_get:day }}{% endif %}
+                {% if day in purple_days and day not in absences %} is-purple{% endif %}"
+                data-date="{{ cal_year }}-{{ cal_month|stringformat:'02d' }}-{{ day|stringformat:'02d' }}"
+                {% if day not in purple_days or day in absences %}disabled{% endif %}>
+                <span class="{% if day == cal_today.day and cal_month == cal_today.month and cal_year == cal_today.year %}is-today{% endif %}">{{ day }}</span>
+              </button></td>
+              {% endif %}
+              {% endfor %}
+            </tr>{% endfor %}
+          </tbody>
+        </table>
+        <div class="mini-calendar-legend">
+          <div class="flex items-center gap-2"><span class="inline-block w-3.5 h-3.5 rounded bg-purple-600"></span><span>دوام</span></div>
+          <div class="flex items-center gap-2"><span class="inline-block w-3.5 h-3.5 rounded bg-green-600"></span><span>اليوم</span></div>
+          <div class="flex items-center gap-2"><span class="inline-block w-3.5 h-3.5 rounded bg-green-500"></span><span>العطل الرسمية</span></div>
+          <div class="flex items-center gap-2"><span class="inline-block w-3.5 h-3.5 rounded bg-blue-300"></span><span>عطلة العيد</span></div>
+          <div class="flex items-center gap-2"><span class="inline-block w-3.5 h-3.5 rounded bg-pink-300"></span><span>الحفل النهائي</span></div>
+          <div class="flex items-center gap-2"><span class="inline-block w-3.5 h-3.5 rounded bg-red-600"></span><span>الغيابات: <b id="absencesCount">{{ absences_total }}</b></span></div>
+        </div>
+      </section>
+      <script>
+        (() => {
+          const getCsrf = () => (document.querySelector('#csrf-helper input[name=csrfmiddlewaretoken]') || {}).value || "";
+          document.querySelectorAll("button.cal-day").forEach((btn) => {
+            const clickable = btn.classList.contains("is-purple") && !btn.classList.contains("is-absent") && !btn.disabled;
+            btn.style.cursor = clickable ? "pointer" : "default";
+            btn.addEventListener("click", async () => {
+              if (!btn.classList.contains("is-purple") || btn.classList.contains("is-absent") || btn.disabled) return;
+              if (!confirm("هل تريد وضع علامة غياب لهذا اليوم؟")) return;
+              try {
+                const response = await fetch("{% url 'mark_absence' %}", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json", "X-CSRFToken": getCsrf() },
+                  body: JSON.stringify({ date: btn.dataset.date }),
+                });
+                const data = await response.json();
+                if (!response.ok) return alert(data.error || "تعذر تنفيذ الطلب.");
+                btn.classList.remove("bg-purple-600", "is-purple");
+                btn.classList.add("bg-red-600", "text-white", "is-absent");
+                btn.disabled = true;
+                const count = document.getElementById("absencesCount");
+                if (count && typeof data.total === "number") count.textContent = String(data.total);
+              } catch (_) {
+                alert("حدث خطأ غير متوقع.");
+              }
+            });
+          });
+        })();
+      </script>
+      {% endif %}
 
-        <a href="#" onclick="event.preventDefault(); document.getElementById('logoutForm').submit();"
-          class="px-3 py-1 rounded bg-gray-900 text-white hover:bg-gray-700">
-          تسجيل الخروج
-        </a>
-
-        <!-- verstecktes Formular für Logout -->
-        <form id="logoutForm" method="post" action="{% url 'logout' %}" class="hidden">
-          {% csrf_token %}
-        </form>
-
-        {% else %}
-        <a href="{% url 'login' %}" class="px-3 py-1 rounded cursor-pointer bg-gray-900 text-white">تسجيل الدخول</a>
-        {% endif %}
-      </nav>
-    </div>
+      <button type="button" onclick="document.getElementById('logoutForm').submit();" class="app-nav-link app-mobile-top app-logout">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H5v14h5M14 8l4 4-4 4M8 12h10"/></svg>
+        <span>تسجيل الخروج</span>
+      </button>
+      <form id="logoutForm" method="post" action="{% url 'logout' %}" class="hidden">{% csrf_token %}</form>
+      {% else %}
+      <a href="{% url 'login' %}" class="app-nav-link is-active">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 5h5v14h-5M10 8l-4 4 4 4M6 12h10"/></svg>
+        <span>تسجيل الدخول</span>
+      </a>
+      {% endif %}
+    </nav>
   </header>
 
-  <main class="max-w-5xl mx-auto px-4 py-8">
+  {% if user.is_authenticated %}
+  <nav class="app-bottom-nav" dir="rtl" aria-label="التنقل السريع">
+    <a href="{% url 'home' %}" class="app-bottom-nav-link {% if request.resolver_match.url_name == 'home' %}is-active{% endif %}" aria-label="الصفحة الرئيسية">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5M5.5 10v10h13V10M9.5 20v-6h5v6"/></svg>
+    </a>
+    <a href="{% url 'calendar' %}" class="app-bottom-nav-link {% if request.resolver_match.url_name == 'calendar' %}is-active{% endif %}" aria-label="التقويم">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 4h14a2 2 0 0 1 2 2v14H3V6a2 2 0 0 1 2-2ZM8 2v4M16 2v4M3 9h18M7 13h2M11 13h2M15 13h2M7 17h2M11 17h2"/></svg>
+    </a>
+    <a href="{% url 'library' %}" class="app-bottom-nav-link {% if request.resolver_match.url_name == 'library' %}is-active{% endif %}" aria-label="مكتبتي">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11v16H6.5A2.5 2.5 0 0 0 4 21.5v-16ZM20 5.5A2.5 2.5 0 0 0 17.5 3H13v16h4.5a2.5 2.5 0 0 1 2.5 2.5v-16Z"/></svg>
+    </a>
+    <a href="{% url 'ramadan_plan' %}" class="app-bottom-nav-link {% if request.resolver_match.url_name == 'ramadan_plan' or request.resolver_match.url_name == 'ramadan_day' or request.resolver_match.url_name == 'ramadan_results' %}is-active{% endif %}" aria-label="رمضان">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M19 15.5A8 8 0 0 1 9 5a8 8 0 1 0 10 10.5ZM17.5 4v3M16 5.5h3"/></svg>
+    </a>
+    
+    
+  </nav>
+  {% endif %}
+
+  <main class="app-main max-w-5xl mx-auto px-4 py-8">
     {% if messages %}
     <ul id="messages" class="mb-4 space-y-2">
       {% for m in messages %}
@@ -99,6 +228,33 @@
 
     {% block content %}{% endblock %}
   </main>
+
+  <script>
+    (() => {
+      const sidebar = document.querySelector(".app-sidebar");
+      const toggle = document.querySelector(".app-menu-toggle");
+      const nav = document.getElementById("appPrimaryNav");
+      if (!sidebar || !toggle || !nav) return;
+
+      const setMenuState = (isOpen) => {
+        sidebar.classList.toggle("is-open", isOpen);
+        toggle.setAttribute("aria-expanded", String(isOpen));
+        toggle.setAttribute("aria-label", isOpen ? "إغلاق القائمة" : "فتح القائمة");
+      };
+
+      toggle.addEventListener("click", () => {
+        setMenuState(toggle.getAttribute("aria-expanded") !== "true");
+      });
+
+      nav.querySelectorAll("a").forEach((link) => {
+        link.addEventListener("click", () => setMenuState(false));
+      });
+
+      window.addEventListener("resize", () => {
+        if (window.matchMedia("(min-width: 64rem)").matches) setMenuState(false);
+      });
+    })();
+  </script>
 
 </body>
 

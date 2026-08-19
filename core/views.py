@@ -147,6 +147,20 @@ SPECIAL_DATES = {
 def is_purple_date(d: dt.date) -> bool:                                           # NEW
     return SPECIAL_DATES.get(d) == "bg-purple-600 text-white"    
 
+def teaching_week_number(week_start: dt.date, week_end: dt.date) -> int | None:
+    """Return the sequential number only for a week containing a purple teaching date."""
+    purple_dates = sorted(
+        date for date, css_class in SPECIAL_DATES.items()
+        if (
+            css_class == "bg-purple-600 text-white"
+            and ACADEMIC_START <= date < ACADEMIC_END_EXCL
+        )
+    )
+    for number, date in enumerate(purple_dates, start=1):
+        if week_start <= date <= week_end:
+            return number
+    return None
+
 def month_neighbors(year, month):
     first = dt.date(year, month, 1)
     prev_last = first - dt.timedelta(days=1)
@@ -281,7 +295,9 @@ def home(request):
 
     # Group the newest assignments into rows by ISO calendar week.
     assignment_weeks = []
+    classroom_colors = ("blue", "emerald", "violet", "amber", "rose")
     for assignment in assignments:
+        assignment.color_key = classroom_colors[(assignment.classroom_id - 1) % len(classroom_colors)]
         assignment_date = timezone.localtime(assignment.created_at).date()
         monday = assignment_date - dt.timedelta(days=assignment_date.weekday())
         week_key = monday.isocalendar()[:2]
@@ -290,6 +306,7 @@ def home(request):
                 "key": week_key,
                 "start": monday,
                 "end": monday + dt.timedelta(days=6),
+                "number": teaching_week_number(monday, monday + dt.timedelta(days=6)),
                 "assignments": [],
             })
         assignment_weeks[-1]["assignments"].append(assignment)
@@ -396,7 +413,65 @@ def home(request):
             })
 
     ctx["ramadan_open"] = ramadan_is_open()
+    ctx["profile"] = (
+        Profile.objects.filter(user=request.user).first()
+        if request.user.is_authenticated else None
+    )
     return render(request, "core/home.html", ctx)
+
+@login_required
+def calendar_page(request):
+    today = dt.date.today()
+    try:
+        year = int(request.GET.get("y", today.year))
+        month = int(request.GET.get("m", today.month))
+    except (TypeError, ValueError):
+        year, month = today.year, today.month
+
+    if month < 1:
+        year, month = year - 1, 12
+    elif month > 12:
+        year, month = year + 1, 1
+
+    month_start = dt.date(year, month, 1)
+    next_month = (month_start.replace(day=28) + dt.timedelta(days=4)).replace(day=1)
+    previous_month = month_start - dt.timedelta(days=1)
+
+    special_map = {
+        day.day: css_class
+        for day, css_class in SPECIAL_DATES.items()
+        if day.year == year and day.month == month
+    }
+    purple_days = {
+        day.day for day, css_class in SPECIAL_DATES.items()
+        if day.year == year and day.month == month and css_class == "bg-purple-600 text-white"
+    }
+    absences = {
+        absence.date.day for absence in Absence.objects.filter(
+            user=request.user, date__gte=month_start, date__lt=next_month
+        )
+    }
+
+    return render(request, "core/calendar.html", {
+        "banner": WeeklyBanner.objects.order_by("-updated_at").first(),
+        "cal_year": year,
+        "cal_month": month,
+        "cal_month_name": calendar.month_name[month],
+        "cal_weeks": calendar.monthcalendar(year, month),
+        "cal_weekday_names": ["الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت", "الأحد"],
+        "cal_prev_y": previous_month.year,
+        "cal_prev_m": previous_month.month,
+        "cal_next_y": next_month.year,
+        "cal_next_m": next_month.month,
+        "cal_today": today,
+        "special_map": special_map,
+        "purple_days": purple_days,
+        "absences": absences,
+        "absences_total": Absence.objects.filter(
+            user=request.user, date__gte=ACADEMIC_START, date__lt=ACADEMIC_END_EXCL
+        ).count(),
+        "ramadan_open": ramadan_is_open(),
+    })
 
 @login_required
 def profile_view(request):

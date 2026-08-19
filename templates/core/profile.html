@@ -10,13 +10,14 @@
             <h2 class="text-xl font-semibold mb-4">الملف الشخصي</h2>
 
             <div class="flex items-center gap-4 mb-6">
-                {% if profile.avatar %}
-                <img src="{{ profile.avatar.url }}" class="h-24 w-24 rounded-full object-cover border" alt="avatar">
-                {% else %}
-                <div class="h-24 w-24 rounded-full bg-gray-200 grid place-items-center text-gray-500 border">
-                    {{ request.user.username|first|upper }}
+                <div class="profile-avatar-preview">
+                    <img id="avatarPreview"
+                         {% if profile.avatar %}src="{{ profile.avatar.url }}"{% else %}hidden{% endif %}
+                         alt="صورة {{ request.user.username }}">
+                    <span id="avatarFallback" {% if profile.avatar %}hidden{% endif %} aria-hidden="true">
+                        {{ request.user.username|first|upper }}
+                    </span>
                 </div>
-                {% endif %}
                 <div class="text-sm text-gray-600">
                     {{ request.user.username }}
                 </div>
@@ -60,7 +61,15 @@
                 // Sobald ein Bild ausgewählt wird → Button aktivieren
                 document.getElementById("id_avatar").addEventListener("change", function () {
                     const saveBtn = document.getElementById("saveBtn");
+                    const preview = document.getElementById("avatarPreview");
+                    const fallback = document.getElementById("avatarFallback");
                     if (this.files.length > 0) {
+                        if (preview.dataset.previewUrl) URL.revokeObjectURL(preview.dataset.previewUrl);
+                        const previewUrl = URL.createObjectURL(this.files[0]);
+                        preview.src = previewUrl;
+                        preview.dataset.previewUrl = previewUrl;
+                        preview.removeAttribute("hidden");
+                        fallback.hidden = true;
                         saveBtn.disabled = false;
                         saveBtn.classList.remove("cursor-not-allowed", "opacity-50");
                     } else {
