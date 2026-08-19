@@ -11,24 +11,21 @@
 
     <div class="text-center mb-8">
 
-      {# ✅ Card-Overlay #}
-      <div id="card-overlay"
-     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm">
-
-      <div class="bg-white rounded-2xl shadow-xl p-6 w-[90%] max-w-md text-center relative">
-        <div id="lottie-success" class="mx-auto w-48 h-48"></div>
-
-        <div id="overlay-msg"
-            class="mt-4 text-lg font-semibold text-red-600 hidden">
-        </div>
+      {# Ergebnis wird direkt in der Karte gezeigt, ohne Overlay. #}
+      <div id="final-feedback" class="mb-5 hidden" role="status" aria-live="polite">
+        <div id="lottie-success" class="mx-auto hidden h-48 w-48" aria-hidden="true"></div>
+        <div id="final-feedback-msg"
+             class="hidden text-lg font-semibold leading-relaxed text-red-600">
         </div>
       </div>
 
       <h3 class="text-xl font-bold text-blue-800 mb-2">{{ item_title }}</h3>
 
       {% if current_image %}
-        <img src="{{ current_image }}" alt="{{ item_title }}"
-             class="mx-auto w-64 h-64 object-contain rounded-xl mb-4">
+        <div class="mx-auto mb-4 h-64 w-64 overflow-hidden rounded-2xl">
+          <img src="{{ current_image }}" alt="{{ item_title }}"
+               class="h-full w-full object-contain">
+        </div>
       {% endif %}
 
       <div class="text-lg leading-loose whitespace-pre-line">
@@ -58,11 +55,11 @@
       {% if p == total %}
         <div class="mt-6">
           {% if already_done %}
-            <button id="mark-done-btn" class="px-4 py-2 rounded bg-green-600 text-white cursor-default" disabled>
-              ✅ تمّ
+            <button id="mark-done-btn" class="ramadan-done-button is-complete" aria-pressed="true" aria-label="تم إنهاء المسابقة" disabled>
+              تم إنهاء المسابقة
             </button>
           {% else %}
-            <button id="mark-done-btn" class="px-4 py-2 rounded bg-purple-600 text-white">
+            <button id="mark-done-btn" class="ramadan-done-button" aria-pressed="false">
               تم
             </button>
           {% endif %}
@@ -78,19 +75,28 @@
 <script src="https://unpkg.com/lottie-web@5.12.2/build/player/lottie.min.js"></script>
 
 <script>
-function playSuccessAnimation() {
+function playSuccessAnimation(onComplete) {
   const el = document.getElementById("lottie-success");
-  if (!el) return;
+  if (!el) {
+    if (onComplete) onComplete();
+    return;
+  }
 
   // immer neu starten
   el.innerHTML = "";
 
-  lottie.loadAnimation({
+  const successAnimation = lottie.loadAnimation({
     container: el,
     renderer: "svg",
     loop: false,
     autoplay: true,
     path: "https://res.cloudinary.com/drlpkuf9q/raw/upload/v1769941328/USA_confetti_wlbidw.json"
+  });
+
+  successAnimation.addEventListener("complete", function () {
+    successAnimation.destroy();
+    el.innerHTML = "";
+    if (onComplete) onComplete();
   });
 }
 
@@ -98,51 +104,31 @@ function playSuccessAnimation() {
   const finalBtn = document.getElementById("final-btn");
   if (!finalBtn) return;
 
-  const overlay = document.getElementById("card-overlay");
-  const msg = document.getElementById("overlay-msg");
-  const closeBtn = document.getElementById("close-overlay");
-
-  function openOverlay() {
-    overlay.classList.remove("hidden");
-    overlay.classList.add("flex");
-    document.body.classList.add("overflow-hidden"); // kein Scroll
-  }
-
-  function closeOverlay() {
-    overlay.classList.add("hidden");
-    overlay.classList.remove("flex");
-    document.body.classList.remove("overflow-hidden");
-  }
+  const feedback = document.getElementById("final-feedback");
+  const animation = document.getElementById("lottie-success");
+  const msg = document.getElementById("final-feedback-msg");
 
   finalBtn.addEventListener("click", function () {
     const showSuccess = finalBtn.dataset.showSuccess === "1";
-    openOverlay();
+    feedback.classList.remove("hidden");
 
     if (!showSuccess) {
+      animation.classList.add("hidden");
       msg.classList.remove("hidden");
       msg.textContent = "أكمل كل المهام أولاً";
       return;
     }
 
     msg.classList.add("hidden");
-    playSuccessAnimation();
+    msg.textContent = "";
+    animation.classList.remove("hidden");
+    finalBtn.disabled = true;
+    playSuccessAnimation(function () {
+      animation.classList.add("hidden");
+      feedback.classList.add("hidden");
+      finalBtn.disabled = false;
+    });
   });
-
-  // X Button
-  if (closeBtn) {
-    closeBtn.addEventListener("click", closeOverlay);
-  }
-
-  // Klick auf Hintergrund schließt
-  overlay.addEventListener("click", function (e) {
-    if (e.target === overlay) closeOverlay();
-  });
-
-  // ESC Taste schließt
-  document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape") closeOverlay();
-  });
-
 })();
 
 </script>
@@ -178,10 +164,11 @@ function playSuccessAnimation() {
       const data = await res.json();
       if (!res.ok || !data.ok) throw new Error("Request failed");
 
-      btn.textContent = "✅ تمّ";
-      btn.classList.remove("bg-purple-600");
-      btn.classList.add("bg-green-600");
-      document.getElementById('mark-done-msg').textContent = "تم";
+      btn.textContent = "تم إنهاء المسابقة";
+      btn.classList.add("is-complete");
+      btn.setAttribute("aria-pressed", "true");
+      btn.setAttribute("aria-label", "تم إنهاء المسابقة");
+      document.getElementById('mark-done-msg').textContent = "";
     } catch (e) {
       btn.disabled = false;
       document.getElementById('mark-done-msg').textContent = "حدث خطأ، حاول مرة أخرى.";

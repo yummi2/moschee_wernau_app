@@ -1055,11 +1055,13 @@ def ramadan_results(request):
         label = RAMADAN_ITEMS_META.get(key, {}).get("label_ar") \
                 or RAMADAN_ITEMS_META.get(key, {}).get("label_de") \
                 or key
+        done_days = min(done_map.get(key, 0), TOTAL_DAYS)
         rows.append({
             "key": key,
             "label": label,
-            "done": done_map.get(key, 0),
+            "done": done_days,
             "total": TOTAL_DAYS,
+            "percent": round((done_days / TOTAL_DAYS) * 100) if TOTAL_DAYS else 0,
         })
 
     return render(request, "core/ramadan_results.html", {

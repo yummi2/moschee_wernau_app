@@ -27,14 +27,10 @@
     <div class="grid gap-6 lg:grid-cols-2 items-start">
 
       <!-- Contest -->
-      <section class="bg-white border rounded-2xl p-4 {% if active_tab != 'contest' %}hidden{% endif %}">
+      <section class="min-w-0 lg:col-span-2 {% if active_tab != 'contest' %}hidden{% endif %}">
         
 
-        <div style="
-          display:grid;
-          grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-          gap:12px;
-        ">
+        <div class="ramadan-days-grid">
 
           {% for d in days %}
           {% if d.locked %}
@@ -43,35 +39,13 @@
           </div>
         {% else %}
         <a href="{% url 'ramadan_day' d.day %}"
-         style="
-           background:#eff6ff;
-           border-radius:16px;
-           padding:12px;
-           text-align:center;
-           font-weight:700;
-           color:#1d4ed8;
-           box-shadow:0 2px 8px rgba(0,0,0,.08);
-           transition:background .2s;
-         "
-         onmouseover="this.style.background='#dbeafe'"
-         onmouseout="this.style.background='#eff6ff'">
+         class="ramadan-day-link">
         {{ d.title }}
       </a>
         {% endif %}
       {% endfor %}
       <a href="{% url 'ramadan_results' %}"
-        style="
-          background:#eff6ff;
-           border-radius:16px;
-           padding:12px;
-           text-align:center;
-           font-weight:700;
-           color:#1d4ed8;
-           box-shadow:0 2px 8px rgba(0,0,0,.12);
-          transition:background .2s;
-        "
-        onmouseover="this.style.background='#dbeafe'"
-         onmouseout="this.style.background='#eff6ff'">
+         class="ramadan-day-link">
         📊 النتائج
       </a>
 
@@ -104,7 +78,7 @@
       </section>
 
       <!-- Activity -->
-    <section class="bg-white border border-gray-200 rounded-2xl p-4 {% if active_tab != 'activity' %}hidden{% endif %}">
+    <section class="min-w-0 lg:col-span-2 {% if active_tab != 'activity' %}hidden{% endif %}">
 
   {% with active_act=request.GET.act|default:"menu" %}
 
@@ -112,41 +86,25 @@
       <!-- Activity Menü -->
       <div class="act-grid">
         <a href="?tab=activity&act=questions"
-        style="aspect-ratio:1/1; background:#eff6ff; border-radius:16px; padding:12px;
-                display:flex; align-items:center; justify-content:center; text-align:center;
-                box-shadow:0 2px 8px rgba(0,0,0,.08);
-                transition: box-shadow .2s ease, transform .2s ease;"
-        onmouseover="this.style.boxShadow='0 6px 16px rgba(0,0,0,.18)'; this.style.transform='translateY(-2px)'"
-        onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,.08)'; this.style.transform='none'">
+           class="ramadan-activity-card">
 
-          <div style="font-weight:700; color:#1d4ed8;">
+          <div class="ramadan-activity-title">
             📖 ثقافة إسلامية
-            <div style="margin-top:6px; font-size:12px; font-weight:400; color:#6b7280;">
+            <div class="ramadan-activity-subtitle">
               مستوى مبتدأ
             </div>
           </div>
         </a>
 
         <a href="?tab=activity&act=drawing"
-          style="aspect-ratio:1/1; background:#eff6ff; border-radius:16px; padding:12px;
-                display:flex; align-items:center; justify-content:center; text-align:center;
-                box-shadow:0 2px 8px rgba(0,0,0,.08);
-                transition: box-shadow .2s ease, transform .2s ease;"
-        onmouseover="this.style.boxShadow='0 6px 16px rgba(0,0,0,.18)'; this.style.transform='translateY(-2px)'"
-        onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,.08)'; this.style.transform='none'">
-          <div style="font-weight:700; color:#1d4ed8;">🎨 تلوين</div>
+           class="ramadan-activity-card">
+          <div class="ramadan-activity-title">🎨 تلوين</div>
         </a>
         <a href="?tab=activity&act=fiqh"
-        class="act-wide"
-        style="aspect-ratio:1/1; background:#eff6ff; border-radius:16px; padding:12px;
-                display:flex; align-items:center; justify-content:center; text-align:center;
-                box-shadow:0 2px 8px rgba(0,0,0,.08);
-                transition: box-shadow .2s ease, transform .2s ease;"
-        onmouseover="this.style.boxShadow='0 6px 16px rgba(0,0,0,.18)'; this.style.transform='translateY(-2px)'"
-        onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,.08)'; this.style.transform='none'">
-          <div style="font-weight:700; color:#1d4ed8;">
+        class="ramadan-activity-card act-wide">
+          <div class="ramadan-activity-title">
             📝 أسئلة فقهية
-            <div style="margin-top:6px; font-size:12px; font-weight:400; color:#6b7280;">
+            <div class="ramadan-activity-subtitle">
               مستوى متقدم
             </div>
           </div>
@@ -155,48 +113,46 @@
       </div>
 
         {% elif active_act == "questions" %}
-        <div class="bg-white">
-          <h2 class="text-xl font-bold text-blue-700 mb-3">ثقافة إسلامية  {{ p_islam }} / {{ pages_islam }}</h2>
+        <div class="ramadan-quiz">
+          <h2 class="ramadan-quiz-title">ثقافة إسلامية <bdi dir="ltr">{{ p_islam }} / {{ pages_islam }}</bdi></h2>
 
           {% if islam_score is not None %}
-            <div class="mb-4 p-5 rounded-2xl border border-red-300 bg-red-50 text-red-600 font-bold text-2xl text-center">
+            <div class="ramadan-quiz-score">
               نتيجتك: {{ islam_score }} / {{ islam_total }}
             </div>
           {% endif %}
 
 
-          <form method="post" class="space-y-6">
+          <form method="post" class="ramadan-quiz-form">
             {% csrf_token %}
             <input type="hidden" name="quiz_type" value="islam">
             <input type="hidden" name="p_islam" value="{{ p_islam }}">
 
             {% for item in quiz_questions %}
-              <div class="border border-gray-200 rounded-2xl p-4">
-                <div class="font-bold text-gray-900 mb-3">
+              <div class="ramadan-question-card">
+                <div class="ramadan-question-title">
                   {{ forloop.counter }}. {{ item.q }}
                 </div>
 
-                <div class="space-y-2">
+                <div class="ramadan-answer-list">
                   {% for opt in item.opts %}
-                    <label class="flex items-center gap-2 cursor-pointer">
-                      <input type="radio" name="q{{ item.id }}" value="{{ forloop.counter0 }}" class="h-4 w-4">
-                      <span class="text-gray-800">{{ opt }}</span>
+                    <label class="ramadan-answer-option">
+                      <input type="radio" name="q{{ item.id }}" value="{{ forloop.counter0 }}">
+                      <span>{{ opt }}</span>
                     </label>
                   {% endfor %}
                 </div>
               </div>
             {% endfor %}
 
-            <button type="submit" class="w-full py-3 rounded-xl bg-blue-600 text-white hover:bg-blue-700">
+            <button type="submit" class="ramadan-quiz-submit">
               إرسال الإجابات
             </button>
           </form>
 
-          <div style="display:flex; gap:12px; margin-top:12px;">
+          <div class="ramadan-quiz-pagination">
           {% if p_islam > 1 %}
-            <a href="?tab=activity&act=questions&p_islam={{ p_islam|add:-1 }}"
-              style="flex:1; text-align:center; padding:12px; border-radius:12px;
-                      background:#eff6ff; color:#1d4ed8; font-weight:700;">
+            <a href="?tab=activity&act=questions&p_islam={{ p_islam|add:-1 }}" class="ramadan-quiz-page-button">
               ➡️ السابق
             </a>
           {% else %}
@@ -204,9 +160,7 @@
           {% endif %}
 
           {% if p_islam < pages_islam %}
-            <a href="?tab=activity&act=questions&p_islam={{ p_islam|add:1 }}"
-              style="flex:1; text-align:center; padding:12px; border-radius:12px;
-                      background:#eff6ff; color:#1d4ed8; font-weight:700;">
+            <a href="?tab=activity&act=questions&p_islam={{ p_islam|add:1 }}" class="ramadan-quiz-page-button">
               التالي ⬅️
             </a>
           {% else %}
@@ -217,19 +171,19 @@
 
 
       {% elif active_act == "drawing" %}
-        <div class="bg-white">
-          <h2 class="text-xl font-bold text-blue-700 mb-3">تلوين</h2>
+        <div class="ramadan-drawing">
+          <h2 class="ramadan-drawing-title">تلوين</h2>
 
-          <div class="grid gap-3 grid-cols-2 sm:grid-cols-3">
+          <div class="ramadan-drawing-grid">
             {% for it in drawing_items %}
               <a href="{{ it.view_url }}"
                 target="_blank" rel="noopener noreferrer"
-                class="block bg-blue-50 hover:bg-blue-100 rounded-xl shadow p-6 transition">
-                <div class="text-lg font-bold text-blue-700">الصورة {{ it.n }}</div>
+                class="ramadan-drawing-button">
+                <div>الصورة {{ it.n }}</div>
               </a>
               <a href="{{ it.download_url }}"
                 download
-                 class="block bg-blue-50 hover:bg-blue-100 rounded-xl shadow p-6 transition">
+                 class="ramadan-drawing-button">
                 ⬇️ تحميل الصورة {{ it.n }}
               </a>
 
@@ -240,47 +194,45 @@
       
 
        {% elif active_act == "fiqh" %}
-        <div class="bg-white">
-          <h2 class="text-xl font-bold text-blue-700 mb-3">  أسئلة فقهية {{ p_fiqh }} / {{ pages_fiqh }}  </h2>
+        <div class="ramadan-quiz">
+          <h2 class="ramadan-quiz-title">أسئلة فقهية <bdi dir="ltr">{{ p_fiqh }} / {{ pages_fiqh }}</bdi></h2>
           
           {% if fiqh_score is not None %}
-            <div class="mb-4 p-5 rounded-2xl border border-red-300 bg-red-50 text-red-600 font-bold text-2xl text-center">
+            <div class="ramadan-quiz-score">
               نتيجتك: {{ fiqh_score }} / {{ fiqh_total }}
             </div>
           {% endif %}
 
-          <form method="post" class="space-y-6">
+          <form method="post" class="ramadan-quiz-form">
             {% csrf_token %}
             <input type="hidden" name="quiz_type" value="fiqh">
             <input type="hidden" name="p_fiqh" value="{{ p_fiqh }}">
 
             {% for item in fiqh_questions %}
-              <div class="border border-gray-200 rounded-2xl p-4">
-                <div class="font-bold text-gray-900 mb-3">
+              <div class="ramadan-question-card">
+                <div class="ramadan-question-title">
                   {{ forloop.counter }}. {{ item.q }}
                 </div>
 
-                <div class="space-y-2">
+                <div class="ramadan-answer-list">
                   {% for opt in item.opts %}
-                    <label class="flex items-center gap-2 cursor-pointer">
-                      <input type="radio" name="q{{ item.id }}" value="{{ forloop.counter0 }}" class="h-4 w-4">
-                      <span class="text-gray-800">{{ opt }}</span>
+                    <label class="ramadan-answer-option">
+                      <input type="radio" name="q{{ item.id }}" value="{{ forloop.counter0 }}">
+                      <span>{{ opt }}</span>
                     </label>
                   {% endfor %}
                 </div>
               </div>
             {% endfor %}
 
-            <button type="submit" class="w-full py-3 rounded-xl bg-blue-600 text-white hover:bg-blue-700">
+            <button type="submit" class="ramadan-quiz-submit">
               إرسال الإجابات
             </button>
           </form>
 
-          <div style="display:flex; gap:12px; margin-top:12px;">
+          <div class="ramadan-quiz-pagination">
           {% if p_fiqh > 1 %}
-            <a href="?tab=activity&act=fiqh&p_fiqh={{ p_fiqh|add:-1 }}"
-              style="flex:1; text-align:center; padding:12px; border-radius:12px;
-                      background:#eff6ff; color:#1d4ed8; font-weight:700;">
+            <a href="?tab=activity&act=fiqh&p_fiqh={{ p_fiqh|add:-1 }}" class="ramadan-quiz-page-button">
               ➡️ السابق
             </a>
           {% else %}
@@ -288,9 +240,7 @@
           {% endif %}
 
           {% if p_fiqh < pages_fiqh %}
-            <a href="?tab=activity&act=fiqh&p_fiqh={{ p_fiqh|add:1 }}"
-              style="flex:1; text-align:center; padding:12px; border-radius:12px;
-                      background:#eff6ff; color:#1d4ed8; font-weight:700;">
+            <a href="?tab=activity&act=fiqh&p_fiqh={{ p_fiqh|add:1 }}" class="ramadan-quiz-page-button">
                التالي ⬅️
             </a>
           {% else %}
