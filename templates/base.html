@@ -7,8 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>{% block title %}دار الفرح {% endblock %}</title>
   {% load static i18n extras %}
-  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260819-42">
-  <style>
+ <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260819-49">  <style>
   .act-grid{
     display: grid;
     gap: 12px;
@@ -68,7 +67,7 @@
     </button>
 
     <nav id="appPrimaryNav" class="app-nav" aria-label="التنقل الرئيسي">
-      <a href="{% url 'home' %}" class="app-nav-link {% if user.is_authenticated %}app-mobile-bottom-item{% else %}app-mobile-top{% endif %} {% if request.resolver_match.url_name == 'home' %}is-active{% endif %}">
+      <a href="{% url 'home' %}{% if user.is_authenticated %}?tab=home{% endif %}" class="app-nav-link {% if user.is_authenticated %}app-mobile-bottom-item{% else %}app-mobile-top{% endif %} {% if request.resolver_match.url_name == 'home' %}{% if not user.is_authenticated or request.GET.tab == 'home' %}is-active{% endif %}{% endif %}">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5M5.5 10v10h13V10M9.5 20v-6h5v6"/></svg>
         <span>الصفحة الرئيسية</span>
       </a>
@@ -78,6 +77,11 @@
       </a>
 
       {% if user.is_authenticated %}
+      <a href="{% url 'home' %}?tab=assignments" class="app-nav-link app-mobile-top {% if request.resolver_match.url_name == 'home' and request.GET.tab != 'home' %}is-active{% endif %}">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h6"/></svg>
+        <span>الواجبات</span>
+      </a>
+
       <a href="{% url 'library' %}" class="app-nav-link app-mobile-bottom-item {% if request.resolver_match.url_name == 'library' %}is-active{% endif %}">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11v16H6.5A2.5 2.5 0 0 0 4 21.5v-16ZM20 5.5A2.5 2.5 0 0 0 17.5 3H13v16h4.5a2.5 2.5 0 0 1 2.5 2.5v-16Z"/></svg>
         <span>مكتبتي</span>
@@ -87,13 +91,6 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 15.5A8 8 0 0 1 9 5a8 8 0 1 0 10 10.5ZM17.5 4v3M16 5.5h3"/></svg>
         <span>رمضان</span>
       </a>
-
-      {% if banner %}
-      <a href="{{ banner.image_url }}" target="_blank" rel="noopener" class="app-nav-link app-mobile-top">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5 9 4l6 2.5L20 4v13.5L15 20l-6-2.5L4 20V6.5ZM9 4v13.5M15 6.5V20"/></svg>
-        <span>خريطة المسابقة</span>
-      </a>
-      {% endif %}
 
       <a href="{% url 'profile' %}" class="app-nav-link app-mobile-top {% if request.resolver_match.url_name == 'profile' %}is-active{% endif %}">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4.5 21a7.5 7.5 0 0 1 15 0"/></svg>

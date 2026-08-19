@@ -9,6 +9,8 @@
 
             <div class="home-dashboard-card bg-white rounded-2xl shadow p-6" dir="rtl">
                 {% if user.is_authenticated %}
+                {% with active_tab=request.GET.tab|default:"assignments" %}
+                {% if active_tab == "home" %}
                 <div class="home-user-summary">
                     <div>
                         <h2 class="text-2xl font-semibold text-black-600">
@@ -24,13 +26,14 @@
                         {% endif %}
                     </a>
                 </div>
+                {% endif %}
 
-                {% with active_tab=request.GET.tab|default:"assignments" %}
-                <div class="flex gap-2 mb-2">
+                {% if active_tab != "home" %}
+                <div class="flex flex-wrap gap-2 mb-2">
                     <a href="?tab=assignments" class="px-3 py-1 rounded-lg border
            {% if active_tab == 'assignments' %} bg-blue-600 text-white border-blue-600
            {% else %} text-blue-700 hover:bg-blue-50 border-blue-200 {% endif %}">
-                        واجباتك
+                        الواجبات
                     </a>
 
                     <a href="?tab=notes" class="px-3 py-1 rounded-lg border
@@ -53,7 +56,17 @@
                         الصلاة
                     </a>
 
+                    {% if banner %}
+                    <a href="?tab=map"
+                    class="px-3 py-1 rounded-lg border
+                    {% if active_tab == 'map' %} bg-blue-600 text-white border-blue-600
+                    {% else %} text-blue-700 hover:bg-blue-50 border-blue-200 {% endif %}">
+                        خريطة المسابقة
+                    </a>
+                    {% endif %}
+
                 </div>
+                {% endif %}
 
                 {# --- Inhalt: Hausaufgaben --- #}
                 <div class="mt-4 {% if active_tab != 'assignments' %}hidden{% endif %}">
@@ -81,10 +94,23 @@
                                             data-color="{{ a.color_key }}"
                                             aria-label="عرض تفاصيل الواجب: {{ a.title }}">
                                         <span class="assignment-card-icon" aria-hidden="true">
+                                            {% if a.icon_key == "quran" %}
+                                            <svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11v16H6.5A2.5 2.5 0 0 0 4 21.5v-16Z"/>
+                                                <path d="M20 5.5A2.5 2.5 0 0 0 17.5 3H13v16h4.5a2.5 2.5 0 0 1 2.5 2.5v-16Z"/>
+                                            </svg>
+                                            {% elif a.icon_key == "mosque" %}
+                                            <svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M4 21V11h16v10M2 21h20M7 11V8.5C7 6 9 4.5 12 3c3 1.5 5 3 5 5.5V11M9 21v-5a3 3 0 0 1 6 0v5M12 3V1"/>
+                                            </svg>
+                                            {% elif a.icon_key == "arabic" %}
+                                            <span class="assignment-card-icon-letter">ض</span>
+                                            {% else %}
                                             <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                                                 <path d="M14 2v6h6M8 13h8M8 17h6"/>
                                             </svg>
+                                            {% endif %}
                                         </span>
                                         {% if a.title %}<span class="assignment-card-title">{{ a.title }}</span>{% endif %}
                                         <span class="assignment-card-date">
@@ -98,9 +124,22 @@
                                     <template id="assignment-details-{{ a.pk }}">
                                         <header class="assignment-dialog-header">
                                             <span class="assignment-dialog-icon" aria-hidden="true">
+                                                {% if a.icon_key == "quran" %}
+                                                <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11v16H6.5A2.5 2.5 0 0 0 4 21.5v-16Z"/>
+                                                    <path d="M20 5.5A2.5 2.5 0 0 0 17.5 3H13v16h4.5a2.5 2.5 0 0 1 2.5 2.5v-16Z"/>
+                                                </svg>
+                                                {% elif a.icon_key == "mosque" %}
+                                                <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M4 21V11h16v10M2 21h20M7 11V8.5C7 6 9 4.5 12 3c3 1.5 5 3 5 5.5V11M9 21v-5a3 3 0 0 1 6 0v5M12 3V1"/>
+                                                </svg>
+                                                {% elif a.icon_key == "arabic" %}
+                                                <span class="assignment-card-icon-letter">ض</span>
+                                                {% else %}
                                                 <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h6"/>
                                                 </svg>
+                                                {% endif %}
                                             </span>
                                             <div>
                                                 <span class="assignment-dialog-eyebrow">تفاصيل الواجب</span>
@@ -387,6 +426,15 @@
                     </tbody>
                 </table>
                 </div>
+                </section>
+                {% endif %}
+
+                {# --- Inhalt: خريطة المسابقة --- #}
+                {% if active_tab == "map" and banner %}
+                <section class="competition-map-panel" aria-labelledby="competition-map-title">
+                    <img src="{{ banner.image_url }}"
+                         alt="خريطة المسابقة"
+                         class="competition-map-image">
                 </section>
                 {% endif %}
 

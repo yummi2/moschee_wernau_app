@@ -283,21 +283,32 @@ def home(request):
         if teacher_classes.exists():
             assignments = Assignment.objects.filter(
                 classroom__in=teacher_classes
-            ).select_related("classroom", "created_by").order_by("-created_at")[:20]
+            ).select_related("classroom", "created_by").order_by("-created_at")
         elif student_classes.exists():
             assignments = Assignment.objects.filter(
                 classroom__in=student_classes
-            ).select_related("classroom", "created_by").order_by("-created_at")[:20]
+            ).select_related("classroom", "created_by").order_by("-created_at")
         else:
             assignments = (Assignment.objects
                            .select_related("classroom", "created_by")
-                           .order_by("-created_at")[:10])
+                           .order_by("-created_at"))
 
     # Group the newest assignments into rows by ISO calendar week.
     assignment_weeks = []
-    classroom_colors = ("blue", "emerald", "violet", "amber", "rose")
     for assignment in assignments:
-        assignment.color_key = classroom_colors[(assignment.classroom_id - 1) % len(classroom_colors)]
+        classroom_name = assignment.classroom.name.casefold()
+        if "قرآن" in classroom_name:
+            assignment.color_key = "violet"
+            assignment.icon_key = "quran"
+        elif "ديانة" in classroom_name:
+            assignment.color_key = "amber"
+            assignment.icon_key = "mosque"
+        elif "عربي" in classroom_name:
+            assignment.color_key = "rose"
+            assignment.icon_key = "arabic"
+        else:
+            assignment.color_key = "blue"
+            assignment.icon_key = "assignment"
         assignment_date = timezone.localtime(assignment.created_at).date()
         monday = assignment_date - dt.timedelta(days=assignment_date.weekday())
         week_key = monday.isocalendar()[:2]
