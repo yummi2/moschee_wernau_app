@@ -68,6 +68,25 @@
                 </div>
                 {% endif %}
 
+                {% if can_complete_assignments %}
+                {% if active_tab == "home" %}
+                <section class="assignment-stats" aria-label="ملخص الواجبات">
+                    <article class="assignment-stat assignment-stat--completed">
+                        <span class="assignment-stat-label">تم إنجازها</span>
+                        <strong data-assignment-count="completed">{{ assignment_counts.completed }}</strong>
+                    </article>
+                    <article class="assignment-stat assignment-stat--urgent">
+                        <span class="assignment-stat-label">عاجلة اليوم</span>
+                        <strong data-assignment-count="urgent">{{ assignment_counts.urgent }}</strong>
+                    </article>
+                    <article class="assignment-stat assignment-stat--missed">
+                        <span class="assignment-stat-label">غير مكتملة</span>
+                        <strong data-assignment-count="missed">{{ assignment_counts.missed }}</strong>
+                    </article>
+                </section>
+                {% endif %}
+                {% endif %}
+
                 {# --- Inhalt: Hausaufgaben --- #}
                 <div class="mt-4 {% if active_tab != 'assignments' %}hidden{% endif %}">
                     {% if user.is_authenticated and assignments %}
@@ -121,6 +140,18 @@
                                         </span>
                                     </button>
 
+                                    {% if can_complete_assignments %}
+                                    <button type="button"
+                                            class="assignment-done-button assignment-card-done {% if a.is_done %}is-complete{% else %}is-pending{% endif %}"
+                                            data-assignment-id="{{ a.pk }}"
+                                            data-assignment-state="{{ a.progress_state }}"
+                                            aria-pressed="{% if a.is_done %}true{% else %}false{% endif %}"
+                                            disabled>
+                                        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>
+                                        <span>تم</span>
+                                    </button>
+                                    {% endif %}
+
                                     <template id="assignment-details-{{ a.pk }}">
                                         <header class="assignment-dialog-header">
                                             <span class="assignment-dialog-icon" aria-hidden="true">
@@ -162,6 +193,17 @@
                                             <span>فتح الرابط</span>
                                             <svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h7v7M10 14 21 3M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>
                                         </a>
+                                        {% endif %}
+                                        {% if can_complete_assignments %}
+                                        <button type="button"
+                                                class="assignment-done-button assignment-dialog-done {% if a.is_done %}is-complete{% endif %}"
+                                                data-assignment-id="{{ a.pk }}"
+                                                data-assignment-state="{{ a.progress_state }}"
+                                                aria-pressed="{% if a.is_done %}true{% else %}false{% endif %}"
+                                                {% if a.is_done %}disabled{% endif %}>
+                                            <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>
+                                            <span>تم</span>
+                                        </button>
                                         {% endif %}
                                     </template>
                                 </li>
@@ -206,6 +248,51 @@
                                     dialog.className = `assignment-dialog assignment-dialog--${button.dataset.color}`;
                                     dialog.showModal();
                                 });
+                            });
+
+                            const csrfToken = (() => {
+                                const match = document.cookie.match(/csrftoken=([^;]+)/);
+                                return match ? match[1] : "";
+                            })();
+
+                            document.addEventListener("click", async (event) => {
+                                const button = event.target.closest(".assignment-done-button");
+                                if (!button) return;
+
+                                event.preventDefault();
+                                event.stopPropagation();
+                                if (button.disabled) return;
+
+                                const assignmentId = button.dataset.assignmentId;
+                                button.disabled = true;
+                                try {
+                                    const response = await fetch("{% url 'mark_assignment_done' %}", {
+                                        method: "POST",
+                                        headers: {
+                                            "Content-Type": "application/json",
+                                            "X-CSRFToken": csrfToken,
+                                        },
+                                        body: JSON.stringify({ assignment_id: assignmentId }),
+                                    });
+                                    const data = await response.json();
+                                    if (!response.ok || !data.ok) throw new Error("Request failed");
+
+                                    document.querySelectorAll(`.assignment-done-button[data-assignment-id="${assignmentId}"]`).forEach((matchingButton) => {
+                                        matchingButton.disabled = true;
+                                        matchingButton.classList.add("is-complete");
+                                        matchingButton.classList.remove("is-pending");
+                                        matchingButton.setAttribute("aria-pressed", "true");
+                                        matchingButton.dataset.assignmentState = "completed";
+                                    });
+                                    Object.entries(data.counts).forEach(([name, value]) => {
+                                        document.querySelectorAll(`[data-assignment-count="${name}"]`).forEach((counter) => {
+                                            counter.textContent = value;
+                                        });
+                                    });
+                                } catch (error) {
+                                    button.disabled = false;
+                                    console.error("mark assignment done failed", error);
+                                }
                             });
 
                             document.querySelectorAll(".assignment-row-shell").forEach((shell) => {

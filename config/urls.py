@@ -27,6 +27,7 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),  # Login/Logout/Passwort
     path('profile/', profile_view, name='profile'),
     path("absences/mark/", views.mark_absence, name="mark_absence"),
+    path("assignments/mark-done/", views.mark_assignment_done, name="mark_assignment_done"),
     path("assignments/<int:pk>/", views.assignment_detail, name="assignment_detail"),
     path("checklist/toggle/", views.toggle_check, name="toggle_check"),
     path("admin/banner/", views.set_banner, name="set_banner"),

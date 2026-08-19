@@ -23,6 +23,31 @@ class Assignment(models.Model):
     def __str__(self):
         return f"{self.title} ({self.classroom})"
 
+
+class AssignmentCompletion(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="assignment_completions",
+    )
+    assignment = models.ForeignKey(
+        Assignment,
+        on_delete=models.CASCADE,
+        related_name="completions",
+    )
+    completed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=("user", "assignment"),
+                name="unique_assignment_completion",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.user} – {self.assignment}"
+
 class Profile(models.Model):
     user   = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     avatar = models.ImageField(upload_to="avatars/", blank=True, null=True)

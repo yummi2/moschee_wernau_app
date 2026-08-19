@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Profile, Assignment, Absence, ClassRoom, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStatus, RamadanItemDone,  QuizScore
+from .models import Profile, Assignment, AssignmentCompletion, Absence, ClassRoom, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStatus, RamadanItemDone,  QuizScore
 from .forms import ProfileForm
 from django.contrib import messages
 import calendar
@@ -68,6 +68,51 @@ def get_unlocked_ramadan_day(now=None) -> int:
 
 def is_user_teacher(user):
     return user.is_authenticated and ClassRoom.objects.filter(teachers=user).exists()
+
+
+def assignment_deadline(assignment):
+    """Use due_at, or Friday 24:00 of the assignment's creation week."""
+    if assignment.due_at:
+        return timezone.localtime(assignment.due_at)
+
+    created_at = timezone.localtime(assignment.created_at)
+    days_until_saturday = (5 - created_at.weekday()) % 7
+    saturday = created_at.date() + dt.timedelta(days=days_until_saturday)
+    return timezone.make_aware(
+        dt.datetime.combine(saturday, dt.time.min),
+        ZoneInfo("Europe/Berlin"),
+    )
+
+
+def assignment_progress(assignments, user, now=None):
+    now = timezone.localtime(now or timezone.now())
+    assignment_ids = [assignment.pk for assignment in assignments]
+    done_ids = set(
+        AssignmentCompletion.objects.filter(
+            user=user,
+            assignment_id__in=assignment_ids,
+        ).values_list("assignment_id", flat=True)
+    )
+    counts = {"completed": 0, "urgent": 0, "missed": 0}
+
+    for assignment in assignments:
+        assignment.is_done = assignment.pk in done_ids
+        if assignment.is_done:
+            assignment.progress_state = "completed"
+            counts["completed"] += 1
+            continue
+
+        deadline = assignment_deadline(assignment)
+        if deadline <= now:
+            assignment.progress_state = "missed"
+            counts["missed"] += 1
+        elif now.weekday() == 4:
+            assignment.progress_state = "urgent"
+            counts["urgent"] += 1
+        else:
+            assignment.progress_state = "open"
+
+    return counts
 
 def visible_items_for_student(student):
     # Items ohne Classroom-Einschränkung ODER an mindestens eine Klasse des Schülers gebunden
@@ -293,6 +338,12 @@ def home(request):
                            .select_related("classroom", "created_by")
                            .order_by("-created_at"))
 
+    assignments = list(assignments)
+    assignment_counts = {"completed": 0, "urgent": 0, "missed": 0}
+    can_complete_assignments = request.user.is_authenticated and bool(assignments)
+    if can_complete_assignments:
+        assignment_counts = assignment_progress(assignments, request.user)
+
     # Group the newest assignments into rows by ISO calendar week.
     assignment_weeks = []
     for assignment in assignments:
@@ -361,6 +412,8 @@ def home(request):
         "banner": banner,
         "assignments": assignments, 
         "assignment_weeks": assignment_weeks,
+        "assignment_counts": assignment_counts,
+        "can_complete_assignments": can_complete_assignments,
         "week_days": week_days,
         "weekly_prayers": weekly_prayers,
         "active_date": active_date,
@@ -429,6 +482,44 @@ def home(request):
         if request.user.is_authenticated else None
     )
     return render(request, "core/home.html", ctx)
+
+
+@login_required
+@require_POST
+def mark_assignment_done(request):
+    try:
+        data = json.loads(request.body.decode("utf-8"))
+        assignment_id = int(data["assignment_id"])
+    except (KeyError, TypeError, ValueError, json.JSONDecodeError):
+        return HttpResponseBadRequest("Bad payload")
+
+    assignment = get_object_or_404(
+        Assignment.objects.select_related("classroom"),
+        pk=assignment_id,
+    )
+    can_access_assignment = (
+        request.user.is_superuser
+        or assignment.classroom.students.filter(pk=request.user.pk).exists()
+        or assignment.classroom.teachers.filter(pk=request.user.pk).exists()
+        or Profile.objects.filter(
+            user=request.user,
+            classroom=assignment.classroom,
+        ).exists()
+    )
+    if not can_access_assignment:
+        return HttpResponseForbidden("Kein Zugriff")
+
+    AssignmentCompletion.objects.get_or_create(
+        user=request.user,
+        assignment=assignment,
+    )
+    visible_assignments = list(
+        Assignment.objects.filter(
+            classroom__students=request.user,
+        ).select_related("classroom", "created_by").distinct()
+    )
+    counts = assignment_progress(visible_assignments, request.user)
+    return JsonResponse({"ok": True, "counts": counts})
 
 @login_required
 def calendar_page(request):

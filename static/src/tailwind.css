@@ -629,6 +629,7 @@
 }
 
 .assignment-card {
+  position: relative;
   flex: 0 0 14rem;
   width: min(100%, 14rem);
   aspect-ratio: 1;
@@ -643,6 +644,46 @@
   box-shadow: 0 3px 10px rgb(15 23 42 / 6%);
   transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
 }
+
+.assignment-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(0.5rem, 2vw, 1rem);
+  margin-block: 1rem;
+  font-family: "Cairo", "Tajawal", "Segoe UI", Tahoma, Arial, sans-serif;
+  letter-spacing: normal;
+}
+
+.assignment-stat {
+  display: flex;
+  min-width: 0;
+  min-height: 5.5rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  border: 1px solid;
+  border-radius: 1rem;
+  padding: 0.75rem 0.5rem;
+  text-align: center;
+  box-shadow: 0 3px 10px rgb(15 23 42 / 5%);
+}
+
+.assignment-stat strong {
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.assignment-stat-label {
+  font-size: clamp(0.68rem, 2.4vw, 0.82rem);
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.assignment-stat--completed { border-color: #bbf7d0; background: #f0fdf4; color: #166534; }
+.assignment-stat--urgent { border-color: #fde68a; background: #fffbeb; color: #a16207; }
+.assignment-stat--missed { border-color: #fecdd3; background: #fff1f2; color: #be123c; }
 
 .assignment-card--emerald {
   border-color: #d1fae5;
@@ -750,7 +791,88 @@
   transition: background-color 220ms ease, border-color 220ms ease;
 }
 
+.assignment-done-button {
+  position: absolute;
+  inset-inline-end: 1.2rem;
+  inset-block-end: 2rem;
+  z-index: 2;
+  display: inline-flex;
+  min-width: 3.5rem;
+  min-height: 2rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  border: 1px solid #86efac;
+  border-radius: 9999px;
+  background: #f0fdf4;
+  padding: 0.3rem 0.6rem;
+  color: #166534;
+  font-family: "Cairo", "Tajawal", "Segoe UI", Tahoma, Arial, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 750;
+  line-height: 1.4;
+  letter-spacing: normal;
+  cursor: pointer;
+  transition: transform 160ms ease, background-color 160ms ease, color 160ms ease;
+}
+
+.assignment-done-button svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.assignment-done-button.is-complete {
+  border-color: #15803d;
+  background: #15803d;
+  color: #fff;
+  cursor: default;
+}
+
+.assignment-card-done.is-pending {
+  display: none;
+}
+
+.assignment-card--blue .assignment-card-done.is-complete { border-color: #2563eb; background: #2563eb; }
+.assignment-card--emerald .assignment-card-done.is-complete { border-color: #059669; background: #059669; }
+.assignment-card--violet .assignment-card-done.is-complete { border-color: #7c3aed; background: #7c3aed; }
+.assignment-card--amber .assignment-card-done.is-complete { border-color: #d97706; background: #d97706; }
+.assignment-card--rose .assignment-card-done.is-complete { border-color: #e11d48; background: #e11d48; }
+
+.assignment-dialog-done {
+  position: static;
+  display: flex;
+  width: max-content;
+  min-width: 7rem;
+  min-height: 2.75rem;
+  margin: 1rem auto 0;
+  padding: 0.55rem 1rem;
+  border-color: var(--dialog-accent);
+  background: var(--dialog-soft);
+  color: var(--dialog-accent);
+  font-size: 0.85rem;
+}
+
+.assignment-dialog-done.is-complete {
+  border-color: var(--dialog-accent);
+  background: var(--dialog-accent);
+  color: #fff;
+}
+
 @media (hover: hover) {
+  .assignment-done-button:not(:disabled):hover {
+    transform: translateY(-1px);
+    background: #166534;
+    color: #fff;
+  }
+
+  .assignment-dialog-done:not(:disabled):hover {
+    background: var(--dialog-accent);
+    color: #fff;
+  }
+
   .assignment-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 18px rgb(15 23 42 / 9%);
@@ -794,6 +916,8 @@
   .assignment-card-date {
     transition: none;
   }
+
+  .assignment-done-button { transition: none; }
 }
 
 @media (max-width: 39.999rem) {
