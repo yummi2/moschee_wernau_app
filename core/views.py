@@ -41,6 +41,10 @@ PRAYERS = [
     (5, "العشاء"),
 ]
 
+COLOR_TEACHING = "calendar-teaching"
+COLOR_HOLIDAY = "calendar-holiday"
+COLOR_EID = "calendar-eid"
+COLOR_FINAL = "calendar-final"
 
 def selected_school_year_ranges(request):
     """Return the calendar and prayer limits for the selected school year."""
@@ -174,69 +178,121 @@ def is_within_window_for_date(target_date: dt.date, now: dt.datetime | None = No
 
 
 SPECIAL_DATES = {
-        dt.date(2025, 10, 25):  "bg-green-500 text-white",
-        dt.date(2025, 12, 20): "bg-green-500 text-white",
-        dt.date(2025, 12, 27): "bg-green-500 text-white",
-        dt.date(2026, 1, 3): "bg-green-500 text-white",
-        dt.date(2026, 2, 14): "bg-green-500 text-white",
-        dt.date(2026, 2, 28): "bg-purple-600 text-white",
-        dt.date(2026, 3, 7): "bg-purple-600 text-white",
-        dt.date(2026, 3, 14): "bg-purple-600 text-white",
-        
-        dt.date(2026, 3, 21): "bg-blue-300 text-gray-900 text-white",
-
-        dt.date(2026, 4, 4):"bg-green-500 text-white text-white",
-        dt.date(2026, 4, 11):"bg-green-500 text-white text-white",
-        
-        dt.date(2026, 5, 2): "bg-green-500 text-white text-white",
-        dt.date(2026, 5, 16): "bg-green-500 text-white text-white",
-
-        dt.date(2026, 5, 23): "bg-green-500 text-white text-white",
-        dt.date(2026, 5, 30): "bg-green-500 text-white text-white",
-
-        dt.date(2026, 6, 6): "bg-blue-300 text-gray-900 text-white",
-        dt.date(2026, 7, 25): "bg-pink-300 text-gray-900 text-white",
+        dt.date(2025, 10, 25):  COLOR_HOLIDAY,
+        dt.date(2025, 12, 20): COLOR_HOLIDAY,
+        dt.date(2025, 12, 27): COLOR_HOLIDAY,
+        dt.date(2026, 1, 3): COLOR_HOLIDAY,
+        dt.date(2026, 2, 14): COLOR_HOLIDAY,
+        dt.date(2026, 2, 28): COLOR_TEACHING,
+        dt.date(2026, 3, 7): COLOR_TEACHING,
+        dt.date(2026, 3, 14): COLOR_TEACHING,
+        dt.date(2026, 3, 21): COLOR_EID,
+        dt.date(2026, 4, 4):COLOR_HOLIDAY,
+        dt.date(2026, 4, 11):COLOR_HOLIDAY,
+        dt.date(2026, 5, 2): COLOR_HOLIDAY,
+        dt.date(2026, 5, 16): COLOR_HOLIDAY,
+        dt.date(2026, 5, 23): COLOR_HOLIDAY,
+        dt.date(2026, 5, 30): COLOR_HOLIDAY,
+        dt.date(2026, 6, 6): COLOR_EID,
+        dt.date(2026, 7, 25): COLOR_FINAL,
 
 
-        dt.date(2025, 9, 20): "bg-purple-600 text-white",
-        dt.date(2025, 9, 27): "bg-purple-600 text-white",
-        dt.date(2025, 10, 4): "bg-purple-600 text-white",
-        dt.date(2025, 10, 11): "bg-purple-600 text-white",
-        dt.date(2025, 10, 18): "bg-purple-600 text-white",
-        dt.date(2025, 11, 1): "bg-purple-600 text-white",
-        dt.date(2025, 11, 8): "bg-purple-600 text-white",
-        dt.date(2025, 11, 15): "bg-purple-600 text-white",
-        dt.date(2025, 11, 22): "bg-purple-600 text-white",
-        dt.date(2025, 11, 29): "bg-purple-600 text-white",
-        dt.date(2025, 12, 6): "bg-purple-600 text-white",
-        dt.date(2025, 12, 13): "bg-purple-600 text-white",
-        dt.date(2026, 1, 10): "bg-purple-600 text-white",
-        dt.date(2026, 1, 17): "bg-purple-600 text-white",
-        dt.date(2026, 1, 24): "bg-purple-600 text-white",
-        dt.date(2026, 1, 31): "bg-purple-600 text-white",
-        dt.date(2026, 2, 7): "bg-purple-600 text-white",
-        dt.date(2026, 2, 21): "bg-purple-600 text-white",
-        dt.date(2026, 3, 28): "bg-purple-600 text-white",
-        dt.date(2026, 4, 18): "bg-purple-600 text-white",
-        dt.date(2026, 4, 25): "bg-purple-600 text-white",
-        dt.date(2026, 5, 9): "bg-purple-600 text-white",
-        dt.date(2026, 6, 13): "bg-purple-600 text-white",
-        dt.date(2026, 6, 20): "bg-purple-600 text-white",
-        dt.date(2026, 6, 27): "bg-purple-600 text-white",
-        dt.date(2026, 7, 4): "bg-purple-600 text-white",
-        dt.date(2026, 7, 11): "bg-purple-600 text-white",
-        dt.date(2026, 7, 18): "bg-purple-600 text-white",
+        dt.date(2025, 9, 20): COLOR_TEACHING,
+        dt.date(2025, 9, 27): COLOR_TEACHING,
+        dt.date(2025, 10, 4): COLOR_TEACHING,
+        dt.date(2025, 10, 11): COLOR_TEACHING,
+        dt.date(2025, 10, 18): COLOR_TEACHING,
+        dt.date(2025, 11, 1): COLOR_TEACHING,
+        dt.date(2025, 11, 8): COLOR_TEACHING,
+        dt.date(2025, 11, 15): COLOR_TEACHING,
+        dt.date(2025, 11, 22): COLOR_TEACHING,
+        dt.date(2025, 11, 29): COLOR_TEACHING,
+        dt.date(2025, 12, 6): COLOR_TEACHING,
+        dt.date(2025, 12, 13): COLOR_TEACHING,
+        dt.date(2026, 1, 10): COLOR_TEACHING,
+        dt.date(2026, 1, 17): COLOR_TEACHING,
+        dt.date(2026, 1, 24): COLOR_TEACHING,
+        dt.date(2026, 1, 31): COLOR_TEACHING,
+        dt.date(2026, 2, 7): COLOR_TEACHING,
+        dt.date(2026, 2, 21): COLOR_TEACHING,
+        dt.date(2026, 3, 28): COLOR_TEACHING,
+        dt.date(2026, 4, 18): COLOR_TEACHING,
+        dt.date(2026, 4, 25): COLOR_TEACHING,
+        dt.date(2026, 5, 9): COLOR_TEACHING,
+        dt.date(2026, 6, 13): COLOR_TEACHING,
+        dt.date(2026, 6, 20): COLOR_TEACHING,
+        dt.date(2026, 6, 27): COLOR_TEACHING,
+        dt.date(2026, 7, 4): COLOR_TEACHING,
+        dt.date(2026, 7, 11): COLOR_TEACHING,
+        dt.date(2026, 7, 18): COLOR_TEACHING,
+
+        dt.date(2026, 9, 19): COLOR_TEACHING,
+        dt.date(2026, 9, 26): COLOR_TEACHING,
+        dt.date(2026, 10, 3): COLOR_TEACHING,
+        dt.date(2026, 10, 10): COLOR_TEACHING,
+        dt.date(2026, 10, 17): COLOR_TEACHING,
+        dt.date(2026, 10, 24): COLOR_TEACHING,
+
+        dt.date(2026, 10, 31): COLOR_HOLIDAY,
+        dt.date(2026, 11, 7): COLOR_TEACHING,
+        dt.date(2026, 11, 14): COLOR_TEACHING,
+        dt.date(2026, 11, 21): COLOR_TEACHING,
+        dt.date(2026, 11, 28): COLOR_TEACHING,
+        dt.date(2026, 12, 5): COLOR_TEACHING,
+        dt.date(2026, 12, 12): COLOR_TEACHING,
+        dt.date(2026, 12, 19): COLOR_TEACHING,
+
+        dt.date(2026, 12, 26): COLOR_HOLIDAY,
+        dt.date(2027, 1, 2): COLOR_HOLIDAY,
+        dt.date(2027, 1, 9): COLOR_HOLIDAY,
+
+        dt.date(2027, 1, 16): COLOR_TEACHING,
+        dt.date(2027, 1, 23): COLOR_TEACHING,
+        dt.date(2027, 1, 30): COLOR_TEACHING,
+        dt.date(2027, 2, 6): COLOR_TEACHING,
+
+        dt.date(2027, 2, 13): COLOR_HOLIDAY,
+
+        dt.date(2027, 2, 20): COLOR_TEACHING,
+        dt.date(2027, 2, 27): COLOR_TEACHING,
+        dt.date(2027, 3, 6): COLOR_TEACHING,
+        dt.date(2027, 3, 13): COLOR_TEACHING,
+        dt.date(2027, 3, 20): COLOR_TEACHING,
+
+        dt.date(2027, 3, 27): COLOR_HOLIDAY,
+        dt.date(2027, 4, 3): COLOR_HOLIDAY,
+
+        dt.date(2027, 4, 10): COLOR_TEACHING,
+        dt.date(2027, 4, 17): COLOR_TEACHING,
+        dt.date(2027, 4, 24): COLOR_TEACHING,
+
+        dt.date(2027, 5, 1): COLOR_HOLIDAY,
+        dt.date(2027, 5, 8): COLOR_HOLIDAY,
+
+        dt.date(2027, 5, 15): COLOR_TEACHING,
+
+        dt.date(2027, 5, 22): COLOR_HOLIDAY,
+        dt.date(2027, 5, 29): COLOR_HOLIDAY,
+
+        dt.date(2027, 6, 5): COLOR_TEACHING,
+        dt.date(2027, 6, 12): COLOR_TEACHING,
+        dt.date(2027, 6, 19): COLOR_TEACHING,
+        dt.date(2027, 6, 26): COLOR_TEACHING,
+        dt.date(2027, 7, 3): COLOR_TEACHING,
+        dt.date(2027, 7, 10): COLOR_TEACHING,
+        dt.date(2027, 7, 17): COLOR_TEACHING,
+        dt.date(2027, 7, 24): COLOR_FINAL,
     }
 
 def is_purple_date(d: dt.date) -> bool:                                           # NEW
-    return SPECIAL_DATES.get(d) == "bg-purple-600 text-white"    
+    return SPECIAL_DATES.get(d) == COLOR_TEACHING    
 
 def teaching_week_number(week_start: dt.date, week_end: dt.date) -> int | None:
     """Return the sequential number only for a week containing a purple teaching date."""
     purple_dates = sorted(
         date for date, css_class in SPECIAL_DATES.items()
         if (
-            css_class == "bg-purple-600 text-white"
+            css_class == COLOR_TEACHING
             and ACADEMIC_START <= date < ACADEMIC_END_EXCL
         )
     )
@@ -462,7 +518,7 @@ def home(request):
       # lila Tage (klickbar) dieses Monats
     purple_days = {
         d.day for d, cls in SPECIAL_DATES.items()
-        if d.year == y and d.month == m and cls == "bg-purple-600 text-white"
+        if d.year == y and d.month == m and cls == COLOR_TEACHING
     }
 
     # bereits markierte Abwesenheiten für diesen Monat
@@ -664,7 +720,7 @@ def calendar_page(request):
     }
     purple_days = {
         day.day for day, css_class in SPECIAL_DATES.items()
-        if day.year == year and day.month == month and css_class == "bg-purple-600 text-white"
+        if day.year == year and day.month == month and css_class == COLOR_TEACHING
     }
     absences = {
         absence.date.day for absence in Absence.objects.filter(

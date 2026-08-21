@@ -734,6 +734,43 @@ body {
   background: var(--color-pink-300);
 }
 
+/* Kalender 2026: Emerald-Ink- und Champagne-Palette. */
+.mini-calendar-table .cal-day.calendar-teaching,
+.mini-calendar-table .cal-day.calendar-holiday,
+.mini-calendar-table .cal-day.calendar-eid,
+.mini-calendar-table .cal-day.calendar-final {
+  background: transparent;
+}
+
+.mini-calendar-table .cal-day.calendar-teaching > span,
+.calendar-teaching:not(.cal-day) {
+  background: #0b4938;
+  color: #fffdf8;
+}
+
+.mini-calendar-table .cal-day.calendar-holiday > span,
+.calendar-holiday:not(.cal-day) {
+  background: #d8c49d;
+  color: #082f25;
+}
+
+.mini-calendar-table .cal-day.calendar-eid > span,
+.calendar-eid:not(.cal-day) {
+  background: #8fcfc0;
+  color: #06271f;
+}
+
+.mini-calendar-table .cal-day.calendar-final > span,
+.calendar-final:not(.cal-day) {
+  background: #c99b4a;
+  color: #fffdf8;
+}
+
+.calendar-today {
+  background: #17805e;
+  color: #fffdf8;
+}
+
 .home-user-summary {
   display: flex;
   align-items: center;
