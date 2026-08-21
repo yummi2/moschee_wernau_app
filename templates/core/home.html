@@ -583,5 +583,42 @@
             });
             </script>
 
+            <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const counters = document.querySelectorAll("[data-assignment-count]");
+                if (!counters.length) return;
+
+                const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+                counters.forEach((counter) => {
+                    const target = Number.parseInt(counter.textContent.trim(), 10) || 0;
+                    if (reduceMotion || target === 0) {
+                        counter.textContent = String(target);
+                        return;
+                    }
+
+                    const duration = 750;
+                    const startedAt = performance.now();
+                    counter.textContent = "0";
+                    counter.classList.add("is-counting");
+
+                    const updateCounter = (now) => {
+                        const progress = Math.min((now - startedAt) / duration, 1);
+                        const eased = 1 - Math.pow(1 - progress, 3);
+                        counter.textContent = String(Math.min(target, Math.floor(eased * target)));
+
+                        if (progress < 1) {
+                            requestAnimationFrame(updateCounter);
+                        } else {
+                            counter.textContent = String(target);
+                            counter.classList.remove("is-counting");
+                        }
+                    };
+
+                    requestAnimationFrame(updateCounter);
+                });
+            });
+            </script>
+
 
 {% endblock %}

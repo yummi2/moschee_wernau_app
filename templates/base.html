@@ -7,7 +7,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>{% block title %}دار الفرح {% endblock %}</title>
   {% load static i18n extras %}
- <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260819-52">  <style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260821-71">  <style>
   .act-grid{
     display: grid;
     gap: 12px;
@@ -38,9 +41,10 @@
 
 </head>
 
-<body class="bg-gray-50 text-gray-900">
+<body class="bg-gray-50 text-gray-900 {% if request.resolver_match.url_name == 'login' %}auth-page{% endif %}">
+  {% if request.resolver_match.url_name != 'login' %}
   <header class="app-sidebar" dir="rtl">
-    <a href="{% url 'home' %}" class="app-brand" aria-label="دار الفرح، الصفحة الرئيسية">
+    <a href="{% url 'home' %}?tab=home" class="app-brand" aria-label="دار الفرح، الصفحة الرئيسية">
       <span class="app-brand-mark" aria-hidden="true">
         <svg viewBox="0 0 32 32" width="27" height="27" fill="none">
           <path d="M7 26V13.5L16 6l9 7.5V26H7Z" fill="currentColor" opacity=".18"/>
@@ -92,7 +96,7 @@
         <span>رمضان</span>
       </a>
 
-      <a href="{% url 'profile' %}" class="app-nav-link app-mobile-top {% if request.resolver_match.url_name == 'profile' %}is-active{% endif %}">
+      <a href="{% url 'profile' %}" class="app-nav-link app-mobile-bottom-item {% if request.resolver_match.url_name == 'profile' %}is-active{% endif %}">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4.5 21a7.5 7.5 0 0 1 15 0"/></svg>
         <span>الصفحة الشخصية</span>
       </a>
@@ -182,10 +186,12 @@
       {% endif %}
     </nav>
   </header>
+  {% endif %}
 
   {% if user.is_authenticated %}
   <nav class="app-bottom-nav" dir="rtl" aria-label="التنقل السريع">
-    <a href="{% url 'home' %}" class="app-bottom-nav-link {% if request.resolver_match.url_name == 'home' %}is-active{% endif %}" aria-label="الصفحة الرئيسية">
+    <span class="app-bottom-nav-indicator" aria-hidden="true"></span>
+    <a href="{% url 'home' %}?tab=home" class="app-bottom-nav-link {% if request.resolver_match.url_name == 'home' and request.GET.tab == 'home' %}is-active{% endif %}" aria-label="الصفحة الرئيسية">
       <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5M5.5 10v10h13V10M9.5 20v-6h5v6"/></svg>
     </a>
     <a href="{% url 'calendar' %}" class="app-bottom-nav-link {% if request.resolver_match.url_name == 'calendar' %}is-active{% endif %}" aria-label="التقويم">
@@ -197,12 +203,15 @@
     <a href="{% url 'ramadan_plan' %}" class="app-bottom-nav-link {% if request.resolver_match.url_name == 'ramadan_plan' or request.resolver_match.url_name == 'ramadan_day' or request.resolver_match.url_name == 'ramadan_results' %}is-active{% endif %}" aria-label="رمضان">
       <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M19 15.5A8 8 0 0 1 9 5a8 8 0 1 0 10 10.5ZM17.5 4v3M16 5.5h3"/></svg>
     </a>
+    <a href="{% url 'profile' %}" class="app-bottom-nav-link {% if request.resolver_match.url_name == 'profile' %}is-active{% endif %}" aria-label="الصفحة الشخصية">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4.5 21a7.5 7.5 0 0 1 15 0"/></svg>
+    </a>
     
     
   </nav>
   {% endif %}
 
-  <main class="app-main max-w-5xl mx-auto px-4 py-8">
+  <main class="{% if request.resolver_match.url_name == 'login' %}login-main{% else %}app-main max-w-5xl mx-auto px-4 py-8{% endif %}">
     {% if messages %}
     <ul id="messages" class="mb-4 space-y-2">
       {% for m in messages %}
@@ -249,6 +258,81 @@
 
       window.addEventListener("resize", () => {
         if (window.matchMedia("(min-width: 64rem)").matches) setMenuState(false);
+      });
+    })();
+  </script>
+
+  <script>
+    (() => {
+      const bottomNav = document.querySelector(".app-bottom-nav");
+      if (!bottomNav) return;
+
+      const links = Array.from(bottomNav.querySelectorAll(".app-bottom-nav-link"));
+      const activeIndex = links.findIndex((link) => link.classList.contains("is-active"));
+      if (activeIndex < 0) {
+        sessionStorage.removeItem("bottomNavPreviousIndex");
+        return;
+      }
+      bottomNav.classList.add("has-active");
+
+      const motionReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const savedIndex = Number.parseInt(sessionStorage.getItem("bottomNavPreviousIndex"), 10);
+      const previousIndex = Number.isInteger(savedIndex) && savedIndex >= 0 && savedIndex < links.length
+        ? savedIndex
+        : activeIndex;
+
+      const getIndicatorPosition = (index) => {
+        const navRect = bottomNav.getBoundingClientRect();
+        const linkRect = links[index].getBoundingClientRect();
+        if (!navRect.width || !linkRect.width) return null;
+        return linkRect.left - navRect.left + ((linkRect.width - 48) / 2);
+      };
+
+      const setIndicatorPosition = (index) => {
+        const position = getIndicatorPosition(index);
+        if (position === null) return;
+        bottomNav.style.setProperty("--nav-position", `${position}px`);
+      };
+
+      setIndicatorPosition(previousIndex);
+      sessionStorage.removeItem("bottomNavPreviousIndex");
+
+      if (!motionReduced && previousIndex !== activeIndex) {
+        const indicator = bottomNav.querySelector(".app-bottom-nav-indicator");
+        const previousPosition = getIndicatorPosition(previousIndex);
+        const activePosition = getIndicatorPosition(activeIndex);
+        bottomNav.classList.add("is-moving");
+        if (indicator && previousPosition !== null && activePosition !== null) {
+          const middlePosition = (previousPosition + activePosition) / 2;
+          bottomNav.style.setProperty("--nav-position", `${activePosition}px`);
+          indicator.animate([
+            { left: `${previousPosition}px`, transform: "translateY(-50%) scaleX(1)" },
+            { left: `${middlePosition}px`, transform: "translateY(-50%) scaleX(1.28)", offset: 0.5 },
+            { left: `${activePosition}px`, transform: "translateY(-50%) scaleX(1)" }
+          ], {
+            duration: 520,
+            easing: "cubic-bezier(.22, 1, .36, 1)"
+          });
+        } else {
+          setIndicatorPosition(activeIndex);
+        }
+        window.setTimeout(() => bottomNav.classList.remove("is-moving"), 540);
+      } else {
+        setIndicatorPosition(activeIndex);
+      }
+
+      links.forEach((link) => {
+        link.addEventListener("click", () => {
+          sessionStorage.setItem("bottomNavPreviousIndex", String(activeIndex));
+        });
+      });
+
+      window.addEventListener("resize", () => {
+        const indicator = bottomNav.querySelector(".app-bottom-nav-indicator");
+        if (!indicator) return;
+        indicator.style.transition = "none";
+        setIndicatorPosition(activeIndex);
+        requestAnimationFrame(() => indicator.style.removeProperty("transition"));
       });
     })();
   </script>

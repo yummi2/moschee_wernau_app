@@ -137,8 +137,8 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_REDIRECT_URL = reverse_lazy('home')   # nach dem Login zur Startseite
-LOGOUT_REDIRECT_URL = reverse_lazy('home')  # nach dem Logout zur Startseite
+LOGIN_REDIRECT_URL = '/?tab=home'  # nach dem Login direkt zur persönlichen Homepage
+LOGOUT_REDIRECT_URL = reverse_lazy('login')  # nach dem Logout zur modernen Login-Seite
 
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
