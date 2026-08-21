@@ -181,12 +181,13 @@ class RamadanItemDone(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     day = models.IntegerField()
     item_key = models.CharField(max_length=50)
+    school_year = models.CharField(max_length=4, default="2026")
     done = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     
 
     class Meta:
-        unique_together = ("user", "day", "item_key")
+        unique_together = ("user", "day", "item_key", "school_year")
 
 
 

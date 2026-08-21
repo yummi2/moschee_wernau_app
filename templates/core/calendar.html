@@ -2,12 +2,12 @@
 {% load extras %}
 {% block title %}التقويم | دار الفرح{% endblock %}
 {% block content %}
-<section dir="rtl">
+<section class="app-page-frame" dir="rtl">
   <div class="calendar-page-heading mb-6">
     <h1 class="text-2xl font-bold tracking-normal text-gray-950">التقويم</h1>
   </div>
 
-  <div class="mini-calendar calendar-page">
+  <div class="app-content-card mini-calendar calendar-page">
     <form id="calendar-csrf" class="hidden">{% csrf_token %}</form>
     <div class="mini-calendar-header">
       {% if has_cal_next %}<a href="?y={{ cal_next_y }}&m={{ cal_next_m }}" class="mini-calendar-nav" aria-label="الشهر التالي">

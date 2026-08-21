@@ -2,8 +2,8 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-<div class="mx-auto max-w-5xl px-4 mt-8" dir="rtl">
-  <div class="bg-white rounded-2xl shadow p-6 relative overflow-hidden">
+<div class="app-page-frame mx-auto max-w-5xl px-4 mt-8" dir="rtl">
+  <div class="app-content-card bg-white rounded-2xl shadow p-6 relative overflow-hidden">
 
     <div class="flex items-center justify-between mb-4">
       <h2 class="text-2xl font-bold text-blue-800">{{ title }}</h2>
@@ -13,7 +13,20 @@
 
       {# Ergebnis wird direkt in der Karte gezeigt, ohne Overlay. #}
       <div id="final-feedback" class="mb-5 hidden" role="status" aria-live="polite">
-        <div id="lottie-success" class="mx-auto hidden h-48 w-48" aria-hidden="true"></div>
+        <div id="ramadan-success" class="ramadan-success-celebration hidden" aria-hidden="true">
+          <span class="ramadan-success-halo"></span>
+          <span class="ramadan-success-check">
+            <svg viewBox="0 0 64 64"><path d="m17 33 10 10 21-23"/></svg>
+          </span>
+          <span class="ramadan-success-particle p1"></span>
+          <span class="ramadan-success-particle p2"></span>
+          <span class="ramadan-success-particle p3"></span>
+          <span class="ramadan-success-particle p4"></span>
+          <span class="ramadan-success-particle p5"></span>
+          <span class="ramadan-success-particle p6"></span>
+          <strong>أحسنت!</strong>
+          <small>أكملت جميع مهام اليوم</small>
+        </div>
         <div id="final-feedback-msg"
              class="hidden text-lg font-semibold leading-relaxed text-red-600">
         </div>
@@ -55,11 +68,12 @@
       {% if p == total %}
         <div class="mt-6">
           {% if already_done %}
-            <button id="mark-done-btn" class="ramadan-done-button is-complete" aria-pressed="true" aria-label="تم إنهاء المسابقة" disabled>
-              تم إنهاء المسابقة
+            <button id="mark-done-btn" class="ramadan-done-button is-complete" aria-pressed="true" aria-label="مكتمل" disabled>
+              ✓
             </button>
           {% else %}
-            <button id="mark-done-btn" class="ramadan-done-button" aria-pressed="false">
+            <button id="mark-done-btn" class="ramadan-done-button" aria-pressed="false"
+                    {% if selected_school_year != "2027" %}disabled aria-disabled="true"{% endif %}>
               تم
             </button>
           {% endif %}
@@ -71,33 +85,21 @@
   </div>
 </div>
 
-{# ✅ Lottie nur EINMAL #}
-<script src="https://unpkg.com/lottie-web@5.12.2/build/player/lottie.min.js"></script>
-
 <script>
 function playSuccessAnimation(onComplete) {
-  const el = document.getElementById("lottie-success");
+  const el = document.getElementById("ramadan-success");
   if (!el) {
     if (onComplete) onComplete();
     return;
   }
 
-  // immer neu starten
-  el.innerHTML = "";
-
-  const successAnimation = lottie.loadAnimation({
-    container: el,
-    renderer: "svg",
-    loop: false,
-    autoplay: true,
-    path: "https://res.cloudinary.com/drlpkuf9q/raw/upload/v1769941328/USA_confetti_wlbidw.json"
-  });
-
-  successAnimation.addEventListener("complete", function () {
-    successAnimation.destroy();
-    el.innerHTML = "";
+  el.classList.remove("is-playing");
+  void el.offsetWidth;
+  el.classList.add("is-playing");
+  window.setTimeout(function () {
+    el.classList.remove("is-playing");
     if (onComplete) onComplete();
-  });
+  }, 2600);
 }
 
 (function () {
@@ -105,7 +107,7 @@ function playSuccessAnimation(onComplete) {
   if (!finalBtn) return;
 
   const feedback = document.getElementById("final-feedback");
-  const animation = document.getElementById("lottie-success");
+  const animation = document.getElementById("ramadan-success");
   const msg = document.getElementById("final-feedback-msg");
 
   finalBtn.addEventListener("click", function () {
@@ -164,11 +166,20 @@ function playSuccessAnimation(onComplete) {
       const data = await res.json();
       if (!res.ok || !data.ok) throw new Error("Request failed");
 
-      btn.textContent = "تم إنهاء المسابقة";
+      btn.textContent = "✓";
       btn.classList.add("is-complete");
       btn.setAttribute("aria-pressed", "true");
-      btn.setAttribute("aria-label", "تم إنهاء المسابقة");
+      btn.setAttribute("aria-label", "مكتمل");
       document.getElementById('mark-done-msg').textContent = "";
+
+      if (data.all_done) {
+        const finalBtn = document.getElementById("final-btn");
+        const feedback = document.getElementById("final-feedback");
+        const feedbackMessage = document.getElementById("final-feedback-msg");
+        if (finalBtn) finalBtn.dataset.showSuccess = "1";
+        if (feedbackMessage) feedbackMessage.textContent = "";
+        if (feedback) feedback.classList.add("hidden");
+      }
     } catch (e) {
       btn.disabled = false;
       document.getElementById('mark-done-msg').textContent = "حدث خطأ، حاول مرة أخرى.";

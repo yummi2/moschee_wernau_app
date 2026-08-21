@@ -1,0 +1,46 @@
+<section class="ramadan-night-progress {% if completed_days == total_days %}is-finished{% endif %}" aria-labelledby="ramadan-progress-title">
+  <div class="ramadan-night-sky">
+    <div class="ramadan-night-stars" aria-hidden="true">
+      <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+    </div>
+    <div class="ramadan-night-moon" aria-hidden="true">
+      <svg viewBox="0 0 120 120">
+        <path d="M87 94A47 47 0 1 1 76 20a39 39 0 1 0 11 74Z"/>
+        <path class="moon-star" d="m87 29 4 9 10 1-8 7 2 10-8-5-9 5 2-10-7-7 10-1Z"/>
+      </svg>
+    </div>
+    <div class="ramadan-lantern-grid" aria-label="أيام رمضان">
+      {% for item in day_progress %}
+      <a {% if not item.locked %}href="{% url 'ramadan_day' item.day %}"{% endif %}
+         class="ramadan-lantern {% if item.complete %}is-lit{% endif %} {% if item.locked %}is-locked{% endif %}"
+         {% if item.locked %}aria-disabled="true" tabindex="-1"{% endif %}
+         aria-label="اليوم {{ item.day }}، {% if item.locked %}غير متاح بعد{% else %}{{ item.done_items }} من {{ item.total_items }} مهام مكتملة{% endif %}"
+         title="{% if item.locked %}هذا اليوم لم يُفتح بعد{% else %}{{ item.done_items }} من {{ item.total_items }} مهام{% endif %}">
+        <svg viewBox="0 0 44 58" aria-hidden="true">
+          <path class="lantern-handle" d="M14 13V9a8 8 0 0 1 16 0v4"/>
+          <path class="lantern-top" d="M12 13h20l4 7H8Z"/>
+          <path class="lantern-body" d="M11 20h22l-2 25H13Z"/>
+          <path class="lantern-glass" d="M17 24h10l-1 16h-8Z"/>
+          <path class="lantern-base" d="M10 45h24v5H10Z"/>
+        </svg>
+        <bdi dir="ltr">{{ item.day }}</bdi>
+        {% if item.complete %}<span aria-hidden="true">✓</span>{% endif %}
+      </a>
+      {% endfor %}
+    </div>
+    <div class="ramadan-night-horizon" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+  </div>
+  <div class="ramadan-progress-summary">
+    <span class="ramadan-progress-kicker">فوانيس مضيئة</span>
+    <strong><bdi dir="ltr">{{ completed_days }} / {{ total_days }}</bdi></strong>
+    <div class="ramadan-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="{{ total_days }}" aria-valuenow="{{ completed_days }}">
+      <span style="width: {{ completion_percent }}%"></span>
+    </div>
+    <small><bdi dir="ltr">{{ completion_percent }}%</bdi></small>
+    {% if completed_days == total_days %}
+    <div class="ramadan-night-finish" role="status">أحسنت! أكملت رحلة رمضان</div>
+    {% else %}
+    <div class="ramadan-night-next">أكمل يومًا آخر وأضئ الفانوس التالي</div>
+    {% endif %}
+  </div>
+</section>

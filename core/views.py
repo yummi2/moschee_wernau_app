@@ -997,17 +997,35 @@ def ramadan_plan(request):
 
     # Wettbewerb (Tage)
     unlocked_day = get_unlocked_ramadan_day()
-    eid_unlocked = unlocked_day >= 29
-
-    days = []
-    for d in range(1, 31):
-        locked = d > unlocked_day
-        days.append({
-            "day": d,
-            "title": f"🌙 {d} رمضان",
-            "locked": locked,
-            "href": None if locked else reverse("ramadan_day", args=[d]),
-        })
+    total_days = 30
+    selected_year = selected_school_year_ranges(request)["year"]
+    completed_items = RamadanItemDone.objects.filter(
+        user=request.user,
+        school_year=selected_year,
+        done=True,
+    )
+    required_items = len(RAMADAN_ITEMS_ORDER)
+    daily_counts = {
+        entry["day"]: entry["done_items"]
+        for entry in completed_items.values("day").annotate(
+            done_items=Count("item_key", distinct=True)
+        )
+    }
+    completed_day_numbers = {
+        day for day, count in daily_counts.items()
+        if count >= required_items
+    }
+    completed_days = len(completed_day_numbers)
+    day_progress = [
+        {
+            "day": day,
+            "locked": day > unlocked_day,
+            "complete": day in completed_day_numbers,
+            "done_items": min(daily_counts.get(day, 0), required_items),
+            "total_items": required_items,
+        }
+        for day in range(1, total_days + 1)
+    ]
 
     fiqh_questions_all = FIQH_QUESTIONS_ADVANCED
     page_size = 5
@@ -1128,9 +1146,11 @@ def ramadan_plan(request):
             fiqh_page = page_questions
 
     return render(request, "core/ramadan_plan.html", {
-        "days": days,
         "unlocked_day": unlocked_day,
-        "eid_unlocked": eid_unlocked,
+        "total_days": total_days,
+        "completed_days": completed_days,
+        "completion_percent": round((completed_days / total_days) * 100),
+        "day_progress": day_progress,
 
         # Islam (5 pro Seite)
         "quiz_questions": islam_page,
@@ -1179,7 +1199,13 @@ def ramadan_day(request, day: int):
         p = 1
 
     # done status aus DB
-    done_qs = RamadanItemDone.objects.filter(user=request.user, day=day, done=True)
+    selected_year = selected_school_year_ranges(request)["year"]
+    done_qs = RamadanItemDone.objects.filter(
+        user=request.user,
+        day=day,
+        school_year=selected_year,
+        done=True,
+    )
     done_keys = set(done_qs.values_list("item_key", flat=True))
     all_done = set(RAMADAN_ITEMS_ORDER).issubset(done_keys)
     is_last_item = (item_key == RAMADAN_ITEMS_ORDER[-1])
@@ -1285,6 +1311,7 @@ def ramadan_day(request, day: int):
         "next_href": next_href,
 
         "already_done": already_done,
+        "selected_school_year": selected_year,
         "all_done": all_done,
         "at_end": at_end,
         "is_last_item": is_last_item,
@@ -1297,6 +1324,10 @@ def ramadan_day(request, day: int):
 @login_required
 @require_POST
 def mark_ramadan_item_done(request):
+    selected_year = selected_school_year_ranges(request)["year"]
+    if selected_year != "2027":
+        return HttpResponseForbidden("Ramadan completion is only available for 2027.")
+
     try:
         data = json.loads(request.body.decode("utf-8"))
         day = int(data["day"])
@@ -1311,14 +1342,32 @@ def mark_ramadan_item_done(request):
         return HttpResponseBadRequest("Invalid item_key")
 
     obj, created = RamadanItemDone.objects.get_or_create(
-        user=request.user, day=day, item_key=item_key,
+        user=request.user,
+        day=day,
+        item_key=item_key,
+        school_year=selected_year,
         defaults={"done": True}
     )
     if not created and not obj.done:
         obj.done = True
         obj.save()
 
-    return JsonResponse({"ok": True})
+    completed_item_count = (RamadanItemDone.objects
+                            .filter(
+                                user=request.user,
+                                day=day,
+                                school_year=selected_year,
+                                done=True,
+                                item_key__in=RAMADAN_ITEMS_ORDER,
+                            )
+                            .values("item_key")
+                            .distinct()
+                            .count())
+
+    return JsonResponse({
+        "ok": True,
+        "all_done": completed_item_count == len(RAMADAN_ITEMS_ORDER),
+    })
 
 @login_required
 def ramadan_results(request):
@@ -1328,8 +1377,14 @@ def ramadan_results(request):
         
     TOTAL_DAYS = 30
 
-    agg = (RamadanItemDone.objects
-           .filter(user=request.user, done=True)
+    selected_year = selected_school_year_ranges(request)["year"]
+    completed_items = RamadanItemDone.objects.filter(
+        user=request.user,
+        school_year=selected_year,
+        done=True,
+    )
+
+    agg = (completed_items
            .values("item_key")
            .annotate(done_days=Count("day", distinct=True)))
 
@@ -1349,7 +1404,34 @@ def ramadan_results(request):
             "percent": round((done_days / TOTAL_DAYS) * 100) if TOTAL_DAYS else 0,
         })
 
+    required_items = len(RAMADAN_ITEMS_ORDER)
+    daily_counts = {
+        entry["day"]: entry["done_items"]
+        for entry in completed_items.values("day").annotate(
+            done_items=Count("item_key", distinct=True)
+        )
+    }
+    completed_day_numbers = {
+        day for day, count in daily_counts.items()
+        if count >= required_items
+    }
+    completed_days = len(completed_day_numbers)
+    completion_percent = round((completed_days / TOTAL_DAYS) * 100)
+    day_progress = [
+        {
+            "day": day,
+            "complete": day in completed_day_numbers,
+            "done_items": min(daily_counts.get(day, 0), required_items),
+            "total_items": required_items,
+        }
+        for day in range(1, TOTAL_DAYS + 1)
+    ]
+
     return render(request, "core/ramadan_results.html", {
         "rows": rows,
         "total_days": TOTAL_DAYS,
+        "selected_school_year": selected_year,
+        "completed_days": completed_days,
+        "completion_percent": completion_percent,
+        "day_progress": day_progress,
     })
