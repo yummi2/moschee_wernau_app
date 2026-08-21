@@ -10,13 +10,13 @@
   <div class="mini-calendar calendar-page">
     <form id="calendar-csrf" class="hidden">{% csrf_token %}</form>
     <div class="mini-calendar-header">
-      <a href="?y={{ cal_next_y }}&m={{ cal_next_m }}" class="mini-calendar-nav" aria-label="الشهر التالي">
+      {% if has_cal_next %}<a href="?y={{ cal_next_y }}&m={{ cal_next_m }}" class="mini-calendar-nav" aria-label="الشهر التالي">
         <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 18l6-6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </a>
+      </a>{% else %}<span class="mini-calendar-nav is-disabled" aria-disabled="true"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 18l6-6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>{% endif %}
       <span class="mini-calendar-title"><bdi dir="ltr">{{ cal_month_name }} {{ cal_year }}</bdi></span>
-      <a href="?y={{ cal_prev_y }}&m={{ cal_prev_m }}" class="mini-calendar-nav" aria-label="الشهر السابق">
+      {% if has_cal_prev %}<a href="?y={{ cal_prev_y }}&m={{ cal_prev_m }}" class="mini-calendar-nav" aria-label="الشهر السابق">
         <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </a>
+      </a>{% else %}<span class="mini-calendar-nav is-disabled" aria-disabled="true"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>{% endif %}
     </div>
 
     <table class="mini-calendar-table">
@@ -58,7 +58,7 @@
       button.style.cursor = clickable ? "pointer" : "default";
       button.addEventListener("click", async () => {
         if (!button.classList.contains("is-purple") || button.classList.contains("is-absent") || button.disabled) return;
-        if (!confirm("هل تريد وضع علامة غياب لهذا اليوم؟")) return;
+        if (!await window.confirmAbsence(button.dataset.date)) return;
         try {
           const response = await fetch("{% url 'mark_absence' %}", {
             method: "POST",
@@ -66,14 +66,14 @@
             body: JSON.stringify({ date: button.dataset.date }),
           });
           const data = await response.json();
-          if (!response.ok) return alert(data.error || "تعذر تنفيذ الطلب.");
+          if (!response.ok) return window.showAbsenceError(data.error || "تعذر تنفيذ الطلب.");
           button.classList.remove("bg-purple-600", "is-purple");
           button.classList.add("bg-red-600", "text-white", "is-absent");
           button.disabled = true;
           const count = document.getElementById("absencesCount");
           if (count && typeof data.total === "number") count.textContent = String(data.total);
         } catch (_) {
-          alert("حدث خطأ غير متوقع.");
+          window.showAbsenceError("حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.");
         }
       });
     });

@@ -7,7 +7,7 @@
     <div>
         <main class="space-y-6">
 
-            <div class="home-dashboard-card bg-white rounded-2xl shadow p-6" dir="rtl">
+            <div class="home-dashboard-card content-page-fill bg-white rounded-2xl shadow p-6" dir="rtl">
                 {% if user.is_authenticated %}
                 {% with active_tab=request.GET.tab|default:"assignments" %}
                 {% if active_tab == "home" %}
@@ -56,7 +56,7 @@
                         الصلاة
                     </a>
 
-                    {% if banner %}
+                    {% if banner and selected_school_year == "2026" %}
                     <a href="?tab=map"
                     class="px-3 py-1 rounded-lg border
                     {% if active_tab == 'map' %} bg-blue-600 text-white border-blue-600
@@ -68,7 +68,7 @@
                 </div>
                 {% endif %}
 
-                {% if can_complete_assignments %}
+                {% if can_complete_assignments and show_assignment_stats %}
                 {% if active_tab == "home" %}
                 <section class="assignment-stats" aria-label="ملخص الواجبات">
                     <article class="assignment-stat assignment-stat--completed">
@@ -140,7 +140,7 @@
                                         </span>
                                     </button>
 
-                                    {% if can_complete_assignments %}
+                                    {% if can_mark_assignments %}
                                     <button type="button"
                                             class="assignment-done-button assignment-card-done {% if a.is_done %}is-complete{% else %}is-pending{% endif %}"
                                             data-assignment-id="{{ a.pk }}"
@@ -194,7 +194,7 @@
                                             <svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h7v7M10 14 21 3M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>
                                         </a>
                                         {% endif %}
-                                        {% if can_complete_assignments %}
+                                        {% if can_mark_assignments %}
                                         <button type="button"
                                                 class="assignment-done-button assignment-dialog-done {% if a.is_done %}is-complete{% endif %}"
                                                 data-assignment-id="{{ a.pk }}"
@@ -437,10 +437,13 @@
                 <section class="prayer-panel">
                 <div class="prayer-week-nav">
                 <!-- السابق -->
-                <a href="?tab=prayer&date={{ prev_week_date|date:'Y-m-d' }}"
-                class="prayer-week-button">
+                {% if has_prev_prayer_week %}
+                <a href="?tab=prayer&date={{ prev_week_date|date:'Y-m-d' }}" class="prayer-week-button">
                      السابق
                 </a>
+                {% else %}
+                <span class="prayer-week-button is-disabled" aria-disabled="true">السابق</span>
+                {% endif %}
 
                 <!-- Überschrift -->
                 <h4 class="prayer-week-title">
@@ -451,10 +454,13 @@
                 </h4>
 
                 <!-- التالي -->
-                <a href="?tab=prayer&date={{ next_week_date|date:'Y-m-d' }}"
-                class="prayer-week-button">
+                {% if has_next_prayer_week %}
+                <a href="?tab=prayer&date={{ next_week_date|date:'Y-m-d' }}" class="prayer-week-button">
                     التالي
                 </a>
+                {% else %}
+                <span class="prayer-week-button is-disabled" aria-disabled="true">التالي</span>
+                {% endif %}
 
 
             </div>
@@ -481,7 +487,11 @@
 
                             {% for day in p.days %}
                             <td>
-                               {% if day.date >= current_week_start and day.date <= current_week_end %}
+                               {% if not day.in_range %}
+                                <span class="prayer-status is-locked" aria-label="خارج السنة الدراسية" title="خارج السنة الدراسية">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+                                </span>
+                               {% elif day.date >= current_week_start and day.date <= current_week_end %}
                                 {# AKTUELLE WOCHE → klickbar #}
                                 <button
                                     class="prayer-status prayer-toggle {% if day.prayed %}is-prayed{% else %}is-open{% endif %}"
@@ -517,7 +527,7 @@
                 {% endif %}
 
                 {# --- Inhalt: خريطة المسابقة --- #}
-                {% if active_tab == "map" and banner %}
+                {% if active_tab == "map" and banner and selected_school_year == "2026" %}
                 <section class="competition-map-panel" aria-labelledby="competition-map-title">
                     <img src="{{ banner.image_url }}"
                          alt="خريطة المسابقة"

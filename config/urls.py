@@ -24,6 +24,8 @@ from core import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home, name='home'),
+    path('school-year/', views.school_year, name='school_year'),
+    path('accounts/login/', views.SchoolLoginView.as_view(), name='login'),
     path('accounts/', include('django.contrib.auth.urls')),  # Login/Logout/Passwort
     path('profile/', profile_view, name='profile'),
     path("absences/mark/", views.mark_absence, name="mark_absence"),

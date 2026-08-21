@@ -105,6 +105,7 @@ class Group(models.Model):
 class ChecklistItem(models.Model):
     title = models.CharField(max_length=200)
     order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
     # Sichtbarkeit: nur für diese Klassen. Wenn leer -> für alle Klassen sichtbar.
     classrooms = models.ManyToManyField('ClassRoom', blank=True, related_name='checklist_items')
 

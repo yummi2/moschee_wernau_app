@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}اختيار السنة الدراسية{% endblock %}
+{% block content %}
+<section class="school-year-page" dir="rtl">
+  <span class="login-orb login-orb--one" aria-hidden="true"></span>
+  <span class="login-orb login-orb--two" aria-hidden="true"></span>
+
+  <div class="school-year-card">
+    <div class="school-year-mark" aria-hidden="true">
+      <svg viewBox="0 0 32 32" fill="none">
+        <path d="M7 26V13.5L16 6l9 7.5V26H7Z" fill="currentColor" opacity=".2"/>
+        <path d="M11 26V15.5L16 11l5 4.5V26M14 26v-6a2 2 0 0 1 4 0v6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <p class="school-year-kicker">مرحبًا بك في دار الفرح</p>
+    <h1>اختر السنة الدراسية</h1>
+    
+    <form method="post" class="school-year-options">
+      {% csrf_token %}
+      <button type="submit" name="school_year" value="2026" class="school-year-option">
+        <span class="school-year-option-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M5 4h14a2 2 0 0 1 2 2v14H3V6a2 2 0 0 1 2-2ZM8 2v4M16 2v4M3 9h18"/></svg>
+        </span>
+        <strong><bdi dir="ltr">2026</bdi></strong>
+        <small>السنة الدراسية</small>
+      </button>
+      <button type="submit" name="school_year" value="2027" class="school-year-option">
+        <span class="school-year-option-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M5 4h14a2 2 0 0 1 2 2v14H3V6a2 2 0 0 1 2-2ZM8 2v4M16 2v4M3 9h18"/></svg>
+        </span>
+        <strong><bdi dir="ltr">2027</bdi></strong>
+        <small>السنة الدراسية</small>
+      </button>
+    </form>
+  </div>
+</section>
+{% endblock %}

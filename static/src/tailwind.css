@@ -111,6 +111,60 @@ body {
   margin-block-start: 2rem;
 }
 
+.school-year-switch {
+  display: grid;
+  gap: 0.45rem;
+  margin-block-start: auto;
+  margin-block-end: 0.55rem;
+  padding: 0.7rem;
+  border: 1px solid rgb(234 217 183 / 28%);
+  border-radius: 1rem;
+  background: rgb(245 234 212 / 9%);
+}
+
+.school-year-switch + .app-logout { margin-block-start: 0; }
+
+.school-year-switch-label {
+  color: #ead9b7;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.6;
+  letter-spacing: normal;
+}
+
+.school-year-switch-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.35rem;
+  padding: 0.25rem;
+  border-radius: 0.8rem;
+  background: rgb(4 29 23 / 48%);
+}
+
+.school-year-switch-button {
+  min-height: 2.5rem;
+  border-radius: 0.65rem;
+  color: #d8c49d;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 750;
+  transition: color 180ms ease, background-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.school-year-switch-button:hover {
+  color: #fffdf8;
+  background: rgb(245 234 212 / 12%);
+}
+
+.school-year-switch-button.is-active {
+  color: #082f25;
+  background: linear-gradient(145deg, #f5ead4, #d8c49d);
+  box-shadow: 0 5px 14px rgb(4 29 23 / 28%);
+}
+
+.school-year-switch-button:active { transform: scale(.96); }
+.school-year-switch-button:focus-visible { outline: 2px solid #f5ead4; outline-offset: 2px; }
+
 .app-nav-link {
   display: flex;
   align-items: center;
@@ -168,6 +222,27 @@ body {
 @media (min-width: 64rem) {
   body {
     padding-right: 17.5rem;
+  }
+
+  .app-sidebar {
+    padding-block: clamp(0.55rem, 1.8vh, 1.5rem);
+    overflow-y: hidden;
+  }
+
+  .app-brand { min-height: clamp(2.8rem, 6.5vh, 4rem); }
+  .app-nav {
+    gap: clamp(0.15rem, 0.55vh, 0.45rem);
+    margin-block-start: clamp(0.45rem, 1.8vh, 2rem);
+  }
+  .school-year-switch {
+    gap: clamp(0.2rem, 0.5vh, 0.45rem);
+    margin-block-end: clamp(0.15rem, 0.55vh, 0.55rem);
+    padding: clamp(0.4rem, 0.9vh, 0.7rem);
+  }
+  .school-year-switch-button { min-height: clamp(2rem, 4.6vh, 2.5rem); }
+  .app-nav-link {
+    min-height: clamp(2.4rem, 5.7vh, 3.25rem);
+    padding-block: clamp(0.3rem, 0.8vh, 0.65rem);
   }
 }
 
@@ -374,7 +449,8 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .app-nav-link {
+  .app-nav-link,
+  .school-year-switch-button {
     transition: none;
   }
 
@@ -499,6 +575,18 @@ body {
 .mini-calendar-nav:focus-visible {
   outline: 2px solid #17805e;
   outline-offset: 2px;
+}
+
+.mini-calendar-nav.is-disabled {
+  opacity: .28;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.mini-calendar-nav.is-disabled:hover {
+  color: inherit;
+  background: transparent;
+  transform: none;
 }
 
 .mini-calendar-table {
@@ -721,11 +809,17 @@ body {
 
 .assignment-stats {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: clamp(0.5rem, 2vw, 1rem);
   margin-block: 1rem;
   font-family: "Cairo", "Tajawal", "Segoe UI", Tahoma, Arial, sans-serif;
   letter-spacing: normal;
+}
+
+@media (min-width: 40rem) {
+  .assignment-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 .assignment-stat {
@@ -765,6 +859,141 @@ body {
 
 .assignment-stat strong.is-counting {
   animation: assignment-count-pop 520ms cubic-bezier(.2, .8, .2, 1);
+}
+
+.absence-confirm-dialog {
+  width: min(29rem, calc(100% - 2rem));
+  margin: auto;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  border-radius: 1.6rem;
+  background: transparent;
+  color: #10231e;
+}
+
+.absence-confirm-dialog::backdrop {
+  background: rgb(4 29 23 / 58%);
+  backdrop-filter: blur(7px);
+}
+
+.absence-confirm-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgb(234 217 183 / 80%);
+  border-radius: 1.6rem;
+  padding: 1.6rem;
+  background:
+    radial-gradient(circle at 100% 0, rgb(23 128 94 / 13%), transparent 13rem),
+    linear-gradient(145deg, #fffdf8, #f8f1e4);
+  box-shadow: 0 28px 75px rgb(4 29 23 / 30%);
+  animation: absence-dialog-in 260ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.absence-confirm-icon {
+  display: grid;
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  margin-block-end: 1rem;
+  border-radius: 1rem;
+  color: #0b4938;
+  background: #e4f3ed;
+  box-shadow: 0 9px 22px rgb(11 73 56 / 13%);
+}
+
+.absence-confirm-icon svg {
+  width: 1.7rem;
+  height: 1.7rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.absence-confirm-copy > span {
+  color: #0b4938;
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1.7;
+}
+
+.absence-confirm-copy h2 {
+  margin-block-start: 0.2rem;
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1.55;
+}
+
+.absence-confirm-copy p {
+  margin-block-start: 0.35rem;
+  color: #64748b;
+  font-size: 0.9rem;
+  line-height: 1.8;
+}
+
+.absence-confirm-copy bdi {
+  display: inline-flex;
+  margin-block-start: 0.85rem;
+  border: 1px solid #b8dccc;
+  border-radius: 9999px;
+  padding: 0.35rem 0.8rem;
+  color: #075c4d;
+  background: rgb(228 243 237 / 78%);
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
+.absence-confirm-actions {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 0.7rem;
+  margin-block-start: 1.5rem;
+}
+
+.absence-confirm-actions button {
+  min-height: 3rem;
+  cursor: pointer;
+  border-radius: 0.9rem;
+  padding-inline: 0.8rem;
+  font-size: 0.85rem;
+  font-weight: 750;
+  transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+}
+
+.absence-confirm-cancel {
+  color: #475569;
+  border: 1px solid #dbe2df;
+  background: rgb(255 255 255 / 75%);
+}
+
+.absence-confirm-submit {
+  color: #fff;
+  background: linear-gradient(135deg, #0b4938, #17805e);
+  box-shadow: 0 10px 22px rgb(11 73 56 / 24%);
+}
+
+.absence-confirm-dialog.is-message .absence-confirm-actions {
+  grid-template-columns: 1fr;
+}
+
+.absence-confirm-actions button:hover { transform: translateY(-2px); }
+.absence-confirm-actions button:focus-visible { outline: 3px solid #8fcfc0; outline-offset: 2px; }
+
+@keyframes absence-dialog-in {
+  from { opacity: 0; transform: translateY(0.75rem) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 39.999rem) {
+  .absence-confirm-card { padding: 1.25rem; }
+  .absence-confirm-actions { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .absence-confirm-card { animation: none; }
+  .absence-confirm-actions button { transition: none; }
 }
 
 @keyframes assignment-count-pop {
@@ -1326,6 +1555,18 @@ body {
 .prayer-week-button:focus-visible {
   outline: 2px solid #17805e;
   outline-offset: 2px;
+}
+
+.prayer-week-button.is-disabled {
+  opacity: .38;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.prayer-week-button.is-disabled:hover {
+  color: #0b4938;
+  background: #fff;
+  transform: none;
 }
 
 .prayer-week-title {
@@ -2351,6 +2592,36 @@ body.auth-page {
   animation-delay: -3.5s;
 }
 
+.login-animated-logo {
+  --login-logo-top: clamp(1.25rem, 3vw, 2.5rem);
+  --login-logo-right: clamp(1.25rem, 3vw, 2.5rem);
+  position: absolute;
+  top: var(--login-logo-top);
+  right: var(--login-logo-right);
+  z-index: 4;
+  width: clamp(6rem, 9vw, 8rem);
+  height: clamp(6rem, 9vw, 8rem);
+  pointer-events: none;
+  filter: drop-shadow(0 14px 24px rgb(4 29 23 / 22%));
+  animation: login-logo-arrive 1800ms cubic-bezier(.22, 1, .36, 1) both;
+}
+
+.login-logo-anchor {
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+  width: clamp(6rem, 9vw, 8rem);
+  height: clamp(6rem, 9vw, 8rem);
+  pointer-events: none;
+}
+
+.login-animated-logo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
 .login-shell {
   position: relative;
   z-index: 1;
@@ -2364,7 +2635,7 @@ body.auth-page {
   background: rgb(255 255 255 / 82%);
   box-shadow: 0 30px 80px rgb(20 83 45 / 15%);
   backdrop-filter: blur(20px);
-  animation: login-shell-enter 600ms cubic-bezier(.2, .8, .2, 1) both;
+  animation: login-shell-enter 800ms cubic-bezier(.22, 1, .36, 1) 1800ms both;
 }
 
 .login-intro {
@@ -2658,8 +2929,8 @@ body.auth-page {
 }
 
 @keyframes login-shell-enter {
-  from { opacity: 0; transform: translateY(18px) scale(.985); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes login-float {
@@ -2667,10 +2938,31 @@ body.auth-page {
   50% { transform: translateY(-14px); }
 }
 
+@keyframes login-logo-arrive {
+  0% {
+    top: 50%;
+    right: 50%;
+    opacity: 0;
+    transform: translate(50%, -50%) scale(1.55);
+  }
+  18% { opacity: 1; }
+  58% {
+    top: 50%;
+    right: 50%;
+    transform: translate(50%, -50%) scale(1.55);
+  }
+  100% {
+    top: var(--login-logo-top);
+    right: var(--login-logo-right);
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+}
+
 @media (max-width: 47.999rem) {
   body.auth-page { padding-block-end: 0; }
 
-  .login-page { padding: 1rem; }
+  .login-page { padding: 6.5rem 1rem 1rem; }
 
   .login-shell {
     min-height: 0;
@@ -2679,16 +2971,176 @@ body.auth-page {
   }
 
   .login-intro { display: none; }
-  .login-mobile-mark { display: grid; }
+  .login-animated-logo {
+    --login-logo-top: 1rem;
+    --login-logo-right: 1rem;
+    top: var(--login-logo-top);
+    right: 1rem;
+    width: 5rem;
+    height: 5rem;
+  }
   .login-card { padding: clamp(1.5rem, 7vw, 2.25rem); }
   .login-card-heading { margin-block-end: 1.5rem; }
   .login-orb--one { width: 5rem; height: 5rem; }
   .login-orb--two { width: 8rem; height: 8rem; }
 }
 
+.content-page-fill {
+  min-height: calc(100dvh - 4rem);
+}
+
+@media (max-width: 63.999rem) {
+  .content-page-fill {
+    min-height: calc(100dvh - 9rem);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .login-shell,
   .login-orb,
   .login-submit,
-  .login-submit svg { animation: none; transition: none; }
+  .login-submit svg,
+  .login-animated-logo { animation: none; transition: none; }
+
+  .login-shell { opacity: 1; transform: none; }
+}
+
+/* School-year selection shown immediately after login. */
+.school-year-page {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  position: relative;
+  overflow: hidden;
+  padding: clamp(1rem, 4vw, 3rem);
+  background:
+    radial-gradient(circle at 12% 18%, rgb(216 196 157 / 38%), transparent 24rem),
+    radial-gradient(circle at 88% 84%, rgb(234 217 183 / 50%), transparent 28rem),
+    linear-gradient(145deg, #fbf8f1, #f4ead7 52%, #faf8f3);
+}
+
+.school-year-card {
+  z-index: 1;
+  width: min(100%, 42rem);
+  padding: clamp(1.75rem, 6vw, 3.5rem);
+  text-align: center;
+  background: rgb(255 255 255 / 82%);
+  border: 1px solid rgb(255 255 255 / 88%);
+  border-radius: 2rem;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 30px 80px rgb(11 73 56 / 15%);
+  animation: login-shell-enter 600ms cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.school-year-mark {
+  width: 4rem;
+  height: 4rem;
+  margin-inline: auto;
+  margin-block-end: 1rem;
+  display: grid;
+  place-items: center;
+  color: #f5ead4;
+  background: linear-gradient(145deg, #0b4938, #116149);
+  border-radius: 1.25rem;
+  box-shadow: 0 12px 28px rgb(11 73 56 / 24%);
+}
+
+.school-year-mark svg { width: 2rem; height: 2rem; }
+.school-year-kicker { color: #116149; font-weight: 700; line-height: 1.6; }
+.school-year-card h1 {
+  margin-block-start: .2rem;
+  color: #0f172a;
+  font-size: clamp(1.8rem, 5vw, 2.5rem);
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: normal;
+}
+.school-year-copy { margin-block-start: .45rem; color: #64748b; line-height: 1.7; }
+
+.school-year-options {
+  margin-block-start: 2rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.school-year-option {
+  min-height: 10rem;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #0b4938;
+  background: linear-gradient(145deg, #fffdf8, #f5ead4);
+  border: 1px solid #ead9b7;
+  border-radius: 1.4rem;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgb(11 73 56 / 8%);
+  transition: transform 180ms ease, color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+}
+
+.school-year-option-icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  display: grid;
+  place-items: center;
+  margin-block-end: .65rem;
+  border-radius: .9rem;
+  background: rgb(11 73 56 / 9%);
+}
+.school-year-option-icon svg {
+  width: 1.45rem;
+  height: 1.45rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.school-year-option strong { font-size: 1.75rem; line-height: 1.35; }
+.school-year-option small { margin-block-start: .15rem; color: #64748b; line-height: 1.6; }
+.school-year-option:hover {
+  color: #fff;
+  background: linear-gradient(145deg, #0b4938, #116149);
+  transform: translateY(-4px);
+  box-shadow: 0 18px 34px rgb(11 73 56 / 24%);
+}
+.school-year-option:hover small { color: #f5ead4; }
+.school-year-option:hover .school-year-option-icon { background: rgb(255 255 255 / 15%); }
+.school-year-option:focus-visible { outline: 3px solid #17805e; outline-offset: 3px; }
+
+@media (max-width: 39.999rem) {
+  .school-year-card { border-radius: 1.5rem; }
+  .school-year-options { grid-template-columns: 1fr; }
+  .school-year-option { min-height: 7.5rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .school-year-card { animation: none; }
+  .school-year-option { transition: none; }
+}
+
+/* Logo without the former colored or translucent tile. Keep this final so
+   the theme-specific sidebar and login rules cannot add the tile again. */
+.app-brand-mark,
+.app-sidebar .app-brand-mark,
+.login-brand-mark,
+.login-mobile-mark {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.app-brand-logo,
+.login-brand-mark img,
+.login-mobile-mark img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  object-fit: contain;
 }

@@ -7,10 +7,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>{% block title %}دار الفرح {% endblock %}</title>
   {% load static i18n extras %}
+  <link rel="icon" type="image/png" href="{% static 'images/fav-icon.png' %}?v=2">
+  <link rel="shortcut icon" type="image/png" href="{% static 'images/fav-icon.png' %}?v=2">
+  <link rel="apple-touch-icon" href="{% static 'images/fav-icon.png' %}?v=2">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260821-71">  <style>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260821-83">  <style>
   .act-grid{
     display: grid;
     gap: 12px;
@@ -41,15 +44,14 @@
 
 </head>
 
-<body class="bg-gray-50 text-gray-900 {% if request.resolver_match.url_name == 'login' %}auth-page{% endif %}">
-  {% if request.resolver_match.url_name != 'login' %}
+<body class="bg-gray-50 text-gray-900 {% if request.resolver_match.url_name == 'login' or request.resolver_match.url_name == 'school_year' %}auth-page{% endif %}">
+  {% if request.resolver_match.url_name != 'login' and request.resolver_match.url_name != 'school_year' %}
   <header class="app-sidebar" dir="rtl">
     <a href="{% url 'home' %}?tab=home" class="app-brand" aria-label="دار الفرح، الصفحة الرئيسية">
-      <span class="app-brand-mark" aria-hidden="true">
-        <svg viewBox="0 0 32 32" width="27" height="27" fill="none">
-          <path d="M7 26V13.5L16 6l9 7.5V26H7Z" fill="currentColor" opacity=".18"/>
-          <path d="M11 26V15.5L16 11l5 4.5V26M14 26v-6a2 2 0 0 1 4 0v6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+      <span class="app-brand-mark">
+        <img src="{% static 'images/logo.png' %}"
+        alt="شعار دار الفرح"
+        class="app-brand-logo">
       </span>
       <span>
         <strong>دار الفرح</strong>
@@ -71,6 +73,7 @@
     </button>
 
     <nav id="appPrimaryNav" class="app-nav" aria-label="التنقل الرئيسي">
+
       <a href="{% url 'home' %}{% if user.is_authenticated %}?tab=home{% endif %}" class="app-nav-link {% if user.is_authenticated %}app-mobile-bottom-item{% else %}app-mobile-top{% endif %} {% if request.resolver_match.url_name == 'home' %}{% if not user.is_authenticated or request.GET.tab == 'home' %}is-active{% endif %}{% endif %}">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5M5.5 10v10h13V10M9.5 20v-6h5v6"/></svg>
         <span>الصفحة الرئيسية</span>
@@ -101,18 +104,19 @@
         <span>الصفحة الشخصية</span>
       </a>
 
+    
 
       {% if show_sidebar_calendar %}
       <section class="mini-calendar app-sidebar-calendar" aria-label="التقويم الشهري">
         <form id="csrf-helper" class="hidden">{% csrf_token %}</form>
         <div class="mini-calendar-header">
-          <a href="?y={{ cal_next_y }}&m={{ cal_next_m }}" class="mini-calendar-nav" aria-label="الشهر التالي">
+          {% if has_cal_next %}<a href="?y={{ cal_next_y }}&m={{ cal_next_m }}" class="mini-calendar-nav" aria-label="الشهر التالي">
             <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 18l6-6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </a>
+          </a>{% else %}<span class="mini-calendar-nav is-disabled" aria-disabled="true"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 18l6-6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>{% endif %}
           <span class="mini-calendar-title"><bdi dir="ltr">{{ cal_month_name }} {{ cal_year }}</bdi></span>
-          <a href="?y={{ cal_prev_y }}&m={{ cal_prev_m }}" class="mini-calendar-nav" aria-label="الشهر السابق">
+          {% if has_cal_prev %}<a href="?y={{ cal_prev_y }}&m={{ cal_prev_m }}" class="mini-calendar-nav" aria-label="الشهر السابق">
             <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </a>
+          </a>{% else %}<span class="mini-calendar-nav is-disabled" aria-disabled="true"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>{% endif %}
         </div>
         <table class="mini-calendar-table">
           <thead><tr>{% for d in cal_weekday_names %}<th>{{ d }}</th>{% endfor %}</tr></thead>
@@ -150,7 +154,7 @@
             btn.style.cursor = clickable ? "pointer" : "default";
             btn.addEventListener("click", async () => {
               if (!btn.classList.contains("is-purple") || btn.classList.contains("is-absent") || btn.disabled) return;
-              if (!confirm("هل تريد وضع علامة غياب لهذا اليوم؟")) return;
+              if (!await window.confirmAbsence(btn.dataset.date)) return;
               try {
                 const response = await fetch("{% url 'mark_absence' %}", {
                   method: "POST",
@@ -158,20 +162,32 @@
                   body: JSON.stringify({ date: btn.dataset.date }),
                 });
                 const data = await response.json();
-                if (!response.ok) return alert(data.error || "تعذر تنفيذ الطلب.");
+                if (!response.ok) return window.showAbsenceError(data.error || "تعذر تنفيذ الطلب.");
                 btn.classList.remove("bg-purple-600", "is-purple");
                 btn.classList.add("bg-red-600", "text-white", "is-absent");
                 btn.disabled = true;
                 const count = document.getElementById("absencesCount");
                 if (count && typeof data.total === "number") count.textContent = String(data.total);
               } catch (_) {
-                alert("حدث خطأ غير متوقع.");
+                window.showAbsenceError("حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.");
               }
             });
           });
         })();
       </script>
       {% endif %}
+
+      {% with selected_year=request.session.school_year|default:"2027" %}
+      <form method="post" action="{% url 'school_year' %}" class="school-year-switch" aria-label="اختيار السنة الدراسية">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+        <span class="school-year-switch-label">السنة الدراسية</span>
+        <span class="school-year-switch-options">
+          <button type="submit" name="school_year" value="2027" class="school-year-switch-button {% if selected_year == '2027' %}is-active{% endif %}" aria-pressed="{% if selected_year == '2027' %}true{% else %}false{% endif %}"><bdi dir="ltr">2027</bdi></button>
+          <button type="submit" name="school_year" value="2026" class="school-year-switch-button {% if selected_year == '2026' %}is-active{% endif %}" aria-pressed="{% if selected_year == '2026' %}true{% else %}false{% endif %}"><bdi dir="ltr">2026</bdi></button>
+        </span>
+      </form>
+      {% endwith %}
 
       <button type="button" onclick="document.getElementById('logoutForm').submit();" class="app-nav-link app-mobile-top app-logout">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H5v14h5M14 8l4 4-4 4M8 12h10"/></svg>
@@ -188,7 +204,7 @@
   </header>
   {% endif %}
 
-  {% if user.is_authenticated %}
+  {% if user.is_authenticated and request.resolver_match.url_name != 'school_year' %}
   <nav class="app-bottom-nav" dir="rtl" aria-label="التنقل السريع">
     <span class="app-bottom-nav-indicator" aria-hidden="true"></span>
     <a href="{% url 'home' %}?tab=home" class="app-bottom-nav-link {% if request.resolver_match.url_name == 'home' and request.GET.tab == 'home' %}is-active{% endif %}" aria-label="الصفحة الرئيسية">
@@ -211,7 +227,7 @@
   </nav>
   {% endif %}
 
-  <main class="{% if request.resolver_match.url_name == 'login' %}login-main{% else %}app-main max-w-5xl mx-auto px-4 py-8{% endif %}">
+  <main class="{% if request.resolver_match.url_name == 'login' or request.resolver_match.url_name == 'school_year' %}login-main{% else %}app-main max-w-5xl mx-auto px-4 py-8{% endif %}">
     {% if messages %}
     <ul id="messages" class="mb-4 space-y-2">
       {% for m in messages %}
@@ -334,6 +350,107 @@
         setIndicatorPosition(activeIndex);
         requestAnimationFrame(() => indicator.style.removeProperty("transition"));
       });
+    })();
+  </script>
+
+  <dialog id="absenceConfirmDialog" class="absence-confirm-dialog" dir="rtl" aria-labelledby="absenceConfirmTitle">
+    <form method="dialog" class="absence-confirm-card">
+      <div class="absence-confirm-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 8v4m0 4h.01"/><path d="M10.3 3.7 2.6 17a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.7a2 2 0 0 0-3.4 0Z"/></svg>
+      </div>
+      <div class="absence-confirm-copy">
+        <span id="absenceConfirmEyebrow">تأكيد الغياب</span>
+        <h2 id="absenceConfirmTitle">هل تريد تسجيل الغياب؟</h2>
+        <p id="absenceConfirmMessage">سيتم تسجيل هذا اليوم كغياب في التقويم.</p>
+        <bdi id="absenceConfirmDate" dir="ltr"></bdi>
+      </div>
+      <div class="absence-confirm-actions">
+        <button id="absenceConfirmCancel" type="submit" value="cancel" class="absence-confirm-cancel">إلغاء</button>
+        <button id="absenceConfirmSubmit" type="submit" value="confirm" class="absence-confirm-submit">نعم، تسجيل الغياب</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    (() => {
+      const dialog = document.getElementById("absenceConfirmDialog");
+      const dateLabel = document.getElementById("absenceConfirmDate");
+      const eyebrow = document.getElementById("absenceConfirmEyebrow");
+      const title = document.getElementById("absenceConfirmTitle");
+      const message = document.getElementById("absenceConfirmMessage");
+      const cancelButton = document.getElementById("absenceConfirmCancel");
+      const submitButton = document.getElementById("absenceConfirmSubmit");
+
+      window.confirmAbsence = (date) => new Promise((resolve) => {
+        if (!dialog || typeof dialog.showModal !== "function") {
+          resolve(window.confirm("هل تريد تسجيل الغياب لهذا اليوم؟"));
+          return;
+        }
+
+        dialog.classList.remove("is-message");
+        eyebrow.textContent = "تأكيد الغياب";
+        title.textContent = "هل تريد تسجيل الغياب؟";
+        message.textContent = "سيتم تسجيل هذا اليوم كغياب في التقويم.";
+        cancelButton.hidden = false;
+        submitButton.value = "confirm";
+        submitButton.textContent = "نعم، تسجيل الغياب";
+
+        const parsedDate = new Date(`${date}T12:00:00`);
+        dateLabel.textContent = Number.isNaN(parsedDate.getTime())
+          ? date
+          : new Intl.DateTimeFormat("ar", { day: "numeric", month: "long", year: "numeric" }).format(parsedDate);
+
+        const handleClose = () => resolve(dialog.returnValue === "confirm");
+        dialog.addEventListener("close", handleClose, { once: true });
+        dialog.showModal();
+      });
+
+      window.showAbsenceError = (errorMessage) => {
+        if (!dialog || typeof dialog.showModal !== "function") {
+          window.alert(errorMessage);
+          return;
+        }
+        dialog.classList.add("is-message");
+        eyebrow.textContent = "تعذر تسجيل الغياب";
+        title.textContent = "لا يمكن تنفيذ الطلب الآن";
+        message.textContent = errorMessage;
+        dateLabel.textContent = "";
+        cancelButton.hidden = true;
+        submitButton.value = "cancel";
+        submitButton.textContent = "حسنًا";
+        dialog.showModal();
+      };
+
+      dialog?.addEventListener("click", (event) => {
+        if (event.target === dialog) dialog.close("cancel");
+      });
+    })();
+  </script>
+
+  <script>
+    (() => {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+      document.addEventListener("pointerdown", (event) => {
+        const control = event.target.closest(
+          "button:not(:disabled), a[href], input[type='button']:not(:disabled), input[type='submit']:not(:disabled), [role='button']"
+        );
+        if (!control || control.classList.contains("app-bottom-nav-link")) return;
+
+        control.getAnimations().forEach((animation) => {
+          if (animation.id === "global-control-feedback") animation.cancel();
+        });
+        const animation = control.animate([
+          { scale: "1", filter: "brightness(1)", offset: 0 },
+          { scale: "0.965", filter: "brightness(0.96)", offset: 0.42 },
+          { scale: "1.01", filter: "brightness(1.03)", offset: 0.76 },
+          { scale: "1", filter: "brightness(1)", offset: 1 }
+        ], {
+          duration: 360,
+          easing: "cubic-bezier(.22, 1, .36, 1)"
+        });
+        animation.id = "global-control-feedback";
+      }, { passive: true });
     })();
   </script>
 

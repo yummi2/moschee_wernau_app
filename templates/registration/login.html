@@ -1,18 +1,17 @@
 {% extends "base.html" %}
 {% block title %}تسجيل الدخول{% endblock %}
 {% block content %}
+{% load static %}
 <section class="login-page" dir="rtl">
   <span class="login-orb login-orb--one" aria-hidden="true"></span>
   <span class="login-orb login-orb--two" aria-hidden="true"></span>
+  <div class="login-animated-logo" aria-hidden="true">
+    <img src="{% static 'images/logo.png' %}" alt="">
+  </div>
 
   <div class="login-shell">
     <aside class="login-intro" aria-label="دار الفرح">
-      <div class="login-brand-mark" aria-hidden="true">
-        <svg viewBox="0 0 32 32" width="34" height="34" fill="none">
-          <path d="M7 26V13.5L16 6l9 7.5V26H7Z" fill="currentColor" opacity=".2"/>
-          <path d="M11 26V15.5L16 11l5 4.5V26M14 26v-6a2 2 0 0 1 4 0v6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
+      <span class="login-logo-anchor" aria-hidden="true"></span>
       <p class="login-intro-kicker">مرحبًا بك في</p>
       <h1>دار الفرح</h1>
       <p class="login-intro-copy">مساحتك لمتابعة الواجبات والأنشطة والتقدم الدراسي بسهولة.</p>
@@ -23,9 +22,6 @@
 
     <div class="login-card">
       <div class="login-card-heading">
-        <span class="login-mobile-mark" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5M5.5 10v10h13V10M9.5 20v-6h5v6"/></svg>
-        </span>
         <div>
           <p>أهلًا وسهلًا</p>
           <h2>تسجيل الدخول</h2>
@@ -40,7 +36,6 @@
 
       <form method="post" class="login-form" novalidate>
         {% csrf_token %}
-        {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
 
         <div class="login-field">
           <label for="{{ form.username.id_for_label }}">اسم المستخدم</label>
@@ -74,6 +69,19 @@
 
 <script>
   (() => {
+    const animatedLogo = document.querySelector(".login-animated-logo");
+    const logoAnchor = document.querySelector(".login-logo-anchor");
+
+    const updateLogoTarget = () => {
+      if (!animatedLogo || !logoAnchor || !logoAnchor.offsetParent) return;
+      const target = logoAnchor.getBoundingClientRect();
+      animatedLogo.style.setProperty("--login-logo-top", `${target.top}px`);
+      animatedLogo.style.setProperty("--login-logo-right", `${window.innerWidth - target.right}px`);
+    };
+
+    updateLogoTarget();
+    window.addEventListener("resize", updateLogoTarget);
+
     const toggle = document.querySelector(".login-password-toggle");
     const password = document.getElementById("{{ form.password.id_for_label }}");
     if (!toggle || !password) return;
@@ -87,4 +95,3 @@
   })();
 </script>
 {% endblock %}
-

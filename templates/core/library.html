@@ -3,10 +3,10 @@
 {% block title %}مكتبتي{% endblock %}
 
 {% block content %}
-<div class="mt-8" dir="rtl">
+<div class="content-page-fill bg-white rounded-2xl mt-8" dir="rtl">
     {# === 0) Level-Auswahl === #}
     {% if not level %}
-    <div class="mx-auto max-w-5xl bg-white rounded-2xl shadow p-6">
+    <div class="mx-auto max-w-5xl p-6">
         <h3 class="text-xl font-semibold mb-4 text-right">اختر مستوى</h3>
         <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             <a href="{% url 'library' %}?level=beginner"
@@ -33,7 +33,7 @@
     {# === 1) Satzliste (für beliebiges Level) === #}
     {% elif level and not story %}
     <div class="mx-auto max-w-5xl px-4">
-        <div class="bg-white rounded-2xl shadow p-6">
+        <div class="p-6">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-2xl font-semibold text-blue-800">{{ level_title }}</h2>
             </div>
@@ -55,7 +55,7 @@
     {# === 2 Detailansicht/Geschichte === #}
     {% elif story %}
     <div class="mx-auto max-w-3xl px-4">
-        <div class="bg-white rounded-2xl shadow p-6 text-right">
+        <div class="p-6 text-right">
             <h2 class="text-2xl font-bold text-blue-800 mb-2">{{ story.title }}</h2>
             <p class="text-sm text-gray-500 mb-4">{{ level_title }} • {{ p }} / {{ total }}</p>
 

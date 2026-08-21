@@ -137,7 +137,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_REDIRECT_URL = '/?tab=home'  # nach dem Login direkt zur persönlichen Homepage
+LOGIN_REDIRECT_URL = '/?tab=home'  # nach dem Login direkt zum aktuellen Schuljahr
 LOGOUT_REDIRECT_URL = reverse_lazy('login')  # nach dem Logout zur modernen Login-Seite
 
 if not DEBUG:

@@ -12,9 +12,11 @@ import json
 from django.conf import settings
 from django.views.decorators.http import require_POST, require_GET
 from django.contrib.auth.models import User
+from django.contrib.auth.views import LoginView
 from django.db.models import Q
 from .forms import WeeklyBannerForm
 from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 from .ramadan_data import RAMADAN_CONTENT, RAMADAN_ITEMS_META, RAMADAN_ITEMS_ORDER
 from django.shortcuts import render
 from .stories_data import STORIES
@@ -30,6 +32,7 @@ ARABIC_NOT_PURPLE = "لا يمكن وضع علامة الغياب إلا في ا
 
 ACADEMIC_START = dt.date(2025, 9, 1)
 ACADEMIC_END_EXCL = dt.date(2026, 9, 1)
+SCHOOL_YEAR_CONTENT_CUTOFF = dt.date(2026, 8, 21)
 PRAYERS = [
     (1, "الفجر"),
     (2, "الظهر"),
@@ -37,6 +40,38 @@ PRAYERS = [
     (4, "المغرب"),
     (5, "العشاء"),
 ]
+
+
+def selected_school_year_ranges(request):
+    """Return the calendar and prayer limits for the selected school year."""
+    selected_year = request.session.get("school_year", "2027")
+    if selected_year == "2026":
+        return {
+            "year": "2026",
+            "calendar_start": dt.date(2025, 9, 1),
+            "calendar_end": dt.date(2026, 7, 1),
+            "prayer_start": dt.date(2025, 9, 1),
+            "prayer_end": dt.date(2026, 8, 31),
+        }
+    return {
+        "year": "2027",
+        "calendar_start": dt.date(2026, 9, 1),
+        "calendar_end": dt.date(2027, 7, 1),
+        "prayer_start": dt.date(2026, 9, 1),
+        "prayer_end": dt.date(2027, 8, 31),
+    }
+
+
+class SchoolLoginView(LoginView):
+    template_name = "registration/login.html"
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        self.request.session["school_year"] = "2027"
+        return response
+
+    def get_success_url(self):
+        return f"{reverse('home')}?tab=home"
 ARABIC_WEEKDAYS = {
     0: "الاثنين",
     1: "الثلاثاء",
@@ -114,13 +149,17 @@ def assignment_progress(assignments, user, now=None):
 
     return counts
 
-def visible_items_for_student(student):
+def visible_items_for_student(student, school_year="2027"):
     # Items ohne Classroom-Einschränkung ODER an mindestens eine Klasse des Schülers gebunden
     student_cls_ids = ClassRoom.objects.filter(students=student).values_list('id', flat=True)
-    return (ChecklistItem.objects
-            .filter(Q(classrooms__isnull=True) | Q(classrooms__id__in=student_cls_ids))
-            .distinct()
-            .order_by('order', 'id'))
+    items = ChecklistItem.objects.filter(
+        Q(classrooms__isnull=True) | Q(classrooms__id__in=student_cls_ids)
+    )
+    if school_year == "2027":
+        items = items.filter(created_at__date__gte=SCHOOL_YEAR_CONTENT_CUTOFF)
+    else:
+        items = items.filter(created_at__date__lt=SCHOOL_YEAR_CONTENT_CUTOFF)
+    return items.distinct().order_by('order', 'id')
 
 
 # --- Zeitfenster-Helfer ---
@@ -241,9 +280,30 @@ def mark_absence(request):
 
     return JsonResponse({"ok": True})
 
+@login_required
+def school_year(request):
+    if request.method == "POST":
+        selected_year = request.POST.get("school_year")
+        if selected_year in {"2026", "2027"}:
+            request.session["school_year"] = selected_year
+            next_url = request.POST.get("next", "")
+            if next_url and url_has_allowed_host_and_scheme(
+                next_url,
+                allowed_hosts={request.get_host()},
+                require_https=request.is_secure(),
+            ):
+                return redirect(next_url)
+            return redirect(f"{reverse('home')}?tab=home")
+
+    return redirect(f"{reverse('home')}?tab=home")
+
+
 def home(request):
+    if not request.user.is_authenticated:
+        return redirect("login")
 
     banner = WeeklyBanner.objects.order_by("-updated_at").first()
+    school_year_ranges = selected_school_year_ranges(request)
    
     assignments = []
     today = dt.date.today()
@@ -254,6 +314,11 @@ def home(request):
             active_date = today
     else:
         active_date = today
+
+    active_date = min(
+        max(active_date, school_year_ranges["prayer_start"]),
+        school_year_ranges["prayer_end"],
+    )
 
     prev_week_date = active_date - dt.timedelta(days=7)
     next_week_date = active_date + dt.timedelta(days=7)
@@ -276,6 +341,7 @@ def home(request):
             "weekday_ar": ARABIC_WEEKDAYS[d.weekday()],
             "day": d.day,
             "month": d.month,
+            "in_range": school_year_ranges["prayer_start"] <= d <= school_year_ranges["prayer_end"],
         })
 
     if request.user.is_authenticated:
@@ -304,6 +370,7 @@ def home(request):
                 "weekday_ar": d["weekday_ar"],
                 "day": d["day"],
                 "month": d["month"],
+                "in_range": d["in_range"],
                 "prayed": status_map.get((prayer_key, d["date"]), False),
             })
 
@@ -319,6 +386,13 @@ def home(request):
         y, m = y - 1, 12
     elif m > 12:
         y, m = y + 1, 1
+
+    requested_month = dt.date(y, m, 1)
+    visible_month = min(
+        max(requested_month, school_year_ranges["calendar_start"]),
+        school_year_ranges["calendar_end"],
+    )
+    y, m = visible_month.year, visible_month.month
 
     if request.user.is_authenticated:
         # Klassen, in denen der User Lehrer/Schüler ist
@@ -338,9 +412,15 @@ def home(request):
                            .select_related("classroom", "created_by")
                            .order_by("-created_at"))
 
+        if school_year_ranges["year"] == "2027":
+            assignments = assignments.filter(created_at__date__gte=SCHOOL_YEAR_CONTENT_CUTOFF)
+        else:
+            assignments = assignments.filter(created_at__date__lt=SCHOOL_YEAR_CONTENT_CUTOFF)
+
     assignments = list(assignments)
     assignment_counts = {"completed": 0, "urgent": 0, "missed": 0}
     can_complete_assignments = request.user.is_authenticated and bool(assignments)
+    can_mark_assignments = can_complete_assignments and school_year_ranges["year"] == "2027"
     if can_complete_assignments:
         assignment_counts = assignment_progress(assignments, request.user)
 
@@ -413,12 +493,17 @@ def home(request):
         "assignments": assignments, 
         "assignment_weeks": assignment_weeks,
         "assignment_counts": assignment_counts,
+        "show_assignment_stats": request.session.get("school_year", "2027") == "2027",
+        "selected_school_year": school_year_ranges["year"],
         "can_complete_assignments": can_complete_assignments,
+        "can_mark_assignments": can_mark_assignments,
         "week_days": week_days,
         "weekly_prayers": weekly_prayers,
         "active_date": active_date,
         "prev_week_date": prev_week_date,
         "next_week_date": next_week_date,
+        "has_prev_prayer_week": week_days[0]["date"] > school_year_ranges["prayer_start"],
+        "has_next_prayer_week": week_days[-1]["date"] < school_year_ranges["prayer_end"],
         "current_week_start": current_week_start,
         "current_week_end": current_week_end,
         "cal_year": y, "cal_month": m, "cal_weeks": weeks,
@@ -427,6 +512,8 @@ def home(request):
         "cal_prev_m": (dt.date(y, m, 1) - dt.timedelta(days=1)).month,
         "cal_next_y": ((dt.date(y, m, 28) + dt.timedelta(days=4)).replace(day=1)).year,
         "cal_next_m": ((dt.date(y, m, 28) + dt.timedelta(days=4)).replace(day=1)).month,
+        "has_cal_prev": dt.date(y, m, 1) > school_year_ranges["calendar_start"],
+        "has_cal_next": dt.date(y, m, 1) < school_year_ranges["calendar_end"],
         "cal_today": today,
         "special_map": special_map, 
         "purple_days": purple_days,
@@ -442,6 +529,10 @@ def home(request):
             if sel_id:
                 selected_student = User.objects.filter(pk=sel_id).first()
             notes_qs = TeacherNote.objects.filter(teacher=request.user)
+            if school_year_ranges["year"] == "2027":
+                notes_qs = notes_qs.filter(created_at__date__gte=SCHOOL_YEAR_CONTENT_CUTOFF)
+            else:
+                notes_qs = notes_qs.filter(created_at__date__lt=SCHOOL_YEAR_CONTENT_CUTOFF)
             if selected_student:
                 notes_qs = notes_qs.filter(student=selected_student)
 
@@ -456,15 +547,19 @@ def home(request):
 
         else:
             # Schüler: Notizen an mich + eigene Checkliste
-            items = visible_items_for_student(request.user)
+            items = visible_items_for_student(request.user, school_year_ranges["year"])
             checked_ids = set(StudentChecklist.objects
                               .filter(student=request.user, checked=True)
                               .values_list('item_id', flat=True))
 
             notes_qs = (TeacherNote.objects
                         .filter(student=request.user)
-                        .select_related("teacher", "classroom")
-                        .order_by("-created_at")[:30])
+                        .select_related("teacher", "classroom"))
+            if school_year_ranges["year"] == "2027":
+                notes_qs = notes_qs.filter(created_at__date__gte=SCHOOL_YEAR_CONTENT_CUTOFF)
+            else:
+                notes_qs = notes_qs.filter(created_at__date__lt=SCHOOL_YEAR_CONTENT_CUTOFF)
+            notes_qs = notes_qs.order_by("-created_at")[:30]
 
             ctx.update({
                 "is_teacher": False,
@@ -487,6 +582,9 @@ def home(request):
 @login_required
 @require_POST
 def mark_assignment_done(request):
+    if selected_school_year_ranges(request)["year"] != "2027":
+        return HttpResponseForbidden("Assignment completion is disabled for this school year.")
+
     try:
         data = json.loads(request.body.decode("utf-8"))
         assignment_id = int(data["assignment_id"])
@@ -524,6 +622,7 @@ def mark_assignment_done(request):
 @login_required
 def calendar_page(request):
     today = dt.date.today()
+    school_year_ranges = selected_school_year_ranges(request)
     try:
         year = int(request.GET.get("y", today.year))
         month = int(request.GET.get("m", today.month))
@@ -535,7 +634,12 @@ def calendar_page(request):
     elif month > 12:
         year, month = year + 1, 1
 
-    month_start = dt.date(year, month, 1)
+    requested_month = dt.date(year, month, 1)
+    month_start = min(
+        max(requested_month, school_year_ranges["calendar_start"]),
+        school_year_ranges["calendar_end"],
+    )
+    year, month = month_start.year, month_start.month
     next_month = (month_start.replace(day=28) + dt.timedelta(days=4)).replace(day=1)
     previous_month = month_start - dt.timedelta(days=1)
 
@@ -565,12 +669,16 @@ def calendar_page(request):
         "cal_prev_m": previous_month.month,
         "cal_next_y": next_month.year,
         "cal_next_m": next_month.month,
+        "has_cal_prev": month_start > school_year_ranges["calendar_start"],
+        "has_cal_next": month_start < school_year_ranges["calendar_end"],
         "cal_today": today,
         "special_map": special_map,
         "purple_days": purple_days,
         "absences": absences,
         "absences_total": Absence.objects.filter(
-            user=request.user, date__gte=ACADEMIC_START, date__lt=ACADEMIC_END_EXCL
+            user=request.user,
+            date__gte=school_year_ranges["prayer_start"],
+            date__lte=school_year_ranges["prayer_end"],
         ).count(),
         "ramadan_open": ramadan_is_open(),
     })
@@ -650,7 +758,8 @@ def toggle_check(request):
         return HttpResponseForbidden("Nicht deine Klasse")
 
     # Item muss für den Schüler sichtbar sein
-    vis_ids = set(visible_items_for_student(student).values_list('id', flat=True))
+    selected_year = selected_school_year_ranges(request)["year"]
+    vis_ids = set(visible_items_for_student(student, selected_year).values_list('id', flat=True))
     if item.id not in vis_ids:
         return HttpResponseForbidden("Item für diesen Schüler nicht sichtbar")
 
@@ -777,6 +886,10 @@ def toggle_prayer(request):
 
     if prayer not in dict(PRAYERS):
         return HttpResponseBadRequest("Unknown prayer")
+
+    school_year_ranges = selected_school_year_ranges(request)
+    if not school_year_ranges["prayer_start"] <= date <= school_year_ranges["prayer_end"]:
+        return HttpResponseForbidden("Date is outside the selected school year.")
 
     today = dt.date.today()
     weekday = today.weekday()
