@@ -33,6 +33,63 @@ option {
   letter-spacing: normal;
 }
 
+@view-transition {
+  navigation: auto;
+}
+
+/* Kein heller Standard-Crossfade beim Seitenwechsel. */
+::view-transition-group(root),
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  opacity: 0;
+}
+
+.school-year-switch-button.is-active {
+  view-transition-name: active-school-year;
+}
+
+.app-sidebar .app-nav-link.is-active {
+  view-transition-name: active-sidebar-item;
+}
+
+.home-section-tab.is-active {
+  view-transition-name: active-home-section;
+}
+
+html.school-year-changing .app-sidebar .app-nav-link.is-active,
+html.school-year-changing .home-section-tab.is-active {
+  view-transition-name: none;
+}
+
+::view-transition-group(active-school-year),
+::view-transition-group(active-sidebar-item),
+::view-transition-group(active-home-section) {
+  animation-duration: 520ms;
+  animation-timing-function: cubic-bezier(.22, 1, .36, 1);
+}
+
+::view-transition-old(active-school-year),
+::view-transition-new(active-school-year),
+::view-transition-old(active-sidebar-item),
+::view-transition-new(active-sidebar-item),
+::view-transition-old(active-home-section),
+::view-transition-new(active-home-section) {
+  mix-blend-mode: normal;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(active-school-year),
+  ::view-transition-group(active-sidebar-item),
+  ::view-transition-group(active-home-section) {
+    animation-duration: 1ms;
+  }
+}
+
 body {
   line-height: 1.6;
 }

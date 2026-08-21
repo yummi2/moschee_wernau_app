@@ -522,6 +522,20 @@ def home(request):
     }
 
     if request.user.is_authenticated:
+        checklist_items = visible_items_for_student(
+            request.user,
+            school_year_ranges["year"],
+        )
+        checked_ids = set(
+            StudentChecklist.objects
+            .filter(student=request.user, checked=True)
+            .values_list("item_id", flat=True)
+        )
+        ctx.update({
+            "checklist_items": checklist_items,
+            "checked_item_ids": checked_ids,
+        })
+
         if is_user_teacher(request.user):
             # Lehrer: eigene Notizen (optional per ?student filtern)
             sel_id = request.GET.get('student')

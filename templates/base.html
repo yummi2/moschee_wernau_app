@@ -4,6 +4,11 @@
 
 <head>
   <meta charset="utf-8">
+  <script>
+    if (sessionStorage.getItem("schoolYearTransition") === "1") {
+      document.documentElement.classList.add("school-year-changing");
+    }
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>{% block title %}دار الفرح {% endblock %}</title>
   {% load static i18n extras %}
@@ -13,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260821-83">  <style>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260821-86">  <style>
   .act-grid{
     display: grid;
     gap: 12px;
@@ -451,6 +456,31 @@
         });
         animation.id = "global-control-feedback";
       }, { passive: true });
+    })();
+  </script>
+
+  <script>
+    (() => {
+      const yearSwitch = document.querySelector(".school-year-switch");
+      yearSwitch?.addEventListener("submit", () => {
+        document.documentElement.classList.add("school-year-changing");
+        sessionStorage.setItem("schoolYearTransition", "1");
+      });
+
+      const cleanup = () => {
+        document.documentElement.classList.remove("school-year-changing");
+        sessionStorage.removeItem("schoolYearTransition");
+      };
+
+      window.addEventListener("pagereveal", (event) => {
+        if (!document.documentElement.classList.contains("school-year-changing")) return;
+        if (event.viewTransition) event.viewTransition.finished.finally(cleanup);
+        else window.setTimeout(cleanup, 650);
+      });
+
+      if (document.documentElement.classList.contains("school-year-changing")) {
+        window.setTimeout(cleanup, 1200);
+      }
     })();
   </script>
 

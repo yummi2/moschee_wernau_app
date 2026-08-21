@@ -29,28 +29,26 @@
                 {% endif %}
 
                 {% if active_tab != "home" %}
-                <div class="flex flex-wrap gap-2 mb-2">
-                    <a href="?tab=assignments" class="px-3 py-1 rounded-lg border
+                <div class="home-section-tabs flex flex-wrap gap-2 mb-2">
+                    <a href="?tab=assignments" class="home-section-tab {% if active_tab == 'assignments' %}is-active{% endif %} px-3 py-1 rounded-lg border
            {% if active_tab == 'assignments' %} bg-blue-600 text-white border-blue-600
            {% else %} text-blue-700 hover:bg-blue-50 border-blue-200 {% endif %}">
                         الواجبات
                     </a>
 
-                    <a href="?tab=notes" class="px-3 py-1 rounded-lg border
+                    <a href="?tab=notes" class="home-section-tab {% if active_tab == 'notes' %}is-active{% endif %} px-3 py-1 rounded-lg border
            {% if active_tab == 'notes' %} bg-blue-600 text-white border-blue-600
            {% else %} text-blue-700 hover:bg-blue-50 border-blue-200 {% endif %}">
                         الملاحظات
                     </a>
 
-                    {% if not is_teacher %}
-                    <a href="?tab=checklist" class="px-3 py-1 rounded-lg border
+                    <a href="?tab=checklist" class="home-section-tab {% if active_tab == 'checklist' %}is-active{% endif %} px-3 py-1 rounded-lg border
            {% if active_tab == 'checklist' %} bg-blue-600 text-white border-blue-600
            {% else %} text-blue-700 hover:bg-blue-50 border-blue-200 {% endif %}">
                         ما تم تسميعه
                     </a>
-                    {% endif %}
                     <a href="?tab=prayer"
-                    class="px-3 py-1 rounded-lg border
+                    class="home-section-tab {% if active_tab == 'prayer' %}is-active{% endif %} px-3 py-1 rounded-lg border
                     {% if active_tab == 'prayer' %} bg-blue-600 text-white border-blue-600
                     {% else %} text-blue-700 hover:bg-blue-50 border-blue-200 {% endif %}">
                         الصلاة
@@ -58,7 +56,7 @@
 
                     {% if banner and selected_school_year == "2026" %}
                     <a href="?tab=map"
-                    class="px-3 py-1 rounded-lg border
+                    class="home-section-tab {% if active_tab == 'map' %}is-active{% endif %} px-3 py-1 rounded-lg border
                     {% if active_tab == 'map' %} bg-blue-600 text-white border-blue-600
                     {% else %} text-blue-700 hover:bg-blue-50 border-blue-200 {% endif %}">
                         خريطة المسابقة
@@ -415,7 +413,6 @@
 
 
                 <!-- --- Inhalt: ما تم تسميعه (Checkliste) --- -->
-                {% if not is_teacher %}
                 <div class="mt-4 {% if active_tab != 'checklist' %}hidden{% endif %}">
                     <h4 class="font-semibold text-blue-700 mb-3">ما تم تسميعه</h4>
                     {% if checklist_items %}
@@ -431,7 +428,6 @@
                     <p class="text-gray-500">لا توجد عناصر.</p>
                     {% endif %}
                 </div>
-                {% endif %}
                 {# --- Inhalt: الصلاة --- #}
                 {% if active_tab == "prayer" %}
                 <section class="prayer-panel">
