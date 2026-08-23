@@ -1,0 +1,461 @@
+{% extends "base.html" %}
+{% block title %}معلومات التسجيل{% endblock %}
+
+{% block content %}
+<section class="registration-info-page" dir="rtl">
+  <div class="registration-info-layout">
+    <main class="registration-welcome-card" id="registrationWelcomeCard">
+      <div class="registration-terms-step" id="registrationTermsStep">
+      <header class="registration-welcome-heading">
+        <span>مرحبًا بكم في دار الفرح</span>
+        <h2>شروط التسجيل في الدورة التعليمية في مسجد فيرناو للعام الدراسي 2027 /2026</h2>
+        <p>يرجى قراءة الشروط التالية كاملة قبل المتابعة.</p>
+      </header>
+
+      <div class="registration-reading-shell">
+        <div id="registrationReadingText" class="registration-reading-text" tabindex="0" aria-label="معلومات التسجيل القابلة للتمرير">
+          {% include "registration/information_text.html" %}
+          <span id="registrationReadingEnd" class="registration-reading-end" aria-hidden="true"></span>
+        </div>
+        <div class="registration-scroll-track" aria-hidden="true"><span id="registrationScrollThumb"></span></div>
+      </div>
+
+      <div class="registration-agree-form">
+        <p id="registrationReadHint">مرّر إلى نهاية النص لتفعيل زر الموافقة.</p>
+        <button id="registrationAgreeButton" type="button" class="registration-agree-button" disabled>موافق</button>
+      </div>
+      </div>
+
+      <form method="post" class="registration-details-form" id="registrationDetailsForm" aria-hidden="true" novalidate>
+        {% csrf_token %}
+        <header class="registration-form-heading">
+          <span>طلب تسجيل جديد</span>
+          <h2>بيانات الطالب</h2>
+          <p>يرجى تعبئة البيانات التالية.</p>
+        </header>
+
+        <div class="registration-fields-grid">
+          <label class="registration-field">
+            <span>اسم العائلة</span>
+            <input type="text" name="last_name" autocomplete="family-name" required>
+          </label>
+          <label class="registration-field">
+            <span>الاسم الأول</span>
+            <input type="text" name="first_name" autocomplete="given-name" required>
+          </label>
+          <label class="registration-field">
+            <span>الصف الدراسي في المدرسة الألمانية</span>
+            <input type="text" name="school_class" required>
+          </label>
+          <label class="registration-field">
+            <span>تاريخ الميلاد</span>
+            <span class="registration-date-picker" id="registrationDatePicker">
+              <input type="text" name="birth_date" id="registrationBirthDate" placeholder="اختر تاريخ الميلاد" readonly required>
+              <button type="button" class="registration-date-trigger" id="registrationDateTrigger" aria-label="فتح التقويم" aria-expanded="false">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v3M17 3v3M4 9h16M5 5h14a1 1 0 011 1v14H4V6a1 1 0 011-1zM8 13h.01M12 13h.01M16 13h.01M8 17h.01M12 17h.01" /></svg>
+              </button>
+              <span class="registration-calendar" id="registrationCalendar" hidden>
+                <span class="registration-calendar-header">
+                   <label>
+                    <small>السنة</small>
+                    <select id="registrationCalendarYear" aria-label="اختر سنة الميلاد"></select>
+                  </label>
+                  <label>
+                    <small>الشهر</small>
+                    <select id="registrationCalendarMonth" aria-label="اختر شهر الميلاد"></select>
+                  </label>
+                </span>
+                <span class="registration-calendar-weekdays" aria-hidden="true">
+                  <b>أح</b><b>اث</b><b>ثل</b><b>أر</b><b>خم</b><b>جم</b><b>سب</b>
+                </span>
+                <span class="registration-calendar-days" id="registrationCalendarDays"></span>
+              </span>
+            </span>
+          </label>
+          <fieldset class="registration-field registration-field--wide registration-address-field">
+            <legend>العنوان</legend>
+            <span class="registration-address-box">
+              <label>
+                <span>اسم الشارع</span>
+                <input type="text" name="street_name" autocomplete="address-line1" required>
+              </label>
+              <label>
+                <span>رقم المنزل</span>
+                <input type="text" name="house_number" inputmode="numeric" pattern="[0-9٠-٩]+" data-numeric-only required>
+              </label>
+              <label>
+                <span>الرمز البريدي</span>
+                <input type="text" name="postal_code" autocomplete="postal-code" inputmode="numeric" pattern="[0-9٠-٩]{5}" maxlength="5" data-numeric-only data-max-digits="5" required>
+              </label>
+              <label>
+                <span>المدينة</span>
+                <input type="text" name="city" autocomplete="address-level2" required>
+              </label>
+            </span>
+          </fieldset>
+          <label class="registration-field registration-field--wide">
+            <span>رقم الهاتف</span>
+            <input type="tel" name="phone_numbers" id="registrationPhoneNumbers" inputmode="tel" autocomplete="tel" placeholder="مثال:01234567891 ، 01234567891" required>
+            <small>يمكن إدخال رقم أو رقمين وعند إضافة رقم ثانٍ افصل بينهما بفاصلة.</small>
+          </label>
+          <label class="registration-field registration-field--wide">
+            <span>البريد الإلكتروني</span>
+            <input type="email" name="parent_email" autocomplete="email" inputmode="email" placeholder="name@example.com" dir="ltr" required>
+          </label>
+        </div>
+
+        <fieldset class="registration-choice-group">
+          <legend>أسمح بتصوير ابني واستخدام الصور والفيديوهات</legend>
+          <div class="registration-choice-row registration-choice-row--compact">
+            <label><input type="radio" name="photo_permission" value="yes" required><span>نعم</span></label>
+            <label><input type="radio" name="photo_permission" value="no" required><span>لا</span></label>
+          </div>
+          <div class="registration-photo-usage" id="registrationPhotoUsage" hidden>
+            <p>  يمكنك اختيار الخيارين معًا</p>
+            <div class="registration-choice-row registration-choice-row--compact">
+              <label><input type="checkbox" name="photo_usage" value="video"><span>فيديو المدرسة</span></label>
+              <label><input type="checkbox" name="photo_usage" value="instagram"><span>إنستغرام</span></label>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="registration-choice-group">
+          <legend>أريد تسجيل ابني بـ</legend>
+          <div class="registration-choice-row registration-choice-row--programs">
+            <label>
+              <input type="radio" name="program" value="arabic_and_religion" required>
+              <span><b>دروس اللغة العربية والدروس الدينية</b><small>لكل فصل دراسي 225 يورو </small></span>
+            </label>
+            <label>
+              <input type="radio" name="program" value="religion_only" required>
+              <span><b>الدروس الدينية فقط</b><small>لكل فصل دراسي 150 يورو</small></span>
+            </label>
+            <label>
+              <input type="radio" name="program" value="arabic_only" required>
+              <span><b>اللغة العربية فقط (مع ثمن الكتب)</b><small>لكل فصل دراسي 150 يورو </small></span>
+            </label>
+          </div>
+        </fieldset>
+
+        <p class="registration-submit-feedback" id="registrationSubmitFeedback" role="alert" hidden></p>
+        <button type="submit" class="registration-submit-button" id="registrationSubmitButton">إرسال طلب التسجيل</button>
+      </form>
+
+      <section class="registration-success-panel" id="registrationSuccessPanel" aria-hidden="true" aria-live="polite">
+        <span class="registration-success-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M5 12.5l4.2 4.2L19 7" /></svg>
+        </span>
+        <p>تم إرسال الطلب بنجاح</p>
+        <h2>تم تسجيل طفلك للعام الدراسي القادم</h2>
+        <p>إذا أردت تسجيل طفل آخر، سوف يُمنح الطفل الثاني خصماً بنسبة 10%، والطفل الثالث خصماً بنسبة 20%.</p>
+        <button type="button" class="registration-another-child" id="registrationAnotherChild">تسجيل طفل آخر</button>
+      </section>
+
+      <a href="{% url 'login' %}" class="registration-back-link" aria-label="العودة إلى تسجيل الدخول">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M15 5l-7 7 7 7M8 12h11" />
+        </svg>
+        <span>العودة إلى تسجيل الدخول</span>
+      </a>
+    </main>
+  </div>
+</section>
+
+<script>
+  (() => {
+    const text = document.getElementById("registrationReadingText");
+    const end = document.getElementById("registrationReadingEnd");
+    const button = document.getElementById("registrationAgreeButton");
+    const hint = document.getElementById("registrationReadHint");
+    const scrollThumb = document.getElementById("registrationScrollThumb");
+    const card = document.getElementById("registrationWelcomeCard");
+    const termsStep = document.getElementById("registrationTermsStep");
+    const detailsForm = document.getElementById("registrationDetailsForm");
+    const successPanel = document.getElementById("registrationSuccessPanel");
+    const anotherChildButton = document.getElementById("registrationAnotherChild");
+    const phoneInput = document.getElementById("registrationPhoneNumbers");
+    const birthDate = document.getElementById("registrationBirthDate");
+    const submitButton = document.getElementById("registrationSubmitButton");
+    const submitFeedback = document.getElementById("registrationSubmitFeedback");
+    const datePicker = document.getElementById("registrationDatePicker");
+    const dateTrigger = document.getElementById("registrationDateTrigger");
+    const calendar = document.getElementById("registrationCalendar");
+    const calendarDays = document.getElementById("registrationCalendarDays");
+    const calendarYear = document.getElementById("registrationCalendarYear");
+    const calendarMonth = document.getElementById("registrationCalendarMonth");
+    const photoPermissionInputs = detailsForm.querySelectorAll('input[name="photo_permission"]');
+    const photoUsage = document.getElementById("registrationPhotoUsage");
+    const photoUsageInputs = detailsForm.querySelectorAll('input[name="photo_usage"]');
+    if (!text || !end || !button || !hint || !card || !termsStep || !detailsForm || !successPanel) return;
+
+    let hasReachedEnd = false;
+    const unlock = () => {
+      if (hasReachedEnd) return;
+      hasReachedEnd = true;
+      button.disabled = false;
+      hint.textContent = "مرر إلى نهاية النص لتفعيل زر الموافقة.";
+    };
+
+    const updateProgress = () => {
+      const scrollable = Math.max(text.scrollHeight - text.clientHeight, 0);
+      const value = scrollable === 0 ? 1 : Math.min(text.scrollTop / scrollable, 1);
+      if (scrollThumb) {
+        const thumbHeight = Math.max((text.clientHeight / text.scrollHeight) * 100, 16);
+        const thumbTop = value * (100 - thumbHeight);
+        scrollThumb.style.height = `${Math.min(thumbHeight, 100)}%`;
+        scrollThumb.style.top = `${Math.max(thumbTop, 0)}%`;
+      }
+      if (value >= 0.98) unlock();
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) unlock();
+    }, { root: text, threshold: 1 });
+
+    observer.observe(end);
+    text.addEventListener("scroll", updateProgress, { passive: true });
+    window.addEventListener("resize", updateProgress);
+    button.addEventListener("click", () => {
+      if (button.disabled) return;
+      card.classList.add("is-switching-step");
+      window.setTimeout(() => {
+        termsStep.hidden = true;
+        detailsForm.setAttribute("aria-hidden", "false");
+        card.classList.remove("is-switching-step");
+        card.classList.add("is-form-step");
+        detailsForm.querySelector("input")?.focus({ preventScroll: true });
+        card.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 320);
+    });
+
+    if (birthDate && datePicker && dateTrigger && calendar && calendarDays && calendarYear && calendarMonth) {
+      const today = new Date();
+      let visibleDate = new Date(today.getFullYear() - 7, today.getMonth(), 1);
+      let selectedDate = null;
+      const monthFormatter = new Intl.DateTimeFormat("ar-EG-u-ca-gregory", { month: "long" });
+      const valueFormatter = new Intl.DateTimeFormat("ar-EG-u-ca-gregory", { day: "2-digit", month: "2-digit", year: "numeric" });
+
+      for (let year = today.getFullYear(); year >= 1995; year -= 1) {
+        const option = document.createElement("option");
+        option.value = String(year);
+        option.textContent = new Intl.NumberFormat("ar-EG", { useGrouping: false }).format(year);
+        calendarYear.appendChild(option);
+      }
+
+      for (let month = 0; month < 12; month += 1) {
+        const option = document.createElement("option");
+        option.value = String(month);
+        option.textContent = monthFormatter.format(new Date(2020, month, 1));
+        calendarMonth.appendChild(option);
+      }
+
+      const closeCalendar = () => {
+        calendar.hidden = true;
+        dateTrigger.setAttribute("aria-expanded", "false");
+      };
+
+      const renderCalendar = () => {
+        calendarYear.value = String(visibleDate.getFullYear());
+        calendarMonth.value = String(visibleDate.getMonth());
+        Array.from(calendarMonth.options).forEach((option) => {
+          option.disabled = visibleDate.getFullYear() === today.getFullYear() && Number(option.value) > today.getMonth();
+        });
+        calendarDays.replaceChildren();
+        const year = visibleDate.getFullYear();
+        const month = visibleDate.getMonth();
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        for (let index = 0; index < firstDay; index += 1) {
+          const spacer = document.createElement("span");
+          spacer.setAttribute("aria-hidden", "true");
+          calendarDays.appendChild(spacer);
+        }
+
+        for (let day = 1; day <= daysInMonth; day += 1) {
+          const date = new Date(year, month, day);
+          const dayButton = document.createElement("button");
+          dayButton.type = "button";
+          dayButton.textContent = new Intl.NumberFormat("ar-EG").format(day);
+          dayButton.disabled = date > today;
+          if (selectedDate?.toDateString() === date.toDateString()) dayButton.classList.add("is-selected");
+          if (today.toDateString() === date.toDateString()) dayButton.classList.add("is-today");
+          dayButton.addEventListener("click", () => {
+            selectedDate = date;
+            birthDate.value = valueFormatter.format(date);
+            birthDate.dataset.isoDate = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+            birthDate.dispatchEvent(new Event("input", { bubbles: true }));
+            closeCalendar();
+          });
+          calendarDays.appendChild(dayButton);
+        }
+      };
+
+      const toggleCalendar = () => {
+        calendar.hidden = !calendar.hidden;
+        dateTrigger.setAttribute("aria-expanded", String(!calendar.hidden));
+        if (!calendar.hidden) renderCalendar();
+      };
+
+      dateTrigger.addEventListener("click", toggleCalendar);
+      birthDate.addEventListener("click", toggleCalendar);
+      calendarYear.addEventListener("change", () => {
+        const year = Number(calendarYear.value);
+        const month = year === today.getFullYear()
+          ? Math.min(Number(calendarMonth.value), today.getMonth())
+          : Number(calendarMonth.value);
+        visibleDate = new Date(year, month, 1);
+        renderCalendar();
+      });
+      calendarMonth.addEventListener("change", () => {
+        visibleDate = new Date(Number(calendarYear.value), Number(calendarMonth.value), 1);
+        renderCalendar();
+      });
+      document.addEventListener("click", (event) => {
+        if (!datePicker.contains(event.target)) closeCalendar();
+      });
+      detailsForm.addEventListener("reset", () => {
+        selectedDate = null;
+        delete birthDate.dataset.isoDate;
+        closeCalendar();
+        renderCalendar();
+      });
+      renderCalendar();
+    }
+
+    phoneInput?.addEventListener("input", () => {
+      const parts = phoneInput.value
+        .replace(/،/g, ",")
+        .replace(/[^0-9٠-٩,]/g, "")
+        .split(",")
+        .slice(0, 2)
+        .map((number) => Array.from(number).slice(0, 11).join(""));
+      phoneInput.value = parts.join(", ");
+    });
+
+    detailsForm.querySelectorAll("[data-numeric-only]").forEach((field) => {
+      field.addEventListener("input", () => {
+        const maxDigits = Number(field.dataset.maxDigits || Infinity);
+        field.value = Array.from(field.value.replace(/[^0-9٠-٩]/g, "")).slice(0, maxDigits).join("");
+      });
+    });
+
+    const updatePhotoUsage = () => {
+      const permission = detailsForm.querySelector('input[name="photo_permission"]:checked')?.value;
+      if (photoUsage) photoUsage.hidden = permission !== "yes";
+      if (permission !== "yes") photoUsageInputs.forEach((input) => { input.checked = false; });
+    };
+    photoPermissionInputs.forEach((input) => input.addEventListener("change", updatePhotoUsage));
+
+    const clearError = (field) => {
+      const owner = field.closest(".registration-field, .registration-choice-group");
+      owner?.classList.remove("has-error");
+      owner?.querySelector(".registration-field-error")?.remove();
+      if (field.type === "radio") {
+        detailsForm.querySelectorAll(`input[name="${field.name}"]`).forEach((option) => option.removeAttribute("aria-invalid"));
+      } else {
+        field.removeAttribute("aria-invalid");
+      }
+    };
+
+    const showError = (field) => {
+      const owner = field.closest(".registration-field, .registration-choice-group");
+      if (!owner || owner.querySelector(".registration-field-error")) return;
+      owner.classList.add("has-error");
+      field.setAttribute("aria-invalid", "true");
+      const error = document.createElement("span");
+      error.className = "registration-field-error";
+      error.textContent = field.type === "email" && field.value
+        ? "يرجى إدخال بريد إلكتروني صحيح."
+        : "يرجى تعبئة الحقل أعلاه.";
+      owner.appendChild(error);
+    };
+
+    detailsForm.querySelectorAll("input, textarea").forEach((field) => {
+      field.addEventListener("input", () => clearError(field));
+      field.addEventListener("change", () => clearError(field));
+    });
+
+    detailsForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (submitFeedback) submitFeedback.hidden = true;
+      let firstInvalid = null;
+      detailsForm.querySelectorAll("[required]").forEach((field) => {
+        const valid = field.type === "radio"
+          ? Boolean(detailsForm.querySelector(`input[name="${field.name}"]:checked`))
+          : Boolean(field.value.trim()) && field.checkValidity();
+        if (!valid) {
+          showError(field);
+          firstInvalid ||= field;
+        } else {
+          clearError(field);
+        }
+      });
+
+      const photoYes = detailsForm.querySelector('input[name="photo_permission"]:checked')?.value === "yes";
+      if (photoYes && !detailsForm.querySelector('input[name="photo_usage"]:checked')) {
+        const permissionField = detailsForm.querySelector('input[name="photo_permission"]');
+        showError(permissionField);
+        firstInvalid ||= permissionField;
+      }
+
+      if (firstInvalid) {
+        firstInvalid.closest(".registration-field, .registration-choice-group")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        window.setTimeout(() => firstInvalid.focus({ preventScroll: true }), 300);
+        return;
+      }
+
+      if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.textContent = "جارٍ إرسال الطلب…";
+      }
+
+      try {
+        const response = await fetch(window.location.href, {
+          method: "POST",
+          body: new FormData(detailsForm),
+          headers: { "X-Requested-With": "XMLHttpRequest" },
+        });
+        const result = await response.json();
+        if (!response.ok || !result.ok) throw new Error(result.message || "تعذر إرسال الطلب. يرجى المحاولة مرة أخرى.");
+
+        detailsForm.setAttribute("aria-hidden", "true");
+        detailsForm.style.display = "none";
+        successPanel.setAttribute("aria-hidden", "false");
+        card.classList.add("is-success-step");
+      } catch (error) {
+        if (submitFeedback) {
+          submitFeedback.textContent = error.message;
+          submitFeedback.hidden = false;
+          submitFeedback.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      } finally {
+        if (submitButton) {
+          submitButton.disabled = false;
+          submitButton.textContent = "إرسال طلب التسجيل";
+        }
+      }
+    });
+
+    anotherChildButton?.addEventListener("click", () => {
+      const familyValues = {};
+      ["last_name", "street_name", "house_number", "postal_code", "city"].forEach((name) => {
+        familyValues[name] = detailsForm.elements[name]?.value || "";
+      });
+      detailsForm.reset();
+      Object.entries(familyValues).forEach(([name, value]) => {
+        if (detailsForm.elements[name]) detailsForm.elements[name].value = value;
+      });
+      updatePhotoUsage();
+      detailsForm.querySelectorAll(".has-error").forEach((owner) => owner.classList.remove("has-error"));
+      detailsForm.querySelectorAll(".registration-field-error").forEach((error) => error.remove());
+      successPanel.setAttribute("aria-hidden", "true");
+      card.classList.remove("is-success-step");
+      detailsForm.style.removeProperty("display");
+      detailsForm.setAttribute("aria-hidden", "false");
+      detailsForm.querySelector("input")?.focus();
+    });
+    requestAnimationFrame(updateProgress);
+  })();
+</script>
+{% endblock %}

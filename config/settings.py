@@ -132,6 +132,30 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+# Registration notifications. For Gmail, use a Google App Password in
+# EMAIL_HOST_PASSWORD; never place the account password in source control.
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
+if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+    EMAIL_HOST = "smtp.gmail.com"
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+else:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER or "noreply@daralfarah.local"
+REGISTRATION_NOTIFICATION_EMAIL = os.environ.get(
+    "REGISTRATION_NOTIFICATION_EMAIL", "wernaumoschee@gmail.com"
+)
+GOOGLE_SHEETS_CREDENTIALS_PATH = os.environ.get(
+    "GOOGLE_SHEETS_CREDENTIALS_PATH",
+    str(BASE_DIR / "private_credentials" / "dar-al-farah-anmeldung-37f65ceb449d.json"),
+)
+GOOGLE_REGISTRATION_SPREADSHEET_ID = os.environ.get(
+    "GOOGLE_REGISTRATION_SPREADSHEET_ID",
+    "121FzU1smnBdQ4AdbXe34gCk64kJ0gO0dM-zbsMUEHtQ",
+)
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 

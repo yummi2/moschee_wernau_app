@@ -20,7 +20,18 @@
       </div>
     </aside>
 
-    <div class="login-card">
+    <div class="login-card" data-login-card>
+      <div class="login-mode-switch" role="tablist" aria-label="التنقل بين الدخول والتسجيل">
+        <button type="button" class="login-mode-button is-active" role="tab" aria-selected="true" aria-controls="loginPanel" data-login-mode="login">
+          <b>تسجيل الدخول</b>
+        </button>
+        <button type="button" class="login-mode-button" role="tab" aria-selected="false" aria-controls="registrationPanel" data-login-mode="registration">
+          <b>التسجيل الجديد</b>
+          <small>للعام الدراسي 2026/2027</small>
+        </button>
+      </div>
+
+      <div id="loginPanel" class="login-panel" role="tabpanel">
       <div class="login-card-heading">
         <div>
           <p>أهلًا وسهلًا</p>
@@ -63,6 +74,22 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"></svg>
         </button>
       </form>
+
+      </div>
+
+      <div id="registrationPanel" class="registration-preview-panel" role="tabpanel" aria-hidden="true">
+        <div class="registration-preview-heading">
+          <p class="font-bold">اضغط على البطاقة لقراءة معلومات التسجيل.</p>
+        </div>
+        <a href="{% url 'registration_information' %}" class="registration-image-link" aria-label="فتح معلومات التسجيل للعام القادم">
+          <img src="{% static 'images/registration-next-year.png' %}" alt="إعلان التسجيل للعام الدراسي القادم" onerror="this.hidden=true; this.nextElementSibling.hidden=false;">
+          <span class="registration-image-placeholder" hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4zM8 11l2.5 3 2-2 3.5 4M9 9h.01"/></svg>
+            <b>ضع صورة التسجيل هنا</b>
+            <small>static/images/registration-next-year.png</small>
+          </span>
+        </a>
+      </div>
     </div>
   </div>
 </section>
@@ -81,6 +108,32 @@
 
     updateLogoTarget();
     window.addEventListener("resize", updateLogoTarget);
+
+    const shell = document.querySelector(".login-shell");
+    const card = document.querySelector("[data-login-card]");
+    const loginPanel = document.getElementById("loginPanel");
+    const registrationPanel = document.getElementById("registrationPanel");
+    const modeButtons = document.querySelectorAll("[data-login-mode]");
+
+    const setMode = (mode) => {
+      const showRegistration = mode === "registration";
+      shell?.classList.toggle("is-registration-mode", showRegistration);
+      card?.classList.toggle("is-registration-mode", showRegistration);
+      loginPanel?.setAttribute("aria-hidden", String(showRegistration));
+      registrationPanel?.setAttribute("aria-hidden", String(!showRegistration));
+      if (loginPanel) loginPanel.inert = showRegistration;
+      if (registrationPanel) registrationPanel.inert = !showRegistration;
+      modeButtons.forEach((button) => {
+        const active = button.dataset.loginMode === mode;
+        if (button.getAttribute("role") === "tab") {
+          button.classList.toggle("is-active", active);
+          button.setAttribute("aria-selected", String(active));
+        }
+      });
+    };
+
+    modeButtons.forEach((button) => button.addEventListener("click", () => setMode(button.dataset.loginMode)));
+    if (registrationPanel) registrationPanel.inert = true;
 
     const toggle = document.querySelector(".login-password-toggle");
     const password = document.getElementById("{{ form.password.id_for_label }}");

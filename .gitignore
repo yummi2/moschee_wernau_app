@@ -8,6 +8,9 @@ db.sqlite3-journal
 /media/           
 /staticfiles/      
 *.log
+/private_data/
+/private_credentials/
+.env
 
 # Virtualenvs
 .venv/

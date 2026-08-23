@@ -28,12 +28,64 @@
 
       <!-- Contest -->
       <section class="min-w-0 lg:col-span-2 {% if active_tab != 'contest' %}hidden{% endif %}">
+        {% if selected_school_year == "2026" %}
+        <header class="ramadan-results-heading">
+          <span>أيام رمضان</span>
+          <h1>مسابقة رمضان</h1>
+        </header>
+        <div class="ramadan-days-grid ramadan-days-grid-legacy">
+          {% for item in day_progress %}
+            {% if item.locked %}
+            <div class="ramadan-day-link is-locked" aria-disabled="true">
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="5" y="10" width="14" height="11" rx="2"/>
+                <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+              </svg>
+              <span><bdi dir="ltr">{{ item.day }}</bdi> رمضان</span>
+            </div>
+            {% else %}
+            <a href="{% url 'ramadan_day' item.day %}" class="ramadan-day-link">
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 15.5A8 8 0 0 1 9 5a8 8 0 1 0 10 10.5Z"/>
+                <path d="M17.5 4v3M16 5.5h3"/>
+              </svg>
+              <span><bdi dir="ltr">{{ item.day }}</bdi> رمضان</span>
+            </a>
+            {% endif %}
+          {% endfor %}
+          <a href="{% url 'ramadan_results' %}" class="ramadan-day-link ramadan-legacy-special">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 20V10m6 10V4m6 16v-7m4 7H2"/>
+            </svg>
+            <span>النتائج</span>
+          </a>
+          {% if eid_unlocked %}
+          <a href="https://res.cloudinary.com/drlpkuf9q/image/upload/v1770060951/IMG_3995_e22lgz.jpg"
+             class="ramadan-day-link ramadan-legacy-special ramadan-legacy-eid"
+             target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 12v9H4v-9M2 7h20v5H2zM12 7v14M12 7H7.5a2.5 2.5 0 1 1 2.1-3.85L12 7Zm0 0h4.5a2.5 2.5 0 1 0-2.1-3.85L12 7Z"/>
+            </svg>
+            <span>العيد</span>
+          </a>
+          {% else %}
+          <div class="ramadan-day-link ramadan-legacy-special is-locked" aria-disabled="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="5" y="10" width="14" height="11" rx="2"/>
+              <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+            </svg>
+            <span>العيد</span>
+          </div>
+          {% endif %}
+        </div>
+        {% else %}
         <header class="ramadan-results-heading">
           <span>رحلة الإنجاز</span>
           <h1>مسابقة رمضان</h1>
           <p>أكمل مهام اليوم لتضيء فانوسًا جديدًا.</p>
         </header>
         {% include "core/_ramadan_night_progress.html" %}
+        {% endif %}
       </section>
 
       <!-- Activity -->

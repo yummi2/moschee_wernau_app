@@ -25,6 +25,68 @@ import math
 from .islam_questions import ISLAM_QUESTIONS
 from .drawing_links import DRAWING_LINKS_VIEW, DRAWING_LINKS_DOWNLOAD
 from django.db.models import Count
+from django.core.mail import EmailMessage
+import logging
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
+
+logger = logging.getLogger(__name__)
+
+REGISTRATION_COLUMNS = [
+    ("submitted_at", "تاريخ الإرسال"),
+    ("last_name", "اسم العائلة"),
+    ("first_name", "الاسم الأول"),
+    ("school_class", "الصف"),
+    ("birth_date", "تاريخ الميلاد"),
+    ("address", "العنوان"),
+    ("phone_numbers", "أرقام الهاتف"),
+    ("parent_email", "البريد الإلكتروني لولي الأمر"),
+    ("photo_permission", "السماح بالتصوير"),
+    ("program", "نوع التسجيل"),
+]
+
+REGISTRATION_VALUE_LABELS = {
+    "yes": "نعم",
+    "no": "لا",
+    "arabic_and_religion": "عربي وديانة",
+    "religion_only": "ديانة",
+    "arabic_only": "عربي",
+}
+
+
+def _append_registration_to_google_sheet(data):
+    credentials = service_account.Credentials.from_service_account_file(
+        settings.GOOGLE_SHEETS_CREDENTIALS_PATH,
+        scopes=["https://www.googleapis.com/auth/spreadsheets"],
+    )
+    service = build("sheets", "v4", credentials=credentials, cache_discovery=False)
+    spreadsheet_id = settings.GOOGLE_REGISTRATION_SPREADSHEET_ID
+    metadata = service.spreadsheets().get(
+        spreadsheetId=spreadsheet_id,
+        fields="sheets.properties(title)",
+    ).execute()
+    sheet_title = metadata["sheets"][0]["properties"]["title"]
+    safe_title = sheet_title.replace("'", "''")
+    sheet_range = f"'{safe_title}'!A:J"
+    header_range = f"'{safe_title}'!A1:J1"
+    headers = [label for _, label in REGISTRATION_COLUMNS]
+
+    service.spreadsheets().values().update(
+        spreadsheetId=spreadsheet_id,
+        range=header_range,
+        valueInputOption="RAW",
+        body={"values": [headers]},
+    ).execute()
+
+    service.spreadsheets().values().append(
+        spreadsheetId=spreadsheet_id,
+        range=sheet_range,
+        valueInputOption="RAW",
+        insertDataOption="INSERT_ROWS",
+        body={"values": [[data[key] for key, _ in REGISTRATION_COLUMNS]]},
+    ).execute()
 
 ARABIC_BLOCK_MSG = "يمكن وضع علامة الغياب فقط من يوم الجمعة الساعة 10:00 حتى السبت الساعة 10:00."
 ARABIC_ALREADY_MARKED = "لقد تم وضع علامة الغياب لهذا اليوم من قبل."
@@ -73,6 +135,91 @@ class SchoolLoginView(LoginView):
         response = super().form_valid(form)
         self.request.session["school_year"] = "2027"
         return response
+
+
+def registration_information(request):
+    if request.method == "POST":
+        required_fields = (
+            "last_name", "first_name", "school_class", "birth_date", "street_name",
+            "house_number", "postal_code", "city", "phone_numbers", "parent_email",
+            "photo_permission", "program",
+        )
+        data = {field: request.POST.get(field, "").strip() for field in required_fields}
+        if any(not data[field] for field in required_fields):
+            return JsonResponse({"ok": False, "message": "يرجى تعبئة جميع الحقول المطلوبة."}, status=400)
+        if not data["house_number"].isdigit() or not data["postal_code"].isdigit():
+            return JsonResponse(
+                {"ok": False, "message": "يجب أن يحتوي رقم المنزل والرمز البريدي على أرقام فقط."},
+                status=400,
+            )
+        if len(data["postal_code"]) != 5:
+            return JsonResponse(
+                {"ok": False, "message": "يجب أن يتكون الرمز البريدي من 5 أرقام."},
+                status=400,
+            )
+        try:
+            validate_email(data["parent_email"])
+        except ValidationError:
+            return JsonResponse({"ok": False, "message": "يرجى إدخال بريد إلكتروني صحيح."}, status=400)
+        phone_numbers = [part.strip().replace(" ", "") for part in data["phone_numbers"].replace("،", ",").split(",")]
+        if len(phone_numbers) > 2 or any(not number.isdigit() or len(number) > 11 for number in phone_numbers):
+            return JsonResponse(
+                {"ok": False, "message": "يرجى إدخال رقم أو رقمين فقط، وبحد أقصى 11 رقمًا لكل رقم."},
+                status=400,
+            )
+        if data["photo_permission"] not in {"yes", "no"} or data["program"] not in {
+            "arabic_and_religion", "religion_only", "arabic_only"
+        }:
+            return JsonResponse({"ok": False, "message": "يرجى التحقق من خيارات التسجيل."}, status=400)
+        photo_usage = request.POST.getlist("photo_usage")
+        allowed_photo_usage = {"video", "instagram"}
+        if data["photo_permission"] == "yes" and (
+            not photo_usage or any(value not in allowed_photo_usage for value in photo_usage)
+        ):
+            return JsonResponse(
+                {"ok": False, "message": "يرجى اختيار مكان استخدام الصور والفيديوهات."},
+                status=400,
+            )
+
+        data["submitted_at"] = timezone.localtime().strftime("%d.%m.%Y %H:%M")
+        data["address"] = f"{data['street_name']} {data['house_number']}, {data['postal_code']} {data['city']}"
+        data["phone_numbers"] = ", ".join(phone_numbers)
+        if data["photo_permission"] == "yes":
+            usage_labels = {"video": "فيديو المدرسة", "instagram": "إنستغرام"}
+            data["photo_permission"] = "نعم — " + "، ".join(usage_labels[value] for value in photo_usage)
+        else:
+            data["photo_permission"] = REGISTRATION_VALUE_LABELS[data["photo_permission"]]
+        data["program"] = REGISTRATION_VALUE_LABELS[data["program"]]
+
+        try:
+            _append_registration_to_google_sheet(data)
+            spreadsheet_url = (
+                "https://docs.google.com/spreadsheets/d/"
+                f"{settings.GOOGLE_REGISTRATION_SPREADSHEET_ID}/edit"
+            )
+            email = EmailMessage(
+                subject="طلب تسجيل جديد للعام الدراسي 2026/2027",
+                body=(
+                    "السلام عليكم،\n\n"
+                    f"وصل طلب تسجيل جديد للطالب: {data['first_name']} {data['last_name']}.\n"
+                    f"البريد الإلكتروني لولي الأمر: {data['parent_email']}\n"
+                    "تمت إضافة البيانات إلى جدول التسجيلات:\n"
+                    f"{spreadsheet_url}\n"
+                ),
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[settings.REGISTRATION_NOTIFICATION_EMAIL],
+            )
+            email.send(fail_silently=False)
+        except Exception:
+            logger.exception("Could not process registration submission")
+            return JsonResponse(
+                {"ok": False, "message": "تعذر حفظ الطلب أو إرسال الإشعار. يرجى التواصل مع إدارة المدرسة."},
+                status=503,
+            )
+
+        return JsonResponse({"ok": True})
+
+    return render(request, "registration/information.html")
 
     def get_success_url(self):
         return f"{reverse('home')}?tab=home"
@@ -1147,6 +1294,8 @@ def ramadan_plan(request):
 
     return render(request, "core/ramadan_plan.html", {
         "unlocked_day": unlocked_day,
+        "selected_school_year": selected_year,
+        "eid_unlocked": unlocked_day >= 29,
         "total_days": total_days,
         "completed_days": completed_days,
         "completion_percent": round((completed_days / total_days) * 100),

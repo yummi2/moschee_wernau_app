@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260821-96">  <style>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260823-116">  <style>
   .act-grid{
     display: grid;
     gap: 12px;
@@ -49,8 +49,8 @@
 
 </head>
 
-<body class="bg-gray-50 text-gray-900 {% if request.resolver_match.url_name == 'login' or request.resolver_match.url_name == 'school_year' %}auth-page{% endif %}">
-  {% if request.resolver_match.url_name != 'login' and request.resolver_match.url_name != 'school_year' %}
+<body class="bg-gray-50 text-gray-900 {% if request.resolver_match.url_name == 'login' or request.resolver_match.url_name == 'school_year' or request.resolver_match.url_name == 'registration_information' %}auth-page{% endif %}">
+  {% if request.resolver_match.url_name != 'login' and request.resolver_match.url_name != 'school_year' and request.resolver_match.url_name != 'registration_information' %}
   <header class="app-sidebar" dir="rtl">
     <a href="{% url 'home' %}?tab=home" class="app-brand" aria-label="دار الفرح، الصفحة الرئيسية">
       <span class="app-brand-mark">
@@ -209,7 +209,7 @@
   </header>
   {% endif %}
 
-  {% if user.is_authenticated and request.resolver_match.url_name != 'school_year' %}
+  {% if user.is_authenticated and request.resolver_match.url_name != 'school_year' and request.resolver_match.url_name != 'registration_information' %}
   <nav class="app-bottom-nav" dir="rtl" aria-label="التنقل السريع">
     <span class="app-bottom-nav-indicator" aria-hidden="true"></span>
     <a href="{% url 'home' %}?tab=home" class="app-bottom-nav-link {% if request.resolver_match.url_name == 'home' and request.GET.tab == 'home' %}is-active{% endif %}" aria-label="الصفحة الرئيسية">
@@ -232,7 +232,7 @@
   </nav>
   {% endif %}
 
-  <main class="{% if request.resolver_match.url_name == 'login' or request.resolver_match.url_name == 'school_year' %}login-main{% else %}app-main max-w-5xl mx-auto px-4 py-8{% endif %}">
+  <main class="{% if request.resolver_match.url_name == 'login' or request.resolver_match.url_name == 'school_year' or request.resolver_match.url_name == 'registration_information' %}login-main{% else %}app-main max-w-5xl mx-auto px-4 py-8{% endif %}">
     {% if messages %}
     <ul id="messages" class="mb-4 space-y-2">
       {% for m in messages %}
