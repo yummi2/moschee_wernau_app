@@ -3226,6 +3226,81 @@ body.auth-page {
   letter-spacing: normal;
 }
 
+.registration-language-toggle {
+  display: inline-flex;
+  width: fit-content;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  align-self: flex-end;
+  margin-block-end: 0.8rem;
+  border: 1px solid #d8c49d;
+  border-radius: 999px;
+  padding: 0.5rem 0.9rem;
+  color: #0b4938;
+  background: rgb(255 253 248 / 88%);
+  font-size: 0.76rem;
+  font-weight: 850;
+  line-height: 1.5;
+  letter-spacing: normal;
+  box-shadow: 0 8px 20px rgb(11 73 56 / 10%);
+  backdrop-filter: blur(12px);
+  transition: color 200ms ease, border-color 200ms ease, background-color 200ms ease, transform 200ms ease;
+}
+
+.registration-language-toggle:hover {
+  border-color: #17805e;
+  color: #fff;
+  background: #0b4938;
+  transform: translateY(-2px);
+}
+
+.registration-language-toggle svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.registration-language-toggle:focus-visible {
+  outline: 2px solid #17805e;
+  outline-offset: 3px;
+}
+
+.login-language-toggle {
+  position: absolute;
+  z-index: 25;
+  inset-block-start: 1rem;
+  inset-inline-start: 1rem;
+  margin: 0;
+}
+
+[data-language-content][hidden] {
+  display: none;
+}
+
+.registration-info-page.is-german,
+.login-page.is-german {
+  font-family: "Tajawal", "Segoe UI", Arial, sans-serif;
+}
+
+.registration-info-page.is-german .registration-reading-text,
+.registration-info-page.is-german .registration-field,
+.registration-info-page.is-german .registration-choice-group {
+  text-align: start;
+}
+
+/* Preserve the left-side scroll indicator while German terms read naturally. */
+.registration-info-page.is-german .registration-reading-text [data-language-content="de"] {
+  direction: ltr;
+  text-align: left;
+  unicode-bidi: isolate;
+}
+
 .login-orb {
   position: absolute;
   border: 1px solid rgb(255 255 255 / 65%);
@@ -3778,7 +3853,9 @@ body.auth-page {
 
 .registration-info-page {
   display: grid;
+  height: 100dvh;
   min-height: 100dvh;
+  overflow: hidden;
   place-items: center;
   padding: clamp(1rem, 3vw, 2rem);
   background:
@@ -3791,7 +3868,8 @@ body.auth-page {
 .registration-info-layout {
   display: grid;
   width: min(100%, 62rem);
-  min-height: calc(100dvh - clamp(2rem, 6vw, 4rem));
+  height: 100%;
+  min-height: 0;
   margin-inline: auto;
   grid-template-columns: minmax(0, 1fr);
 }
@@ -3808,14 +3886,22 @@ body.auth-page {
 .registration-welcome-card {
   grid-column: 1;
   grid-row: 1;
+  position: relative;
   display: flex;
+  height: 100%;
   min-width: 0;
+  min-height: 0;
+  overflow: hidden;
   flex-direction: column;
   padding: clamp(1.25rem, 4vw, 2.5rem);
   animation-delay: 100ms;
 }
 
 .registration-terms-step {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
   transition: opacity 300ms ease, transform 320ms cubic-bezier(.22, 1, .36, 1);
 }
 
@@ -3830,7 +3916,82 @@ body.auth-page {
 
 .registration-welcome-card.is-form-step .registration-details-form {
   display: block;
+  min-height: 0;
+  flex: 1 1 auto;
+  direction: rtl;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-inline-end: 0.75rem;
+  scrollbar-width: none;
   animation: registration-form-enter 520ms cubic-bezier(.22, 1, .36, 1) both;
+}
+
+/* Arabic keeps the scrollbar on the left; German moves it to the right. */
+.registration-info-page.is-german .registration-details-form {
+  direction: ltr;
+}
+
+.registration-welcome-card.is-form-step .registration-details-form > * {
+  direction: rtl;
+}
+
+.registration-info-page.is-german .registration-details-form > * {
+  direction: ltr;
+}
+
+.registration-welcome-card.is-form-step .registration-details-form::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.registration-welcome-card.is-form-step .registration-details-form::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: #e8dcc5;
+}
+
+.registration-welcome-card.is-form-step .registration-details-form::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #17805e;
+}
+
+.registration-welcome-card.is-form-step .registration-details-form::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.registration-form-scroll-track {
+  position: absolute;
+  z-index: 8;
+  top: clamp(4.5rem, 9vh, 6.5rem);
+  bottom: 4.75rem;
+  left: 0.55rem;
+  width: 0.34rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e8dcc5;
+  pointer-events: none;
+}
+
+.registration-info-page.is-german .registration-form-scroll-track {
+  right: 0.55rem;
+  left: auto;
+}
+
+.registration-form-scroll-track[hidden] {
+  display: none;
+}
+
+.registration-form-scroll-track span {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  min-height: 2.75rem;
+  border-radius: inherit;
+  background: linear-gradient(180deg, #17805e, #0b4938);
+  box-shadow: 0 2px 8px rgb(11 73 56 / 22%);
+  transition: top 100ms linear, height 180ms ease;
 }
 
 .registration-form-heading {
@@ -4470,7 +4631,7 @@ body.auth-page {
   position: relative;
   display: flex;
   min-height: 0;
-  flex: 0 0 auto;
+  flex: 1 1 auto;
   flex-direction: column;
   margin-block-start: 1.4rem;
   overflow: hidden;
@@ -4480,8 +4641,9 @@ body.auth-page {
 }
 
 .registration-reading-text {
-  min-height: 15rem;
-  max-height: min(48dvh, 30rem);
+  min-height: 0;
+  max-height: none;
+  flex: 1;
   overflow-y: auto;
   padding: clamp(1rem, 3vw, 1.75rem);
   color: #334155;
@@ -4645,6 +4807,10 @@ body.auth-page {
   body.auth-page { padding-block-end: 0; }
 
   .login-page { padding: 6.5rem 1rem 1rem; }
+  .login-language-toggle {
+    inset-block-start: 1.35rem;
+    inset-inline-start: 1rem;
+  }
 
   .login-shell {
     min-height: 0;
@@ -4685,7 +4851,7 @@ body.auth-page {
     margin-inline: auto;
     text-align: center;
   }
-  .registration-reading-text { max-height: 42dvh; }
+  .registration-reading-text { max-height: none; }
   .registration-agree-form { align-items: stretch; flex-direction: column; }
   .registration-agree-button { width: 100%; }
   .registration-fields-grid,
@@ -4703,17 +4869,17 @@ body.auth-page {
     overscroll-behavior: contain;
     padding-inline-start: 0.15rem;
     padding-inline-end: 0.75rem;
-    scrollbar-gutter: stable;
-    scrollbar-width: thin;
-    scrollbar-color: #17805e transparent;
+    scrollbar-width: none;
   }
 
   .registration-welcome-card.is-form-step .registration-details-form::-webkit-scrollbar {
-    width: 0.38rem;
+    width: 0;
+    height: 0;
   }
 
   .registration-welcome-card.is-form-step .registration-details-form::-webkit-scrollbar-track {
-    background: transparent;
+    border-radius: 999px;
+    background: #e8dcc5;
   }
 
   .registration-welcome-card.is-form-step .registration-details-form::-webkit-scrollbar-thumb {

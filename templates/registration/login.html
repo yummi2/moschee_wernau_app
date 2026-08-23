@@ -3,6 +3,10 @@
 {% block content %}
 {% load static %}
 <section class="login-page" dir="rtl">
+  <button type="button" class="registration-language-toggle login-language-toggle" data-registration-language aria-label="Sprache wechseln">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h7M7.5 3v2M5.5 9c2.5-1 4-3 5-5M6 6c1 2 2.5 3.5 4.5 4.5M14 19l3-8 3 8M15 16h4" /></svg>
+    <span>Deutsch</span>
+  </button>
   <span class="login-orb login-orb--one" aria-hidden="true"></span>
   <span class="login-orb login-orb--two" aria-hidden="true"></span>
   <div class="login-animated-logo" aria-hidden="true">
@@ -93,8 +97,10 @@
   </div>
 </section>
 
+<script src="{% static 'js/registration-language.js' %}?v=20260823-2"></script>
 <script>
   (() => {
+    const isGerman = window.registrationLanguage === "de";
     const animatedLogo = document.querySelector(".login-animated-logo");
     const logoAnchor = document.querySelector(".login-logo-anchor");
 
@@ -142,7 +148,9 @@
       const showPassword = password.type === "password";
       password.type = showPassword ? "text" : "password";
       toggle.setAttribute("aria-pressed", String(showPassword));
-      toggle.setAttribute("aria-label", showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور");
+      toggle.setAttribute("aria-label", showPassword
+        ? (isGerman ? "Passwort verbergen" : "إخفاء كلمة المرور")
+        : (isGerman ? "Passwort anzeigen" : "إظهار كلمة المرور"));
     });
   })();
 </script>

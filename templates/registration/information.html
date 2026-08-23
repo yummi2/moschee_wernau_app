@@ -1,10 +1,15 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}معلومات التسجيل{% endblock %}
 
 {% block content %}
 <section class="registration-info-page" dir="rtl">
   <div class="registration-info-layout">
     <main class="registration-welcome-card" id="registrationWelcomeCard">
+      <button type="button" class="registration-language-toggle" data-registration-language aria-label="Sprache wechseln">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h7M7.5 3v2M5.5 9c2.5-1 4-3 5-5M6 6c1 2 2.5 3.5 4.5 4.5M14 19l3-8 3 8M15 16h4" /></svg>
+        <span>Deutsch</span>
+      </button>
       <div class="registration-terms-step" id="registrationTermsStep">
       <header class="registration-welcome-heading">
         <span>مرحبًا بكم في دار الفرح</span>
@@ -14,7 +19,8 @@
 
       <div class="registration-reading-shell">
         <div id="registrationReadingText" class="registration-reading-text" tabindex="0" aria-label="معلومات التسجيل القابلة للتمرير">
-          {% include "registration/information_text.html" %}
+          <div data-language-content="ar">{% include "registration/information_text.html" %}</div>
+          <div data-language-content="de" hidden>{% include "registration/information_text_de.html" %}</div>
           <span id="registrationReadingEnd" class="registration-reading-end" aria-hidden="true"></span>
         </div>
         <div class="registration-scroll-track" aria-hidden="true"><span id="registrationScrollThumb"></span></div>
@@ -28,6 +34,7 @@
 
       <form method="post" class="registration-details-form" id="registrationDetailsForm" aria-hidden="true" novalidate>
         {% csrf_token %}
+        <input type="hidden" name="ui_language" value="ar">
         <header class="registration-form-heading">
           <span>طلب تسجيل جديد</span>
           <h2>بيانات الطالب</h2>
@@ -141,6 +148,10 @@
         <button type="submit" class="registration-submit-button" id="registrationSubmitButton">إرسال طلب التسجيل</button>
       </form>
 
+      <div class="registration-form-scroll-track" id="registrationFormScrollTrack" aria-hidden="true" hidden>
+        <span id="registrationFormScrollThumb"></span>
+      </div>
+
       <section class="registration-success-panel" id="registrationSuccessPanel" aria-hidden="true" aria-live="polite">
         <span class="registration-success-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24"><path d="M5 12.5l4.2 4.2L19 7" /></svg>
@@ -161,8 +172,10 @@
   </div>
 </section>
 
+<script src="{% static 'js/registration-language.js' %}?v=20260823-2"></script>
 <script>
   (() => {
+    const isGerman = window.registrationLanguage === "de";
     const text = document.getElementById("registrationReadingText");
     const end = document.getElementById("registrationReadingEnd");
     const button = document.getElementById("registrationAgreeButton");
@@ -171,6 +184,8 @@
     const card = document.getElementById("registrationWelcomeCard");
     const termsStep = document.getElementById("registrationTermsStep");
     const detailsForm = document.getElementById("registrationDetailsForm");
+    const formScrollTrack = document.getElementById("registrationFormScrollTrack");
+    const formScrollThumb = document.getElementById("registrationFormScrollThumb");
     const successPanel = document.getElementById("registrationSuccessPanel");
     const anotherChildButton = document.getElementById("registrationAnotherChild");
     const phoneInput = document.getElementById("registrationPhoneNumbers");
@@ -193,7 +208,9 @@
       if (hasReachedEnd) return;
       hasReachedEnd = true;
       button.disabled = false;
-      hint.textContent = "مرر إلى نهاية النص لتفعيل زر الموافقة.";
+      hint.textContent = isGerman
+        ? "Sie haben alle Bedingungen gelesen und können jetzt zustimmen."
+        : "تمت قراءة الشروط ويمكنك الآن الموافقة.";
     };
 
     const updateProgress = () => {
@@ -208,13 +225,29 @@
       if (value >= 0.98) unlock();
     };
 
+    const updateFormProgress = () => {
+      if (!formScrollTrack || !formScrollThumb) return;
+      const scrollable = Math.max(detailsForm.scrollHeight - detailsForm.clientHeight, 0);
+      formScrollTrack.hidden = scrollable <= 1 || detailsForm.getAttribute("aria-hidden") === "true";
+      if (formScrollTrack.hidden) return;
+      const value = Math.min(detailsForm.scrollTop / scrollable, 1);
+      const thumbHeight = Math.max((detailsForm.clientHeight / detailsForm.scrollHeight) * 100, 14);
+      formScrollThumb.style.height = `${Math.min(thumbHeight, 100)}%`;
+      formScrollThumb.style.top = `${Math.max(value * (100 - thumbHeight), 0)}%`;
+    };
+
     const observer = new IntersectionObserver((entries) => {
       if (entries.some((entry) => entry.isIntersecting)) unlock();
     }, { root: text, threshold: 1 });
 
     observer.observe(end);
     text.addEventListener("scroll", updateProgress, { passive: true });
-    window.addEventListener("resize", updateProgress);
+    detailsForm.addEventListener("scroll", updateFormProgress, { passive: true });
+    window.addEventListener("resize", () => {
+      updateProgress();
+      updateFormProgress();
+    });
+    if (window.ResizeObserver) new ResizeObserver(updateFormProgress).observe(detailsForm);
     button.addEventListener("click", () => {
       if (button.disabled) return;
       card.classList.add("is-switching-step");
@@ -223,6 +256,7 @@
         detailsForm.setAttribute("aria-hidden", "false");
         card.classList.remove("is-switching-step");
         card.classList.add("is-form-step");
+        requestAnimationFrame(updateFormProgress);
         detailsForm.querySelector("input")?.focus({ preventScroll: true });
         card.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 320);
@@ -232,13 +266,18 @@
       const today = new Date();
       let visibleDate = new Date(today.getFullYear() - 7, today.getMonth(), 1);
       let selectedDate = null;
-      const monthFormatter = new Intl.DateTimeFormat("ar-EG-u-ca-gregory", { month: "long" });
-      const valueFormatter = new Intl.DateTimeFormat("ar-EG-u-ca-gregory", { day: "2-digit", month: "2-digit", year: "numeric" });
+      const calendarLocale = isGerman ? "de-DE" : "ar-EG-u-ca-gregory";
+      const monthFormatter = new Intl.DateTimeFormat(calendarLocale, { month: "long" });
+      const valueFormatter = new Intl.DateTimeFormat(calendarLocale, { day: "2-digit", month: "2-digit", year: "numeric" });
+      const weekdayLabels = isGerman ? ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"] : ["أح", "اث", "ثل", "أر", "خم", "جم", "سب"];
+      document.querySelectorAll(".registration-calendar-weekdays b").forEach((label, index) => {
+        label.textContent = weekdayLabels[index];
+      });
 
       for (let year = today.getFullYear(); year >= 1995; year -= 1) {
         const option = document.createElement("option");
         option.value = String(year);
-        option.textContent = new Intl.NumberFormat("ar-EG", { useGrouping: false }).format(year);
+        option.textContent = new Intl.NumberFormat(isGerman ? "de-DE" : "ar-EG", { useGrouping: false }).format(year);
         calendarYear.appendChild(option);
       }
 
@@ -276,7 +315,7 @@
           const date = new Date(year, month, day);
           const dayButton = document.createElement("button");
           dayButton.type = "button";
-          dayButton.textContent = new Intl.NumberFormat("ar-EG").format(day);
+          dayButton.textContent = new Intl.NumberFormat(isGerman ? "de-DE" : "ar-EG").format(day);
           dayButton.disabled = date > today;
           if (selectedDate?.toDateString() === date.toDateString()) dayButton.classList.add("is-selected");
           if (today.toDateString() === date.toDateString()) dayButton.classList.add("is-today");
@@ -366,8 +405,8 @@
       const error = document.createElement("span");
       error.className = "registration-field-error";
       error.textContent = field.type === "email" && field.value
-        ? "يرجى إدخال بريد إلكتروني صحيح."
-        : "يرجى تعبئة الحقل أعلاه.";
+        ? (isGerman ? "Bitte geben Sie eine gültige E-Mail-Adresse ein." : "يرجى إدخال بريد إلكتروني صحيح.")
+        : (isGerman ? "Bitte füllen Sie das Feld oben aus." : "يرجى تعبئة الحقل أعلاه.");
       owner.appendChild(error);
     };
 
@@ -407,7 +446,7 @@
 
       if (submitButton) {
         submitButton.disabled = true;
-        submitButton.textContent = "جارٍ إرسال الطلب…";
+        submitButton.textContent = isGerman ? "Anmeldung wird gesendet…" : "جارٍ إرسال الطلب…";
       }
 
       try {
@@ -417,10 +456,11 @@
           headers: { "X-Requested-With": "XMLHttpRequest" },
         });
         const result = await response.json();
-        if (!response.ok || !result.ok) throw new Error(result.message || "تعذر إرسال الطلب. يرجى المحاولة مرة أخرى.");
+        if (!response.ok || !result.ok) throw new Error(result.message || (isGerman ? "Die Anmeldung konnte nicht gesendet werden. Bitte versuchen Sie es erneut." : "تعذر إرسال الطلب. يرجى المحاولة مرة أخرى."));
 
         detailsForm.setAttribute("aria-hidden", "true");
         detailsForm.style.display = "none";
+        if (formScrollTrack) formScrollTrack.hidden = true;
         successPanel.setAttribute("aria-hidden", "false");
         card.classList.add("is-success-step");
       } catch (error) {
@@ -432,7 +472,7 @@
       } finally {
         if (submitButton) {
           submitButton.disabled = false;
-          submitButton.textContent = "إرسال طلب التسجيل";
+          submitButton.textContent = isGerman ? "Anmeldung absenden" : "إرسال طلب التسجيل";
         }
       }
     });
@@ -454,6 +494,7 @@
       detailsForm.style.removeProperty("display");
       detailsForm.setAttribute("aria-hidden", "false");
       detailsForm.scrollTop = 0;
+      requestAnimationFrame(updateFormProgress);
       card.scrollIntoView({ behavior: "smooth", block: "start" });
       detailsForm.querySelector("input")?.focus({ preventScroll: true });
     });

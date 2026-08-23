@@ -139,6 +139,14 @@ class SchoolLoginView(LoginView):
 
 def registration_information(request):
     if request.method == "POST":
+        is_german = request.POST.get("ui_language") == "de"
+
+        def error_response(arabic_message, german_message, status=400):
+            return JsonResponse(
+                {"ok": False, "message": german_message if is_german else arabic_message},
+                status=status,
+            )
+
         required_fields = (
             "last_name", "first_name", "school_class", "birth_date", "street_name",
             "house_number", "postal_code", "city", "phone_numbers", "parent_email",
@@ -146,39 +154,39 @@ def registration_information(request):
         )
         data = {field: request.POST.get(field, "").strip() for field in required_fields}
         if any(not data[field] for field in required_fields):
-            return JsonResponse({"ok": False, "message": "يرجى تعبئة جميع الحقول المطلوبة."}, status=400)
+            return error_response("يرجى تعبئة جميع الحقول المطلوبة.", "Bitte füllen Sie alle Pflichtfelder aus.")
         if not data["house_number"].isdigit() or not data["postal_code"].isdigit():
-            return JsonResponse(
-                {"ok": False, "message": "يجب أن يحتوي رقم المنزل والرمز البريدي على أرقام فقط."},
-                status=400,
+            return error_response(
+                "يجب أن يحتوي رقم المنزل والرمز البريدي على أرقام فقط.",
+                "Hausnummer und PLZ dürfen nur Ziffern enthalten.",
             )
         if len(data["postal_code"]) != 5:
-            return JsonResponse(
-                {"ok": False, "message": "يجب أن يتكون الرمز البريدي من 5 أرقام."},
-                status=400,
+            return error_response(
+                "يجب أن يتكون الرمز البريدي من 5 أرقام.",
+                "Die PLZ muss genau fünf Ziffern enthalten.",
             )
         try:
             validate_email(data["parent_email"])
         except ValidationError:
-            return JsonResponse({"ok": False, "message": "يرجى إدخال بريد إلكتروني صحيح."}, status=400)
+            return error_response("يرجى إدخال بريد إلكتروني صحيح.", "Bitte geben Sie eine gültige E-Mail-Adresse ein.")
         phone_numbers = [part.strip().replace(" ", "") for part in data["phone_numbers"].replace("،", ",").split(",")]
         if len(phone_numbers) > 2 or any(not number.isdigit() or len(number) > 11 for number in phone_numbers):
-            return JsonResponse(
-                {"ok": False, "message": "يرجى إدخال رقم أو رقمين فقط، وبحد أقصى 11 رقمًا لكل رقم."},
-                status=400,
+            return error_response(
+                "يرجى إدخال رقم أو رقمين فقط، وبحد أقصى 11 رقمًا لكل رقم.",
+                "Bitte geben Sie höchstens zwei Telefonnummern mit jeweils maximal 11 Ziffern ein.",
             )
         if data["photo_permission"] not in {"yes", "no"} or data["program"] not in {
             "arabic_and_religion", "religion_only", "arabic_only"
         }:
-            return JsonResponse({"ok": False, "message": "يرجى التحقق من خيارات التسجيل."}, status=400)
+            return error_response("يرجى التحقق من خيارات التسجيل.", "Bitte prüfen Sie die ausgewählten Anmeldeoptionen.")
         photo_usage = request.POST.getlist("photo_usage")
         allowed_photo_usage = {"video", "instagram"}
         if data["photo_permission"] == "yes" and (
             not photo_usage or any(value not in allowed_photo_usage for value in photo_usage)
         ):
-            return JsonResponse(
-                {"ok": False, "message": "يرجى اختيار مكان استخدام الصور والفيديوهات."},
-                status=400,
+            return error_response(
+                "يرجى اختيار مكان استخدام الصور والفيديوهات.",
+                "Bitte wählen Sie aus, wo Fotos und Videos verwendet werden dürfen.",
             )
 
         data["submitted_at"] = timezone.localtime().strftime("%d.%m.%Y %H:%M")
@@ -212,8 +220,9 @@ def registration_information(request):
             email.send(fail_silently=False)
         except Exception:
             logger.exception("Could not process registration submission")
-            return JsonResponse(
-                {"ok": False, "message": "تعذر حفظ الطلب أو إرسال الإشعار. يرجى التواصل مع إدارة المدرسة."},
+            return error_response(
+                "تعذر حفظ الطلب أو إرسال الإشعار. يرجى التواصل مع إدارة المدرسة.",
+                "Die Anmeldung konnte nicht gespeichert oder die Benachrichtigung nicht gesendet werden. Bitte wenden Sie sich an die Schule.",
                 status=503,
             )
 
