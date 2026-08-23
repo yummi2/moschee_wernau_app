@@ -4803,6 +4803,27 @@ body.auth-page {
   }
 }
 
+@keyframes login-logo-arrive-mobile-left {
+  0% {
+    top: 50%;
+    left: 50%;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.55);
+  }
+  18% { opacity: 1; }
+  58% {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1.55);
+  }
+  100% {
+    top: var(--login-logo-top);
+    left: var(--login-logo-left);
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+}
+
 @media (max-width: 47.999rem) {
   body.auth-page { padding-block-end: 0; }
 
@@ -4826,6 +4847,12 @@ body.auth-page {
     right: 1rem;
     width: 5rem;
     height: 5rem;
+  }
+  .login-page:not(.is-german) .login-animated-logo {
+    --login-logo-left: 1rem;
+    right: auto;
+    left: var(--login-logo-left);
+    animation-name: login-logo-arrive-mobile-left;
   }
   .login-card { min-height: 34rem; padding: clamp(1.5rem, 7vw, 2.25rem); }
   .login-card-heading { margin-block-end: 1.5rem; }
