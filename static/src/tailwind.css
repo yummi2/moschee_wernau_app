@@ -3781,16 +3781,16 @@ body.auth-page {
   flex: 0 0 auto;
   overflow: hidden;
   place-items: center;
-  border: 1px solid #decba4;
+  border: 0;
   border-radius: 1.25rem;
-  background: #fff;
-  box-shadow: 0 14px 30px rgb(11 73 56 / 13%);
+  background: transparent;
+  box-shadow: none;
   transition: transform 260ms ease, box-shadow 260ms ease;
 }
 
 .registration-image-link:hover {
   transform: translateY(-3px);
-  box-shadow: 0 20px 38px rgb(11 73 56 / 18%);
+  box-shadow: none;
 }
 
 .registration-image-link img {
@@ -4862,6 +4862,12 @@ body.auth-page {
     justify-content: flex-start;
   }
   .registration-image-link { min-height: 0; aspect-ratio: 5 / 4; }
+  .login-input-wrap input,
+  .registration-details-form input:not([type="radio"]):not([type="checkbox"]),
+  .registration-details-form textarea,
+  .registration-details-form select {
+    font-size: 1rem;
+  }
   .login-orb--one { width: 5rem; height: 5rem; }
   .login-orb--two { width: 8rem; height: 8rem; }
 
