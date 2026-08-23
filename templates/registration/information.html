@@ -147,7 +147,7 @@
         </span>
         <p>تم إرسال الطلب بنجاح</p>
         <h2>تم تسجيل طفلك للعام الدراسي القادم</h2>
-        <p>إذا أردت تسجيل طفل آخر، سوف يُمنح الطفل الثاني خصماً بنسبة 10%، والطفل الثالث خصماً بنسبة 20%.</p>
+        <p class="registration-family-discount">إذا أردت تسجيل طفل آخر، سوف يُمنح الطفل الثاني خصماً بنسبة 10%، والطفل الثالث خصماً بنسبة 20%.</p>
         <button type="button" class="registration-another-child" id="registrationAnotherChild">تسجيل طفل آخر</button>
       </section>
 
@@ -453,7 +453,9 @@
       card.classList.remove("is-success-step");
       detailsForm.style.removeProperty("display");
       detailsForm.setAttribute("aria-hidden", "false");
-      detailsForm.querySelector("input")?.focus();
+      detailsForm.scrollTop = 0;
+      card.scrollIntoView({ behavior: "smooth", block: "start" });
+      detailsForm.querySelector("input")?.focus({ preventScroll: true });
     });
     requestAnimationFrame(updateProgress);
   })();

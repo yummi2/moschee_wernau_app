@@ -4356,6 +4356,19 @@ body.auth-page {
   line-height: 1.8;
 }
 
+.registration-success-panel > p.registration-family-discount:last-of-type {
+  width: 100%;
+  border: 1px solid #f0b84b;
+  border-radius: 0.9rem;
+  padding: 0.8rem 1rem;
+  color: #9a4300;
+  background: #fff4d6;
+  font-size: 0.9rem;
+  font-weight: 850;
+  line-height: 1.9;
+  box-shadow: 0 8px 20px rgb(154 67 0 / 10%);
+}
+
 .registration-another-child {
   min-height: 3rem;
   margin-block-start: 0.6rem;
