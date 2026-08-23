@@ -4126,17 +4126,27 @@ body.auth-page {
 
 .registration-choice-group {
   margin-block-start: 1.25rem;
-  border: 1px solid #e6dac3;
-  border-radius: 1.1rem;
-  padding: 1rem;
-  background: #fbf8f1;
+  border: 0;
+  padding: 0;
+  background: transparent;
 }
 
 .registration-choice-group legend {
-  padding-inline: 0.4rem;
+  display: block;
+  width: 100%;
+  margin-block-end: 0.55rem;
+  padding: 0;
   color: #10231e;
   font-size: 0.9rem;
   font-weight: 850;
+}
+
+.app-nav-link.is-disabled,
+.app-bottom-nav-link.is-disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+  pointer-events: none;
+  filter: grayscale(0.45);
 }
 
 .registration-choice-row {
@@ -4691,9 +4701,24 @@ body.auth-page {
     min-height: 0;
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding-inline: 0.15rem;
+    padding-inline-start: 0.15rem;
+    padding-inline-end: 0.75rem;
+    scrollbar-gutter: stable;
     scrollbar-width: thin;
     scrollbar-color: #17805e transparent;
+  }
+
+  .registration-welcome-card.is-form-step .registration-details-form::-webkit-scrollbar {
+    width: 0.38rem;
+  }
+
+  .registration-welcome-card.is-form-step .registration-details-form::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .registration-welcome-card.is-form-step .registration-details-form::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: #17805e;
   }
 }
 

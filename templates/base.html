@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260823-118">  <style>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260823-120">  <style>
   .act-grid{
     display: grid;
     gap: 12px;
@@ -99,10 +99,17 @@
         <span>مكتبتي</span>
       </a>
 
+      {% if request.session.school_year == "2026" %}
       <a href="{% url 'ramadan_plan' %}" class="app-nav-link app-mobile-bottom-item {% if request.resolver_match.url_name == 'ramadan_plan' or request.resolver_match.url_name == 'ramadan_day' or request.resolver_match.url_name == 'ramadan_results' %}is-active{% endif %}">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 15.5A8 8 0 0 1 9 5a8 8 0 1 0 10 10.5ZM17.5 4v3M16 5.5h3"/></svg>
         <span>رمضان</span>
       </a>
+      {% else %}
+      <span class="app-nav-link app-mobile-bottom-item is-disabled" aria-disabled="true" title="متاح في السنة الدراسية 2026">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 15.5A8 8 0 0 1 9 5a8 8 0 1 0 10 10.5ZM17.5 4v3M16 5.5h3"/></svg>
+        <span>رمضان</span>
+      </span>
+      {% endif %}
 
       <a href="{% url 'profile' %}" class="app-nav-link app-mobile-bottom-item {% if request.resolver_match.url_name == 'profile' %}is-active{% endif %}">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4.5 21a7.5 7.5 0 0 1 15 0"/></svg>
@@ -221,9 +228,15 @@
     <a href="{% url 'calendar' %}" class="app-bottom-nav-link {% if request.resolver_match.url_name == 'calendar' %}is-active{% endif %}" aria-label="التقويم">
       <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 4h14a2 2 0 0 1 2 2v14H3V6a2 2 0 0 1 2-2ZM8 2v4M16 2v4M3 9h18M7 13h2M11 13h2M15 13h2M7 17h2M11 17h2"/></svg>
     </a>
+    {% if request.session.school_year == "2026" %}
     <a href="{% url 'ramadan_plan' %}" class="app-bottom-nav-link {% if request.resolver_match.url_name == 'ramadan_plan' or request.resolver_match.url_name == 'ramadan_day' or request.resolver_match.url_name == 'ramadan_results' %}is-active{% endif %}" aria-label="رمضان">
       <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M19 15.5A8 8 0 0 1 9 5a8 8 0 1 0 10 10.5ZM17.5 4v3M16 5.5h3"/></svg>
     </a>
+    {% else %}
+    <span class="app-bottom-nav-link is-disabled" aria-label="رمضان — متاح في السنة الدراسية 2026" aria-disabled="true">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M19 15.5A8 8 0 0 1 9 5a8 8 0 1 0 10 10.5ZM17.5 4v3M16 5.5h3"/></svg>
+    </span>
+    {% endif %}
     <a href="{% url 'profile' %}" class="app-bottom-nav-link {% if request.resolver_match.url_name == 'profile' %}is-active{% endif %}" aria-label="الصفحة الشخصية">
       <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4.5 21a7.5 7.5 0 0 1 15 0"/></svg>
     </a>

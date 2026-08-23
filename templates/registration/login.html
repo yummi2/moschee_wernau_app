@@ -71,7 +71,6 @@
 
         <button type="submit" class="login-submit">
           <span>دخول</span>
-          <svg viewBox="0 0 24 24" aria-hidden="true"></svg>
         </button>
       </form>
 
@@ -79,7 +78,7 @@
 
       <div id="registrationPanel" class="registration-preview-panel" role="tabpanel" aria-hidden="true">
         <div class="registration-preview-heading">
-          <p class="font-bold">اضغط على البطاقة لقراءة معلومات التسجيل.</p>
+          <p class="font-bold">اضغط على البطاقة للتسجيل.</p>
         </div>
         <a href="{% url 'registration_information' %}" class="registration-image-link" aria-label="فتح معلومات التسجيل للعام القادم">
           <img src="{% static 'images/registration-next-year.png' %}" alt="إعلان التسجيل للعام الدراسي القادم" onerror="this.hidden=true; this.nextElementSibling.hidden=false;">
