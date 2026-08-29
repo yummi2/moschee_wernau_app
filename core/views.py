@@ -133,6 +133,7 @@ class SchoolLoginView(LoginView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
+        self.request.session.set_expiry(settings.SESSION_COOKIE_AGE)
         self.request.session["school_year"] = "2027"
         return response
 
@@ -884,12 +885,15 @@ def calendar_page(request):
         )
     }
 
+    calendar_weeks = calendar.monthcalendar(year, month)
+    calendar_weeks.extend([[0] * 7 for _ in range(6 - len(calendar_weeks))])
+
     return render(request, "core/calendar.html", {
         "banner": WeeklyBanner.objects.order_by("-updated_at").first(),
         "cal_year": year,
         "cal_month": month,
         "cal_month_name": calendar.month_name[month],
-        "cal_weeks": calendar.monthcalendar(year, month),
+        "cal_weeks": calendar_weeks,
         "cal_weekday_names": ["الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت", "الأحد"],
         "cal_prev_y": previous_month.year,
         "cal_prev_m": previous_month.month,

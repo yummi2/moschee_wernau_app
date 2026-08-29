@@ -164,6 +164,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = '/?tab=home'  # nach dem Login direkt zum aktuellen Schuljahr
 LOGOUT_REDIRECT_URL = reverse_lazy('login')  # nach dem Logout zur modernen Login-Seite
 
+# Keep authenticated users signed in on the same device. Only Django's signed
+# session cookie is stored in the browser; usernames and passwords are never
+# written to localStorage.
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 365
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_SAVE_EVERY_REQUEST = True
+
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True

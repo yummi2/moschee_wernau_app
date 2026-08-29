@@ -49,7 +49,7 @@
       </div>
       {% endif %}
 
-      <form method="post" class="login-form" novalidate>
+      <form method="post" class="login-form" data-auto-login novalidate>
         {% csrf_token %}
 
         <div class="login-field">
@@ -142,6 +142,71 @@
 
     const toggle = document.querySelector(".login-password-toggle");
     const password = document.getElementById("{{ form.password.id_for_label }}");
+    const username = document.getElementById("{{ form.username.id_for_label }}");
+    const loginForm = document.querySelector("[data-auto-login]");
+    const loginSubmit = loginForm?.querySelector(".login-submit");
+    let autoLoginTimer;
+    let credentialFillDetected = false;
+    let credentialSelectionArmed = false;
+
+    const fieldsAreAutofilled = () => {
+      if (!username || !password) return false;
+      try {
+        return username.matches(":autofill, :-webkit-autofill")
+          && password.matches(":autofill, :-webkit-autofill");
+      } catch (error) {
+        return username.matches(":-webkit-autofill") && password.matches(":-webkit-autofill");
+      }
+    };
+
+    const scheduleAutofillLogin = () => {
+      window.clearTimeout(autoLoginTimer);
+      if (!loginForm || !username || !password || !username.value.trim() || !password.value) return;
+      if (!credentialFillDetected && !fieldsAreAutofilled()) return;
+
+      autoLoginTimer = window.setTimeout(() => {
+        if (loginForm.dataset.submitting === "true") return;
+        if (!credentialFillDetected && !fieldsAreAutofilled()) return;
+        loginForm.dataset.submitting = "true";
+        if (loginSubmit) {
+          loginSubmit.disabled = true;
+          loginSubmit.classList.add("is-loading");
+          loginSubmit.querySelector("span").textContent = isGerman ? "Anmeldung …" : "جارٍ الدخول…";
+        }
+        loginForm.requestSubmit();
+      }, 1600);
+    };
+
+    [username, password].forEach((field) => {
+      field?.addEventListener("pointerdown", () => {
+        credentialSelectionArmed = true;
+      });
+
+      field?.addEventListener("beforeinput", () => {
+        credentialFillDetected = false;
+        window.clearTimeout(autoLoginTimer);
+      });
+
+      field?.addEventListener("input", (event) => {
+        const inputType = event.inputType || "";
+        const looksLikeCredentialFill = inputType === "" || inputType === "insertReplacementText";
+        if (!credentialSelectionArmed || !looksLikeCredentialFill) return;
+        credentialFillDetected = true;
+        scheduleAutofillLogin();
+      });
+
+      field?.addEventListener("animationstart", (event) => {
+        if (!credentialSelectionArmed || event.animationName !== "login-autofill-detected") return;
+        credentialFillDetected = true;
+        scheduleAutofillLogin();
+      });
+    });
+
+    loginForm?.addEventListener("submit", () => {
+      window.clearTimeout(autoLoginTimer);
+      loginForm.dataset.submitting = "true";
+    });
+
     if (!toggle || !password) return;
 
     toggle.addEventListener("click", () => {

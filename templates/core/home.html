@@ -4,17 +4,18 @@
 {% block content %}
 
 <div class="app-page-frame mx-auto max-w-6xl px-4">
-    <div>
+    <div class="home-page-layout">
         <main class="space-y-6">
 
-            <div class="app-content-card home-dashboard-card content-page-fill bg-white rounded-2xl shadow p-6" dir="rtl">
+            <div class="app-content-card home-dashboard-card content-page-fill bg-white rounded-2xl shadow p-6 {% if request.GET.tab == 'home' %}is-home-overview{% endif %}" dir="rtl">
                 {% if user.is_authenticated %}
                 {% with active_tab=request.GET.tab|default:"assignments" %}
                 {% if active_tab == "home" %}
                 <div class="home-user-summary">
                     <div>
                         <h2 class="text-2xl font-semibold text-black-600">
-                            السلام عليكم {{ user.username }}
+                            <span class="home-greeting">السلام عليكم</span>
+                            <span class="home-user-name">{{ user.username }}</span>
                         </h2>
                         <p>نتمنى لك يومًا موفقًا</p>
                     </div>
@@ -29,25 +30,25 @@
                 {% endif %}
 
                 {% if active_tab != "home" %}
-                <div class="home-section-tabs flex flex-wrap gap-2 mb-2">
-                    <a href="?tab=assignments" class="home-section-tab {% if active_tab == 'assignments' %}is-active{% endif %} px-3 py-1 rounded-lg border
+                <div class="home-section-tabs flex flex-wrap gap-2 mb-2" role="tablist" aria-label="أقسام الصفحة">
+                    <a href="?tab=assignments" data-home-tab="assignments" role="tab" aria-selected="{% if active_tab == 'assignments' %}true{% else %}false{% endif %}" class="home-section-tab {% if active_tab == 'assignments' %}is-active{% endif %} px-3 py-1 rounded-lg border
            {% if active_tab == 'assignments' %} bg-blue-600 text-white border-blue-600
            {% else %} text-blue-700 hover:bg-blue-50 border-blue-200 {% endif %}">
                         الواجبات
                     </a>
 
-                    <a href="?tab=notes" class="home-section-tab {% if active_tab == 'notes' %}is-active{% endif %} px-3 py-1 rounded-lg border
+                    <a href="?tab=notes" data-home-tab="notes" role="tab" aria-selected="{% if active_tab == 'notes' %}true{% else %}false{% endif %}" class="home-section-tab {% if active_tab == 'notes' %}is-active{% endif %} px-3 py-1 rounded-lg border
            {% if active_tab == 'notes' %} bg-blue-600 text-white border-blue-600
            {% else %} text-blue-700 hover:bg-blue-50 border-blue-200 {% endif %}">
                         الملاحظات
                     </a>
 
-                    <a href="?tab=checklist" class="home-section-tab {% if active_tab == 'checklist' %}is-active{% endif %} px-3 py-1 rounded-lg border
+                    <a href="?tab=checklist" data-home-tab="checklist" role="tab" aria-selected="{% if active_tab == 'checklist' %}true{% else %}false{% endif %}" class="home-section-tab {% if active_tab == 'checklist' %}is-active{% endif %} px-3 py-1 rounded-lg border
            {% if active_tab == 'checklist' %} bg-blue-600 text-white border-blue-600
            {% else %} text-blue-700 hover:bg-blue-50 border-blue-200 {% endif %}">
                         ما تم تسميعه
                     </a>
-                    <a href="?tab=prayer"
+                    <a href="?tab=prayer" data-home-tab="prayer" role="tab" aria-selected="{% if active_tab == 'prayer' %}true{% else %}false{% endif %}"
                     class="home-section-tab {% if active_tab == 'prayer' %}is-active{% endif %} px-3 py-1 rounded-lg border
                     {% if active_tab == 'prayer' %} bg-blue-600 text-white border-blue-600
                     {% else %} text-blue-700 hover:bg-blue-50 border-blue-200 {% endif %}">
@@ -55,7 +56,7 @@
                     </a>
 
                     {% if banner and selected_school_year == "2026" %}
-                    <a href="?tab=map"
+                    <a href="?tab=map" data-home-tab="map" role="tab" aria-selected="{% if active_tab == 'map' %}true{% else %}false{% endif %}"
                     class="home-section-tab {% if active_tab == 'map' %}is-active{% endif %} px-3 py-1 rounded-lg border
                     {% if active_tab == 'map' %} bg-blue-600 text-white border-blue-600
                     {% else %} text-blue-700 hover:bg-blue-50 border-blue-200 {% endif %}">
@@ -86,7 +87,7 @@
                 {% endif %}
 
                 {# --- Inhalt: Hausaufgaben --- #}
-                <div class="mt-4 {% if active_tab != 'assignments' %}hidden{% endif %}">
+                <div data-home-panel="assignments" role="tabpanel" class="home-tab-panel mt-4 {% if active_tab != 'assignments' %}hidden{% endif %}">
                     {% if user.is_authenticated and assignments %}
                     <div class="space-y-6">
                         {% for week in assignment_weeks %}
@@ -376,7 +377,7 @@
                 </div>
 
                 {# --- Inhalt: Notizen --- #}
-                <div class="notes-panel mt-4 {% if active_tab != 'notes' %}hidden{% endif %}">
+                <div data-home-panel="notes" role="tabpanel" class="home-tab-panel notes-panel mt-4 {% if active_tab != 'notes' %}hidden{% endif %}">
                     {% if teacher_notes and teacher_notes|length > 0 %}
                     <ul class="notes-list">
                         {% for n in teacher_notes %}
@@ -413,7 +414,7 @@
 
 
                 <!-- --- Inhalt: ما تم تسميعه (Checkliste) --- -->
-                <div class="mt-4 {% if active_tab != 'checklist' %}hidden{% endif %}">
+                <div data-home-panel="checklist" role="tabpanel" class="home-tab-panel mt-4 {% if active_tab != 'checklist' %}hidden{% endif %}">
                     <h4 class="font-semibold text-blue-700 mb-3">ما تم تسميعه</h4>
                     {% if checklist_items %}
                     <ul class="space-y-2">
@@ -429,8 +430,7 @@
                     {% endif %}
                 </div>
                 {# --- Inhalt: الصلاة --- #}
-                {% if active_tab == "prayer" %}
-                <section class="prayer-panel">
+                <section data-home-panel="prayer" role="tabpanel" class="home-tab-panel prayer-panel {% if active_tab != 'prayer' %}hidden{% endif %}">
                 <div class="prayer-week-nav">
                 <!-- السابق -->
                 {% if has_prev_prayer_week %}
@@ -520,11 +520,10 @@
                 </table>
                 </div>
                 </section>
-                {% endif %}
 
                 {# --- Inhalt: خريطة المسابقة --- #}
-                {% if active_tab == "map" and banner and selected_school_year == "2026" %}
-                <section class="competition-map-panel" aria-labelledby="competition-map-title">
+                {% if banner and selected_school_year == "2026" %}
+                <section data-home-panel="map" role="tabpanel" class="home-tab-panel competition-map-panel {% if active_tab != 'map' %}hidden{% endif %}" aria-labelledby="competition-map-title">
                     <img src="{{ banner.image_url }}"
                          alt="خريطة المسابقة"
                          class="competition-map-image">
@@ -542,6 +541,68 @@
 
     </div>
 </div>
+            <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const tabs = Array.from(document.querySelectorAll("[data-home-tab]"));
+                const panels = Array.from(document.querySelectorAll("[data-home-panel]"));
+                if (!tabs.length || !panels.length) return;
+
+                const availableTabs = new Set(panels.map((panel) => panel.dataset.homePanel));
+
+                const showTab = (requestedTab, updateHistory = false) => {
+                    const tabName = availableTabs.has(requestedTab) ? requestedTab : "assignments";
+
+                    tabs.forEach((tab) => {
+                        const isActive = tab.dataset.homeTab === tabName;
+                        tab.classList.toggle("is-active", isActive);
+                        tab.setAttribute("aria-selected", String(isActive));
+                        tab.tabIndex = isActive ? 0 : -1;
+                    });
+
+                    panels.forEach((panel) => {
+                        const isActive = panel.dataset.homePanel === tabName;
+                        panel.classList.toggle("hidden", !isActive);
+                        panel.setAttribute("aria-hidden", String(!isActive));
+
+                        if (isActive) {
+                            panel.classList.remove("is-entering");
+                            requestAnimationFrame(() => panel.classList.add("is-entering"));
+                        }
+                    });
+
+                    if (updateHistory) {
+                        const activeLink = tabs.find((tab) => tab.dataset.homeTab === tabName);
+                        if (activeLink) history.pushState({ homeTab: tabName }, "", activeLink.href);
+                    }
+                };
+
+                tabs.forEach((tab) => {
+                    tab.addEventListener("click", (event) => {
+                        if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+                        event.preventDefault();
+                        showTab(tab.dataset.homeTab, true);
+                    });
+
+                    tab.addEventListener("keydown", (event) => {
+                        if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+                        event.preventDefault();
+                        const currentIndex = tabs.indexOf(tab);
+                        const direction = event.key === "ArrowLeft" ? 1 : -1;
+                        const nextTab = tabs[(currentIndex + direction + tabs.length) % tabs.length];
+                        nextTab.focus();
+                        showTab(nextTab.dataset.homeTab, true);
+                    });
+                });
+
+                window.addEventListener("popstate", () => {
+                    const tabName = new URL(window.location.href).searchParams.get("tab") || "assignments";
+                    showTab(tabName);
+                });
+
+                const initialTab = new URL(window.location.href).searchParams.get("tab") || "assignments";
+                showTab(initialTab);
+            });
+            </script>
             <script>
             document.addEventListener("DOMContentLoaded", () => {
                 function getCsrfFromCookie() {

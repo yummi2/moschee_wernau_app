@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260829-133">  <style>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260829-145">  <style>
   .act-grid{
     display: grid;
     gap: 12px;
@@ -49,7 +49,7 @@
 
 </head>
 
-<body class="bg-gray-50 text-gray-900 {% if request.resolver_match.url_name == 'login' or request.resolver_match.url_name == 'school_year' or request.resolver_match.url_name == 'registration_information' %}auth-page{% endif %}">
+<body class="bg-gray-50 text-gray-900 {% if request.resolver_match.url_name == 'login' or request.resolver_match.url_name == 'school_year' or request.resolver_match.url_name == 'registration_information' %}auth-page{% else %}app-shell-page{% endif %}">
   {% if request.resolver_match.url_name != 'login' and request.resolver_match.url_name != 'school_year' and request.resolver_match.url_name != 'registration_information' %}
   <header class="app-sidebar" dir="rtl">
     <a href="{% url 'home' %}?tab=home" class="app-brand" aria-label="دار الفرح، الصفحة الرئيسية">
