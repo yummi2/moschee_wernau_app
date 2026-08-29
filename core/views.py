@@ -110,7 +110,12 @@ COLOR_FINAL = "calendar-final"
 
 def selected_school_year_ranges(request):
     """Return the calendar and prayer limits for the selected school year."""
+    from .school_years import can_switch_school_years
+
     selected_year = request.session.get("school_year", "2027")
+    if not can_switch_school_years(request.user):
+        selected_year = "2027"
+        request.session["school_year"] = "2027"
     if selected_year == "2026":
         return {
             "year": "2026",
@@ -413,7 +418,7 @@ SPECIAL_DATES = {
         dt.date(2027, 2, 20): COLOR_TEACHING,
         dt.date(2027, 2, 27): COLOR_TEACHING,
         dt.date(2027, 3, 6): COLOR_TEACHING,
-        dt.date(2027, 3, 13): COLOR_TEACHING,
+        dt.date(2027, 3, 13): COLOR_EID,
         dt.date(2027, 3, 20): COLOR_TEACHING,
 
         dt.date(2027, 3, 27): COLOR_HOLIDAY,
@@ -495,9 +500,12 @@ def mark_absence(request):
 
 @login_required
 def school_year(request):
+    from .school_years import can_switch_school_years
+
     if request.method == "POST":
         selected_year = request.POST.get("school_year")
-        if selected_year in {"2026", "2027"}:
+        allowed_years = {"2026", "2027"} if can_switch_school_years(request.user) else {"2027"}
+        if selected_year in allowed_years:
             request.session["school_year"] = selected_year
             next_url = request.POST.get("next", "")
             if next_url and url_has_allowed_host_and_scheme(
@@ -507,6 +515,8 @@ def school_year(request):
             ):
                 return redirect(next_url)
             return redirect(f"{reverse('home')}?tab=home")
+
+        request.session["school_year"] = "2027"
 
     return redirect(f"{reverse('home')}?tab=home")
 

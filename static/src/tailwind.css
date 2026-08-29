@@ -2505,6 +2505,100 @@ button.prayer-status:focus-visible {
   transition: transform 180ms ease, background-color 180ms ease, color 180ms ease;
 }
 
+.ramadan-drawing-dialog {
+  width: min(92vw, 44rem);
+  max-height: 90dvh;
+  margin: auto;
+  overflow: visible;
+  border: 0;
+  border-radius: 1.5rem;
+  background: transparent;
+  padding: 0;
+  color: #10231e;
+  font-family: "Cairo", "Tajawal", "Segoe UI", Tahoma, Arial, sans-serif;
+}
+
+.ramadan-drawing-dialog::backdrop {
+  background: rgb(4 29 23 / 58%);
+  -webkit-backdrop-filter: blur(7px);
+  backdrop-filter: blur(7px);
+}
+
+.ramadan-drawing-dialog-card {
+  display: grid;
+  max-height: 90dvh;
+  gap: 1rem;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 82%);
+  border-radius: inherit;
+  background: linear-gradient(145deg, #fffdf8, #f5ead4);
+  padding: clamp(1rem, 3vw, 1.4rem);
+  box-shadow: 0 24px 70px rgb(4 29 23 / 28%);
+}
+
+.ramadan-drawing-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.ramadan-drawing-dialog-header h3 {
+  color: #082f25;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.5;
+  letter-spacing: normal;
+}
+
+.ramadan-drawing-dialog-close {
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  flex: 0 0 2.75rem;
+  place-items: center;
+  border: 1px solid #ead9b7;
+  border-radius: 9999px;
+  background: rgb(255 255 255 / 75%);
+  color: #334155;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.ramadan-drawing-dialog-preview {
+  min-height: 0;
+  overflow: auto;
+  border: 1px solid #ead9b7;
+  border-radius: 1rem;
+  background: #fff;
+  padding: 0.5rem;
+}
+
+.ramadan-drawing-dialog-preview img {
+  display: block;
+  width: 100%;
+  max-height: 62dvh;
+  object-fit: contain;
+  border-radius: 0.7rem;
+}
+
+.ramadan-drawing-download {
+  display: grid;
+  min-height: 3rem;
+  place-items: center;
+  border-radius: 0.9rem;
+  background: linear-gradient(135deg, #0b4938, #116149);
+  padding: 0.7rem 1rem;
+  color: #fff;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 750;
+  line-height: 1.5;
+  text-decoration: none;
+  box-shadow: 0 9px 20px rgb(11 73 56 / 20%);
+}
+
 .ramadan-done-button {
   display: inline-flex;
   min-width: 6rem;

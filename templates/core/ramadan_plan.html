@@ -164,7 +164,7 @@
           <div class="ramadan-quiz-pagination">
           {% if p_islam > 1 %}
             <a href="?tab=activity&act=questions&p_islam={{ p_islam|add:-1 }}" class="ramadan-quiz-page-button">
-              ➡️ السابق
+              السابق
             </a>
           {% else %}
             <div style="flex:1;"></div>
@@ -172,7 +172,7 @@
 
           {% if p_islam < pages_islam %}
             <a href="?tab=activity&act=questions&p_islam={{ p_islam|add:1 }}" class="ramadan-quiz-page-button">
-              التالي ⬅️
+              التالي
             </a>
           {% else %}
             <div style="flex:1;"></div>
@@ -187,19 +187,30 @@
 
           <div class="ramadan-drawing-grid">
             {% for it in drawing_items %}
-              <a href="{{ it.view_url }}"
-                target="_blank" rel="noopener noreferrer"
-                class="ramadan-drawing-button">
-                <div>الصورة {{ it.n }}</div>
-              </a>
-              <a href="{{ it.download_url }}"
-                download
-                 class="ramadan-drawing-button">
-                ⬇️ تحميل الصورة {{ it.n }}
-              </a>
-
+              <button type="button"
+                class="ramadan-drawing-button"
+                data-ramadan-drawing-open
+                data-image-url="{{ it.view_url }}"
+                data-download-url="{{ it.download_url }}"
+                data-image-number="{{ it.n }}"
+                aria-haspopup="dialog">
+                الصورة {{ it.n }}
+              </button>
             {% endfor %}
           </div>
+
+          <dialog class="ramadan-drawing-dialog" id="ramadanDrawingDialog" aria-labelledby="ramadanDrawingDialogTitle">
+            <div class="ramadan-drawing-dialog-card">
+              <header class="ramadan-drawing-dialog-header">
+                <h3 id="ramadanDrawingDialogTitle">صورة التلوين</h3>
+                <button type="button" class="ramadan-drawing-dialog-close" data-ramadan-drawing-close aria-label="إغلاق">×</button>
+              </header>
+              <div class="ramadan-drawing-dialog-preview">
+                <img src="" alt="" id="ramadanDrawingDialogImage">
+              </div>
+              <a href="#" download class="ramadan-drawing-download" id="ramadanDrawingDownload">تحميل الصورة</a>
+            </div>
+          </dialog>
         </div>
      
       
@@ -244,7 +255,7 @@
           <div class="ramadan-quiz-pagination">
           {% if p_fiqh > 1 %}
             <a href="?tab=activity&act=fiqh&p_fiqh={{ p_fiqh|add:-1 }}" class="ramadan-quiz-page-button">
-              ➡️ السابق
+              السابق
             </a>
           {% else %}
             <div style="flex:1;"></div>
@@ -252,7 +263,7 @@
 
           {% if p_fiqh < pages_fiqh %}
             <a href="?tab=activity&act=fiqh&p_fiqh={{ p_fiqh|add:1 }}" class="ramadan-quiz-page-button">
-               التالي ⬅️
+               التالي
             </a>
           {% else %}
             <div style="flex:1;"></div>
@@ -268,4 +279,34 @@
     {% endwith %}
   </div>
 </div>
+
+<script>
+  (() => {
+    const dialog = document.getElementById("ramadanDrawingDialog");
+    const image = document.getElementById("ramadanDrawingDialogImage");
+    const title = document.getElementById("ramadanDrawingDialogTitle");
+    const download = document.getElementById("ramadanDrawingDownload");
+    if (!dialog || !image || !title || !download) return;
+
+    document.querySelectorAll("[data-ramadan-drawing-open]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const number = button.dataset.imageNumber || "";
+        image.src = button.dataset.imageUrl || "";
+        image.alt = `صورة التلوين ${number}`;
+        title.textContent = `صورة التلوين ${number}`;
+        download.href = button.dataset.downloadUrl || button.dataset.imageUrl || "#";
+        download.textContent = `تحميل الصورة ${number}`;
+        dialog.showModal();
+      });
+    });
+
+    dialog.querySelector("[data-ramadan-drawing-close]")?.addEventListener("click", () => dialog.close());
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+    dialog.addEventListener("close", () => {
+      image.removeAttribute("src");
+    });
+  })();
+</script>
 {% endblock %}

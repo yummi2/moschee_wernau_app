@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260830-156">  <style>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260830-157">  <style>
   .act-grid{
     display: grid;
     gap: 12px;
@@ -189,6 +189,7 @@
       </script>
       {% endif %}
 
+      {% if can_switch_school_years %}
       {% with selected_year=request.session.school_year|default:"2027" %}
       <form method="post" action="{% url 'school_year' %}" class="school-year-switch" aria-label="اختيار السنة الدراسية">
         {% csrf_token %}
@@ -200,6 +201,7 @@
         </span>
       </form>
       {% endwith %}
+      {% endif %}
 
       <button type="button" onclick="document.getElementById('logoutForm').submit();" class="app-nav-link app-mobile-top app-logout">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H5v14h5M14 8l4 4-4 4M8 12h10"/></svg>
