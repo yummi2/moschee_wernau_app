@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260829-145">  <style>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260830-149">  <style>
   .act-grid{
     display: grid;
     gap: 12px;
@@ -79,7 +79,7 @@
 
     <nav id="appPrimaryNav" class="app-nav" aria-label="التنقل الرئيسي">
 
-      <a href="{% url 'home' %}{% if user.is_authenticated %}?tab=home{% endif %}" class="app-nav-link {% if user.is_authenticated %}app-mobile-bottom-item{% else %}app-mobile-top{% endif %} {% if request.resolver_match.url_name == 'home' %}{% if not user.is_authenticated or request.GET.tab == 'home' %}is-active{% endif %}{% endif %}">
+      <a href="{% url 'home' %}{% if user.is_authenticated %}?tab=home{% endif %}" class="app-nav-link {% if user.is_authenticated %}app-mobile-bottom-item{% else %}app-mobile-top{% endif %} {% if request.resolver_match.url_name == 'home' %}{% if not user.is_authenticated or not request.GET.tab or request.GET.tab == 'home' %}is-active{% endif %}{% endif %}">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5M5.5 10v10h13V10M9.5 20v-6h5v6"/></svg>
         <span>الصفحة الرئيسية</span>
       </a>
@@ -89,7 +89,7 @@
       </a>
 
       {% if user.is_authenticated %}
-      <a href="{% url 'home' %}?tab=assignments" class="app-nav-link app-mobile-bottom-item {% if request.resolver_match.url_name == 'home' and request.GET.tab != 'home' %}is-active{% endif %}">
+      <a href="{% url 'home' %}?tab=assignments" class="app-nav-link app-mobile-bottom-item {% if request.resolver_match.url_name == 'home' and request.GET.tab and request.GET.tab != 'home' %}is-active{% endif %}">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h6"/></svg>
         <span>الواجبات</span>
       </a>
@@ -219,10 +219,10 @@
   {% if user.is_authenticated and request.resolver_match.url_name != 'school_year' and request.resolver_match.url_name != 'registration_information' %}
   <nav class="app-bottom-nav" dir="rtl" aria-label="التنقل السريع">
     <span class="app-bottom-nav-indicator" aria-hidden="true"></span>
-    <a href="{% url 'home' %}?tab=home" class="app-bottom-nav-link {% if request.resolver_match.url_name == 'home' and request.GET.tab == 'home' %}is-active{% endif %}" aria-label="الصفحة الرئيسية">
+    <a href="{% url 'home' %}?tab=home" class="app-bottom-nav-link {% if request.resolver_match.url_name == 'home' and not request.GET.tab or request.resolver_match.url_name == 'home' and request.GET.tab == 'home' %}is-active{% endif %}" aria-label="الصفحة الرئيسية">
       <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5M5.5 10v10h13V10M9.5 20v-6h5v6"/></svg>
     </a>
-    <a href="{% url 'home' %}?tab=assignments" class="app-bottom-nav-link {% if request.resolver_match.url_name == 'home' and request.GET.tab != 'home' %}is-active{% endif %}" aria-label="الواجبات">
+    <a href="{% url 'home' %}?tab=assignments" class="app-bottom-nav-link {% if request.resolver_match.url_name == 'home' and request.GET.tab and request.GET.tab != 'home' %}is-active{% endif %}" aria-label="الواجبات">
       <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h6"/></svg>
     </a>
     <a href="{% url 'calendar' %}" class="app-bottom-nav-link {% if request.resolver_match.url_name == 'calendar' %}is-active{% endif %}" aria-label="التقويم">

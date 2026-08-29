@@ -7,9 +7,9 @@
     <div class="home-page-layout">
         <main class="space-y-6">
 
-            <div class="app-content-card home-dashboard-card content-page-fill bg-white rounded-2xl shadow p-6 {% if request.GET.tab == 'home' %}is-home-overview{% endif %}" dir="rtl">
+            <div class="app-content-card home-dashboard-card content-page-fill bg-white rounded-2xl shadow p-6 {% if not request.GET.tab or request.GET.tab == 'home' %}is-home-overview{% endif %}" dir="rtl">
                 {% if user.is_authenticated %}
-                {% with active_tab=request.GET.tab|default:"assignments" %}
+                {% with active_tab=request.GET.tab|default:"home" %}
                 {% if active_tab == "home" %}
                 <div class="home-user-summary">
                     <div>

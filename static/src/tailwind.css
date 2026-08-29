@@ -343,7 +343,7 @@ body {
   }
   .app-nav {
     gap: clamp(0.15rem, 0.55vh, 0.45rem);
-    margin-block-start: clamp(0.45rem, 1.8vh, 2rem);
+    margin-block-start: clamp(1.75rem, 4vh, 3rem);
   }
   .school-year-switch {
     gap: clamp(0.2rem, 0.5vh, 0.45rem);
@@ -1041,23 +1041,31 @@ body {
   }
 
   body.app-shell-page .home-dashboard-card.is-home-overview {
-    height: 100%;
-    min-height: 100% !important;
+    position: relative;
+    height: calc(100% - 3.5rem);
+    min-height: calc(100% - 3.5rem) !important;
+    flex: 0 0 calc(100% - 3.5rem);
+    margin-block-start: 3.5rem;
     padding: 0.7rem 1.15rem 1rem;
-    overflow: hidden;
+    overflow: visible;
   }
 
   .home-dashboard-card.is-home-overview .home-user-summary {
     gap: 0.55rem;
     margin-block-end: 0.45rem;
-    padding-block: 0.15rem 0.45rem;
+    padding-block: 3.8rem 0.45rem;
   }
 
   .home-dashboard-card.is-home-overview .home-avatar {
+    position: absolute;
+    inset-block-start: 0;
+    right: auto;
+    left: 50%;
     flex-basis: 7rem;
     width: 7rem;
     height: 7rem;
     font-size: 1.9rem;
+    transform: translate(-50%, -50%);
   }
 
   .home-dashboard-card.is-home-overview .assignment-stats {
@@ -2187,6 +2195,129 @@ button.prayer-status:focus-visible {
 .library-level-card:focus-visible {
   outline: 2px solid #17805e;
   outline-offset: 3px;
+}
+
+.library-page {
+  width: 100%;
+}
+
+.library-levels-shell,
+.library-list-shell,
+.library-story-shell {
+  width: 100%;
+}
+
+.library-story-image {
+  border: 1px solid #ead9b7;
+  border-radius: 1.5rem;
+  background: #fbf7ee;
+  padding: 0.35rem;
+  box-shadow: 0 10px 24px rgb(11 73 56 / 10%);
+}
+
+.library-read-action {
+  width: 100%;
+  text-align: center;
+}
+
+.library-read-button {
+  display: inline-flex;
+  min-width: 6rem;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  margin-inline: auto;
+  border-radius: 999px;
+  background: #0b4938;
+  color: #fff;
+  font-weight: 800;
+}
+
+.library-read-button.is-complete {
+  width: 2.9rem;
+  min-width: 2.9rem;
+  padding: 0;
+  cursor: default;
+}
+
+.library-read-button svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (max-width: 39.999rem) {
+  .library-page {
+    padding: 0;
+  }
+
+  .library-levels-shell,
+  .library-list-shell,
+  .library-story-shell {
+    max-width: none;
+    margin: 0;
+    padding: 0.85rem;
+  }
+
+  .library-list-content,
+  .library-story-content {
+    width: 100%;
+    padding: 0.35rem;
+  }
+
+  .library-section-title,
+  .library-list-content h2,
+  .library-story-content h2 {
+    width: 100%;
+    text-align: right;
+  }
+
+  .library-levels-grid,
+  .library-sentence-grid {
+    width: 100%;
+    gap: 0.7rem;
+    grid-template-columns: 1fr;
+  }
+
+  .library-level-card,
+  .library-sentence-card {
+    width: 100%;
+    min-height: 4.25rem;
+    padding: 1rem 1.1rem;
+  }
+
+  .library-level-card > div {
+    justify-content: center;
+  }
+
+  .library-story-content {
+    display: flex;
+    min-height: 100%;
+    flex-direction: column;
+  }
+
+  .library-story-image {
+    width: min(100%, 20rem);
+    height: clamp(12rem, 31dvh, 18rem);
+    flex-shrink: 1;
+    margin-block-end: 0.75rem;
+    border-radius: 1.6rem;
+  }
+
+  .library-story-content > p.text-xl {
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+
+  .library-story-content .mt-6 {
+    margin-block-start: 0.75rem;
+  }
+
+  .library-story-content .mt-8 {
+    margin-block-start: 0.85rem;
+  }
 }
 
 .ramadan-days-grid {
