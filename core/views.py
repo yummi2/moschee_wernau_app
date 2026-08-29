@@ -1145,8 +1145,15 @@ def ramadan_is_open(now=None) -> bool:
     return now.date() >= RAMADAN_START
 
 
+def ramadan_is_available_for_selected_year(request) -> bool:
+    """Ramadan content belongs exclusively to the 2026 school-year view."""
+    return selected_school_year_ranges(request)["year"] == "2026"
+
+
 @login_required
 def ramadan_plan(request):
+    if not ramadan_is_available_for_selected_year(request):
+        return redirect(f"{reverse('home')}?tab=home")
     if not ramadan_is_open():
         messages.error(request, "رمضان لم يبدأ بعد.")
         return redirect("home")
@@ -1333,6 +1340,8 @@ def ramadan_plan(request):
 def ramadan_day(request, day: int):
     from django.http import Http404
 
+    if not ramadan_is_available_for_selected_year(request):
+        return redirect(f"{reverse('home')}?tab=home")
     if not ramadan_is_open():
         messages.error(request, "رمضان لم يبدأ بعد.")
         return redirect("home")
@@ -1483,8 +1492,8 @@ def ramadan_day(request, day: int):
 @require_POST
 def mark_ramadan_item_done(request):
     selected_year = selected_school_year_ranges(request)["year"]
-    if selected_year != "2027":
-        return HttpResponseForbidden("Ramadan completion is only available for 2027.")
+    if selected_year != "2026":
+        return HttpResponseForbidden("Ramadan is disabled for this school year.")
 
     try:
         data = json.loads(request.body.decode("utf-8"))
@@ -1529,6 +1538,8 @@ def mark_ramadan_item_done(request):
 
 @login_required
 def ramadan_results(request):
+    if not ramadan_is_available_for_selected_year(request):
+        return redirect(f"{reverse('home')}?tab=home")
     if not ramadan_is_open():
         messages.error(request, "رمضان لم يبدأ بعد.")
         return redirect("home")

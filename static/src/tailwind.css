@@ -3865,6 +3865,13 @@ body.auth-page {
   letter-spacing: normal;
 }
 
+@media (min-width: 64rem) {
+  .registration-info-page {
+    padding-block: 0.5rem;
+    padding-inline: clamp(1rem, 3vw, 2rem);
+  }
+}
+
 .registration-info-layout {
   display: grid;
   width: min(100%, 62rem);
@@ -4167,6 +4174,22 @@ body.auth-page {
   backdrop-filter: blur(18px);
   transform-origin: top center;
   animation: registration-calendar-enter 220ms cubic-bezier(.22, 1, .36, 1) both;
+}
+
+@media (max-width: 47.999rem) {
+  .registration-calendar {
+    inset-inline: 0;
+    width: min(20rem, 100%);
+    max-width: 100%;
+    margin-inline: auto;
+  }
+
+  .registration-calendar.opens-upward {
+    inset-block-start: auto;
+    inset-block-end: calc(100% + 0.55rem);
+    transform-origin: bottom center;
+    animation-name: registration-calendar-enter-upward;
+  }
 }
 
 .registration-calendar[hidden] {
@@ -4769,6 +4792,11 @@ body.auth-page {
 
 @keyframes registration-calendar-enter {
   from { opacity: 0; transform: translateY(-0.5rem) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes registration-calendar-enter-upward {
+  from { opacity: 0; transform: translateY(0.5rem) scale(0.97); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 

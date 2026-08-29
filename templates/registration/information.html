@@ -290,7 +290,21 @@
 
       const closeCalendar = () => {
         calendar.hidden = true;
+        calendar.classList.remove("opens-upward");
         dateTrigger.setAttribute("aria-expanded", "false");
+      };
+
+      const positionCalendar = () => {
+        calendar.classList.remove("opens-upward");
+        if (calendar.hidden || !window.matchMedia("(max-width: 47.999rem)").matches) return;
+
+        const pickerRect = datePicker.getBoundingClientRect();
+        const formRect = detailsForm.getBoundingClientRect();
+        const viewport = window.visualViewport;
+        const viewportTop = viewport?.offsetTop || 0;
+        const visibleTop = Math.max(viewportTop, formRect.top);
+        const spaceAbove = pickerRect.top - visibleTop - 10;
+        if (spaceAbove >= calendar.offsetHeight) calendar.classList.add("opens-upward");
       };
 
       const renderCalendar = () => {
@@ -333,7 +347,10 @@
       const toggleCalendar = () => {
         calendar.hidden = !calendar.hidden;
         dateTrigger.setAttribute("aria-expanded", String(!calendar.hidden));
-        if (!calendar.hidden) renderCalendar();
+        if (!calendar.hidden) {
+          renderCalendar();
+          positionCalendar();
+        }
       };
 
       dateTrigger.addEventListener("click", toggleCalendar);
@@ -345,11 +362,16 @@
           : Number(calendarMonth.value);
         visibleDate = new Date(year, month, 1);
         renderCalendar();
+        positionCalendar();
       });
       calendarMonth.addEventListener("change", () => {
         visibleDate = new Date(Number(calendarYear.value), Number(calendarMonth.value), 1);
         renderCalendar();
+        positionCalendar();
       });
+      window.addEventListener("resize", positionCalendar);
+      window.visualViewport?.addEventListener("resize", positionCalendar);
+      detailsForm.addEventListener("scroll", positionCalendar, { passive: true });
       document.addEventListener("click", (event) => {
         if (!datePicker.contains(event.target)) closeCalendar();
       });
