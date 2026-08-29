@@ -2249,6 +2249,13 @@ button.prayer-status:focus-visible {
 }
 
 @media (max-width: 39.999rem) {
+  .app-main .app-content-card {
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+  }
+
   .library-page {
     padding: 0;
   }
@@ -3451,25 +3458,39 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   background:
-    radial-gradient(circle at 12% 8%, rgb(234 217 183 / 42%) 0, transparent 28rem),
-    radial-gradient(circle at 82% 88%, rgb(245 234 212 / 55%) 0, transparent 32rem),
-    linear-gradient(145deg, #fbf8f1 0%, #f5edde 48%, #f8f5ee 100%);
+    radial-gradient(circle at 12% 18%, rgb(216 196 157 / 38%), transparent 24rem),
+    radial-gradient(circle at 88% 84%, rgb(234 217 183 / 50%), transparent 28rem),
+    linear-gradient(145deg, #fbf8f1, #f4ead7 52%, #faf8f3);
   font-family: "Segoe UI", Tahoma, Arial, sans-serif;
   letter-spacing: normal;
 }
 
-body::before {
+body:not(.login-auth-page):not(.registration-auth-page)::before,
+body:not(.login-auth-page):not(.registration-auth-page)::after {
   content: "";
   position: fixed;
-  inset: 0;
   z-index: 0;
   pointer-events: none;
-  background-image:
-    linear-gradient(rgb(11 73 56 / 2.5%) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(11 73 56 / 2.5%) 1px, transparent 1px);
-  background-size: 3rem 3rem;
-  -webkit-mask-image: linear-gradient(to bottom, #000, transparent 82%);
-  mask-image: linear-gradient(to bottom, #000, transparent 82%);
+  border: 1px solid rgb(255 255 255 / 65%);
+  border-radius: 9999px;
+  background: rgb(255 255 255 / 35%);
+  box-shadow: inset 0 0 40px rgb(255 255 255 / 40%);
+  animation: login-float 7s ease-in-out infinite;
+}
+
+body:not(.login-auth-page):not(.registration-auth-page)::before {
+  top: 8%;
+  right: 6%;
+  width: 8rem;
+  height: 8rem;
+}
+
+body:not(.login-auth-page):not(.registration-auth-page)::after {
+  bottom: 5%;
+  left: 5%;
+  width: 12rem;
+  height: 12rem;
+  animation-delay: -3.5s;
 }
 
 .app-main {
@@ -3558,6 +3579,21 @@ body::before {
   backdrop-filter: blur(16px);
 }
 
+.app-main .app-content-card {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+.login-shell,
+.registration-welcome-card {
+  border-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
 .app-main h1,
 .app-main h2,
 .app-main h3 {
@@ -3568,13 +3604,19 @@ body::before {
 @media (max-width: 39.999rem) {
   body {
     background:
-      radial-gradient(circle at 0 4%, rgb(234 217 183 / 36%) 0, transparent 18rem),
-      linear-gradient(160deg, #fbf8f1 0%, #f5edde 100%);
+      radial-gradient(circle at 12% 18%, rgb(216 196 157 / 38%), transparent 24rem),
+      radial-gradient(circle at 88% 84%, rgb(234 217 183 / 50%), transparent 28rem),
+      linear-gradient(145deg, #fbf8f1, #f4ead7 52%, #faf8f3);
   }
 
-  body::before {
-    background-size: 2.5rem 2.5rem;
-    opacity: 0.65;
+  body:not(.login-auth-page):not(.registration-auth-page)::before {
+    width: 5rem;
+    height: 5rem;
+  }
+
+  body:not(.login-auth-page):not(.registration-auth-page)::after {
+    width: 8rem;
+    height: 8rem;
   }
 
   .app-main {
@@ -3589,6 +3631,13 @@ body::before {
   .app-bottom-nav {
     background: #fff;
     backdrop-filter: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body:not(.login-auth-page):not(.registration-auth-page)::before,
+  body:not(.login-auth-page):not(.registration-auth-page)::after {
+    animation: none;
   }
 }
 
@@ -4253,6 +4302,7 @@ body.auth-page {
 }
 
 .registration-info-page {
+  position: relative;
   display: grid;
   height: 100dvh;
   min-height: 100dvh;
@@ -4260,8 +4310,9 @@ body.auth-page {
   place-items: center;
   padding: clamp(1rem, 3vw, 2rem);
   background:
-    radial-gradient(circle at 12% 18%, rgb(216 196 157 / 32%), transparent 24rem),
-    linear-gradient(145deg, #fbf8f1, #f2e7d2 55%, #faf8f3);
+    radial-gradient(circle at 12% 18%, rgb(216 196 157 / 38%), transparent 24rem),
+    radial-gradient(circle at 88% 84%, rgb(234 217 183 / 50%), transparent 28rem),
+    linear-gradient(145deg, #fbf8f1, #f4ead7 52%, #faf8f3);
   font-family: "Cairo", "Tajawal", "Segoe UI", Tahoma, Arial, sans-serif;
   letter-spacing: normal;
 }
@@ -4274,6 +4325,8 @@ body.auth-page {
 }
 
 .registration-info-layout {
+  position: relative;
+  z-index: 1;
   display: grid;
   width: min(100%, 62rem);
   height: 100%;
@@ -5265,7 +5318,12 @@ body.auth-page {
   .login-shell {
     min-height: 0;
     grid-template-columns: 1fr;
-    border-radius: 1.5rem;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
   }
 
   .login-intro { display: none; }
@@ -5306,8 +5364,15 @@ body.auth-page {
     margin-block: auto;
     grid-template-columns: 1fr;
   }
-  .registration-welcome-card { grid-column: 1; }
-  .registration-welcome-card { grid-row: 1; min-height: 0; }
+  .registration-welcome-card {
+    grid-column: 1;
+    grid-row: 1;
+    min-height: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
   .registration-welcome-heading {
     width: 100%;
     margin-inline: auto;
