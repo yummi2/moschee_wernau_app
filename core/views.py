@@ -1134,6 +1134,7 @@ def library(request):
             "level_title_de": valid_levels_de[level],
             "sid": sid,
             "story": story,
+            "story_title_de": story_titles_de[level].get(sid) or f"Satz {p}",
             "p":p,
             "total": total,  
             "current_text": current_text,

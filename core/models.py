@@ -48,6 +48,25 @@ class AssignmentCompletion(models.Model):
     def __str__(self):
         return f"{self.user} – {self.assignment}"
 
+class AssignmentReminderDelivery(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="assignment_reminders")
+    assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE, related_name="reminder_deliveries")
+    recipient_email = models.EmailField()
+    due_at = models.DateTimeField()
+    sent_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=("user", "assignment", "due_at"),
+                name="unique_assignment_due_reminder",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.recipient_email}: {self.assignment}"
+
+
 class Profile(models.Model):
     user   = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     avatar = models.ImageField(upload_to="avatars/", blank=True, null=True)

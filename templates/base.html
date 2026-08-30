@@ -25,7 +25,7 @@
       }
     } catch (_) {}
   </script>
-  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260830-173">  <style>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260830-183">  <style>
   .act-grid{
     display: grid;
     gap: 12px;
@@ -293,6 +293,12 @@
         document.documentElement.lang = language;
         document.querySelectorAll("[data-app-ar][data-app-de]").forEach((element) => {
           element.textContent = isGerman ? element.dataset.appDe : element.dataset.appAr;
+        });
+        document.querySelectorAll("[data-app-ar-only]").forEach((element) => {
+          element.hidden = isGerman;
+        });
+        document.querySelectorAll("[data-app-de-only]").forEach((element) => {
+          element.hidden = !isGerman;
         });
         document.querySelectorAll("[data-app-language-surface]").forEach((surface) => {
           surface.dir = isGerman ? "ltr" : "rtl";

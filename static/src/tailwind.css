@@ -2310,6 +2310,55 @@ html.app-language-german .library-list-shell .library-list-content h2 {
   text-align: left;
 }
 
+.library-story-heading {
+  display: flex;
+  width: 100%;
+  align-items: baseline;
+  justify-content: flex-start;
+  gap: 0.55rem;
+  margin-block-end: 0.2rem;
+  direction: rtl;
+  text-align: right;
+}
+
+.library-story-count {
+  flex: 0 0 auto;
+}
+
+.library-story-heading .library-story-title {
+  display: inline-block;
+  width: auto;
+  margin: 0;
+  flex: 0 0 auto;
+  min-width: max-content;
+}
+
+.library-story-title-label {
+  color: #0f172a;
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.4;
+  visibility: visible;
+  opacity: 1;
+}
+
+html.app-language-german .library-story-heading--beginner {
+  direction: ltr !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+}
+
+html.app-language-german .library-story-heading--beginner .library-story-title,
+html.app-language-german .library-story-heading--beginner + .library-story-level {
+  text-align: left !important;
+}
+
+html.app-language-german .library-story-count--beginner {
+  direction: ltr !important;
+  width: 100%;
+  text-align: left !important;
+}
+
 html.app-language-german [data-home-panel="assignments"],
 html.app-language-german [data-home-panel="assignments"] h3,
 html.app-language-german [data-home-panel="assignments"] .assignment-row-shell {
@@ -2439,8 +2488,8 @@ html.app-language-german [data-home-panel="assignments"] .assignment-row {
   }
 
   .library-story-content > p.text-xl {
-    font-size: 1rem;
-    line-height: 1.75;
+    font-size: 1.3rem;
+    line-height: 1.9;
   }
 
   .library-story-content .mt-6 {
@@ -2744,6 +2793,18 @@ html.app-language-german [data-home-panel="assignments"] .assignment-row {
   transition: transform 180ms ease, filter 180ms ease, box-shadow 180ms ease;
 }
 
+.ramadan-day-page .ramadan-day-image {
+  width: clamp(21rem, 38vw, 28rem);
+  height: clamp(21rem, 38vw, 28rem);
+  max-width: 100%;
+}
+
+.ramadan-day-page .ramadan-day-copy {
+  font-size: 1.3rem;
+  line-height: 1.9;
+  letter-spacing: normal;
+}
+
 @media (max-width: 39.999rem) {
   .ramadan-day-page {
     margin-block-start: 0;
@@ -2754,19 +2815,16 @@ html.app-language-german [data-home-panel="assignments"] .assignment-row {
   .ramadan-day-page .ramadan-day-task { display: flex; margin-block-end: 0; flex-direction: column; }
   .ramadan-day-page #final-feedback { order: 0; margin-block-end: 0.45rem; }
   .ramadan-day-page .ramadan-day-item-title { order: 1; }
-  .ramadan-day-page .ramadan-day-image { order: 2; width: min(9rem, 34dvh); height: min(9rem, 34dvh); margin-block: 0.45rem; }
-  .ramadan-day-page .ramadan-day-copy { order: 3; font-size: 0.95rem; line-height: 1.65; }
+  .ramadan-day-page .ramadan-day-image { order: 2; width: min(15rem, 42dvh, calc(100vw - 3rem)); height: min(15rem, 42dvh, calc(100vw - 3rem)); margin-block: 0.45rem; }
+  .ramadan-day-page .ramadan-day-copy { order: 3; font-size: 1.12rem; line-height: 1.8; }
   .ramadan-day-page .ramadan-day-navigation { order: 4; margin-block-start: 0.65rem; }
   .ramadan-day-page .ramadan-done-area {
-    position: fixed;
-    z-index: 45;
-    right: auto;
-    left: 50%;
-    inset-block-end: calc(5.75rem + env(safe-area-inset-bottom));
+    position: static;
     order: 5;
     width: max-content;
-    margin: 0;
-    translate: -50% 0;
+    margin: 0.75rem auto 0;
+    translate: none;
+    align-self: center;
   }
   .ramadan-day-page .ramadan-done-button { min-height: 2.5rem; }
 }
@@ -5722,8 +5780,8 @@ body.auth-page {
   }
 
   .library-story-content > p.text-xl {
-    font-size: 1.3rem;
-    line-height: 1.9;
+    font-size: 1.5rem;
+    line-height: 2;
   }
 }
 
@@ -5733,9 +5791,57 @@ body.auth-page {
     line-height: 1.6;
   }
 
+  .library-story-image {
+    margin-block-start: 1.15rem;
+  }
+
   .library-story-content > p.text-xl {
-    font-size: 1.1rem;
-    line-height: 1.85;
+    font-size: 1.3rem;
+    line-height: 1.95;
+  }
+}
+
+@media (min-width: 40rem) {
+  .ramadan-day-page .app-content-card {
+    display: flex;
+    min-height: calc(100dvh - 5rem);
+    flex-direction: column;
+    padding: clamp(1rem, 2.2dvh, 1.5rem);
+    overflow: hidden;
+  }
+
+  .ramadan-day-page .app-content-card > .flex:first-child {
+    margin-block-end: 0.5rem;
+  }
+
+  .ramadan-day-page .ramadan-day-task {
+    display: flex;
+    min-height: 0;
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+    margin-block-end: 0;
+  }
+
+  .ramadan-day-page .ramadan-day-item-title {
+    margin-block-end: 0.25rem;
+  }
+
+  .ramadan-day-page .ramadan-day-image {
+    width: min(20rem, 30dvh);
+    height: min(20rem, 30dvh);
+    flex: 0 1 auto;
+    margin-block-end: 0.5rem;
+  }
+
+  .ramadan-day-page .ramadan-day-copy {
+    font-size: clamp(1.05rem, 1.7dvh, 1.3rem);
+    line-height: 1.75;
+  }
+
+  .ramadan-day-page .ramadan-day-navigation,
+  .ramadan-day-page .ramadan-done-area {
+    margin-block-start: 0.7rem;
   }
 }
 

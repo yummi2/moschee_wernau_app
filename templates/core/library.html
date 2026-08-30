@@ -56,8 +56,22 @@
     {% elif story %}
     <div class="library-story-shell mx-auto max-w-3xl px-4">
         <div class="library-story-content p-6 text-right">
-            <h2 class="text-2xl font-bold text-blue-800 mb-2">{{ story.title }}</h2>
-            <p class="text-sm text-gray-500 mb-4"><span data-app-ar="{{ level_title }}" data-app-de="{{ level_title_de }}">{{ level_title }}</span> • <bdi dir="ltr">{{ p }} / {{ total }}</bdi></p>
+            <div class="library-story-heading {% if level == 'beginner' %}library-story-heading--beginner{% endif %}"{% if level == "beginner" %} data-app-language-surface{% endif %}>
+                {% if level == "beginner" %}
+                <h2 class="library-story-title text-2xl font-bold text-blue-800"
+                    data-app-ar="{{ story.title }}"
+                    data-app-de="{{ story_title_de }}">
+                    {{ story.title }}
+                </h2>
+                {% else %}
+                <h2 class="library-story-title text-2xl font-bold text-blue-800">{{ story.title }}</h2>
+                {% endif %}
+            </div>
+            <div class="library-story-count {% if level == 'beginner' %}library-story-count--beginner{% endif %} text-sm text-gray-500"{% if level == "beginner" %} data-app-language-surface{% endif %}>
+                <bdi dir="ltr">{{ p }} / {{ total }}</bdi>
+                <span data-app-ar="{{ level_title }}" data-app-de="{{ level_title_de }}">
+                    {{ level_title }}</span>
+                </div>
 
             {% if current_image %}
             <img src="{{ current_image }}" alt="{{ story.title }}"

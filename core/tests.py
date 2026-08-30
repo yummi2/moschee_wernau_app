@@ -1,12 +1,15 @@
 import datetime as dt
 
 from django.contrib.auth import get_user_model
-from django.test import RequestFactory, TestCase
+from django.core import mail
+from django.core.management import call_command
+from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
 from .school_years import can_switch_school_years
 from .views import selected_school_year_ranges
+from .models import Assignment, AssignmentCompletion, AssignmentReminderDelivery, ClassRoom
 
 
 class SchoolYearAccessTests(TestCase):
@@ -44,4 +47,39 @@ class LibraryTranslationTests(TestCase):
         self.assertContains(beginner, 'data-app-de="Satz 1"')
         self.assertContains(intermediate, 'data-app-de="Nur und der Besuch bei ihrer Großmutter"')
 
-# Create your tests here.
+    def test_beginner_story_heading_has_german_title(self):
+        response = self.client.get(reverse("library"), {"level": "beginner", "sid": "1"})
+        self.assertContains(response, 'class="library-story-title library-story-title-label"')
+        self.assertContains(response, 'data-app-de="Satz 1"')
+
+
+@override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+class AssignmentReminderTests(TestCase):
+    def test_shared_email_receives_one_bundled_message_without_duplicates(self):
+        teacher = get_user_model().objects.create_user("teacher", password="x")
+        first = get_user_model().objects.create_user("child1", email="family@example.com", password="x")
+        second = get_user_model().objects.create_user("child2", email="family@example.com", password="x")
+        classroom = ClassRoom.objects.create(name="7A")
+        classroom.students.add(first, second)
+        send_date = dt.date(2026, 9, 10)
+        due_at = timezone.make_aware(dt.datetime(2026, 9, 11, 16, 0))
+        first_assignment = Assignment.objects.create(
+            classroom=classroom, title="Aufgabe A", due_at=due_at, created_by=teacher,
+        )
+        second_assignment = Assignment.objects.create(
+            classroom=classroom, title="Aufgabe B", due_at=due_at, created_by=teacher,
+        )
+        AssignmentCompletion.objects.create(user=first, assignment=second_assignment)
+
+        call_command("send_assignment_reminders", date=send_date.isoformat())
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, ["family@example.com"])
+        self.assertIn("child1: Aufgabe A", mail.outbox[0].body)
+        self.assertIn("child2: Aufgabe A", mail.outbox[0].body)
+        self.assertIn("child2: Aufgabe B", mail.outbox[0].body)
+        self.assertNotIn("child1: Aufgabe B", mail.outbox[0].body)
+        self.assertEqual(AssignmentReminderDelivery.objects.count(), 3)
+
+        call_command("send_assignment_reminders", date=send_date.isoformat())
+        self.assertEqual(len(mail.outbox), 1)
