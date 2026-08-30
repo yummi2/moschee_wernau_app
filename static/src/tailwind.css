@@ -366,11 +366,11 @@ body {
 }
 
 @media (min-width: 64rem) {
-  body {
+  body.app-shell-page {
     padding-right: 17.5rem;
   }
 
-  html.app-language-german body {
+  html.app-language-german body.app-shell-page {
     padding-right: 0;
     padding-left: 17.5rem;
   }
@@ -4547,6 +4547,21 @@ body.auth-page {
   pointer-events: auto;
 }
 
+@media (min-width: 40rem) {
+  .login-page.is-german .login-shell {
+    width: min(100%, 36rem);
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .login-page.is-german .login-intro {
+    display: none;
+  }
+
+  .login-page.is-german .login-card {
+    width: 100%;
+  }
+}
+
 .login-shell .login-intro {
   transition: opacity 420ms ease, filter 420ms ease;
 }
@@ -5685,6 +5700,43 @@ body.auth-page {
 
 .profile-page .app-content-card > [data-app-language-surface] {
   padding-block-start: 0;
+}
+
+@media (min-width: 40rem) {
+  .home-dashboard-card:has(.prayer-panel:not(.hidden)) {
+    min-height: 0;
+  }
+
+  .prayer-panel,
+  .prayer-table-shell {
+    flex: 0 0 auto;
+  }
+
+  .prayer-table {
+    height: auto;
+  }
+
+  .library-sentence-card h3 {
+    font-size: 1.2rem;
+    line-height: 1.65;
+  }
+
+  .library-story-content > p.text-xl {
+    font-size: 1.3rem;
+    line-height: 1.9;
+  }
+}
+
+@media (max-width: 39.999rem) {
+  .library-sentence-card h3 {
+    font-size: 1.08rem;
+    line-height: 1.6;
+  }
+
+  .library-story-content > p.text-xl {
+    font-size: 1.1rem;
+    line-height: 1.85;
+  }
 }
 
 .content-page-fill,
