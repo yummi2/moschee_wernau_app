@@ -108,28 +108,28 @@
 
   {% if active_act == "menu" %}
       <!-- Activity Menü -->
-      <div class="act-grid">
+      <div class="act-grid" data-app-language-surface>
         <a href="?tab=activity&act=questions"
            class="ramadan-activity-card">
 
           <div class="ramadan-activity-title">
-            📖 ثقافة إسلامية
+            <span data-app-ar="ثقافة إسلامية" data-app-de="Islamisches Wissen">ثقافة إسلامية</span>
             <div class="ramadan-activity-subtitle">
-              مستوى مبتدأ
+              <span data-app-ar="مستوى مبتدأ" data-app-de="Anfänger">مستوى مبتدأ</span>
             </div>
           </div>
         </a>
 
         <a href="?tab=activity&act=drawing"
            class="ramadan-activity-card">
-          <div class="ramadan-activity-title">🎨 تلوين</div>
+          <div class="ramadan-activity-title" data-app-ar="تلوين" data-app-de="Ausmalbilder">تلوين</div>
         </a>
         <a href="?tab=activity&act=fiqh"
         class="ramadan-activity-card act-wide">
           <div class="ramadan-activity-title">
-            📝 أسئلة فقهية
+            <span data-app-ar="أسئلة فقهية" data-app-de="Fiqh-Fragen">أسئلة فقهية</span>
             <div class="ramadan-activity-subtitle">
-              مستوى متقدم
+              <span data-app-ar="مستوى متقدم" data-app-de="Fortgeschritten">مستوى متقدم</span>
             </div>
           </div>
         </a>
@@ -137,12 +137,12 @@
       </div>
 
         {% elif active_act == "questions" %}
-        <div class="ramadan-quiz">
-          <h2 class="ramadan-quiz-title">ثقافة إسلامية <bdi dir="ltr">{{ p_islam }} / {{ pages_islam }}</bdi></h2>
+        <div class="ramadan-quiz" data-app-language-surface>
+          <h2 class="ramadan-quiz-title"><span data-app-ar="ثقافة إسلامية" data-app-de="Islamisches Wissen">ثقافة إسلامية</span> <bdi dir="ltr">{{ p_islam }} / {{ pages_islam }}</bdi></h2>
 
           {% if islam_score is not None %}
             <div class="ramadan-quiz-score">
-              نتيجتك: {{ islam_score }} / {{ islam_total }}
+              <span data-app-ar="نتيجتك" data-app-de="Dein Ergebnis">نتيجتك</span>: {{ islam_score }} / {{ islam_total }}
             </div>
           {% endif %}
 
@@ -155,14 +155,14 @@
             {% for item in quiz_questions %}
               <div class="ramadan-question-card">
                 <div class="ramadan-question-title">
-                  {{ forloop.counter }}. {{ item.q }}
+                  <bdi dir="ltr">{{ forloop.counter }}.</bdi> <span data-app-ar="{{ item.q }}" data-app-de="{{ item.q_de }}">{{ item.q }}</span>
                 </div>
 
                 <div class="ramadan-answer-list">
-                  {% for opt in item.opts %}
+                  {% for opt in item.localized_options %}
                     <label class="ramadan-answer-option">
                       <input type="radio" name="q{{ item.id }}" value="{{ forloop.counter0 }}">
-                      <span>{{ opt }}</span>
+                      <span data-app-ar="{{ opt.ar }}" data-app-de="{{ opt.de }}">{{ opt.ar }}</span>
                     </label>
                   {% endfor %}
                 </div>
@@ -170,14 +170,14 @@
             {% endfor %}
 
             <button type="submit" class="ramadan-quiz-submit">
-              إرسال الإجابات
+              <span data-app-ar="إرسال الإجابات" data-app-de="Antworten absenden">إرسال الإجابات</span>
             </button>
           </form>
 
           <div class="ramadan-quiz-pagination">
           {% if p_islam > 1 %}
             <a href="?tab=activity&act=questions&p_islam={{ p_islam|add:-1 }}" class="ramadan-quiz-page-button">
-              السابق
+              <span data-app-ar="السابق" data-app-de="Zurück">السابق</span>
             </a>
           {% else %}
             <div style="flex:1;"></div>
@@ -185,7 +185,7 @@
 
           {% if p_islam < pages_islam %}
             <a href="?tab=activity&act=questions&p_islam={{ p_islam|add:1 }}" class="ramadan-quiz-page-button">
-              التالي
+              <span data-app-ar="التالي" data-app-de="Weiter">التالي</span>
             </a>
           {% else %}
             <div style="flex:1;"></div>
@@ -195,8 +195,8 @@
 
 
       {% elif active_act == "drawing" %}
-        <div class="ramadan-drawing">
-          <h2 class="ramadan-drawing-title">تلوين</h2>
+        <div class="ramadan-drawing" data-app-language-surface>
+          <h2 class="ramadan-drawing-title" data-app-ar="تلوين" data-app-de="Ausmalbilder">تلوين</h2>
 
           <div class="ramadan-drawing-grid">
             {% for it in drawing_items %}
@@ -207,21 +207,21 @@
                 data-download-url="{{ it.download_url }}"
                 data-image-number="{{ it.n }}"
                 aria-haspopup="dialog">
-                الصورة {{ it.n }}
+                <span data-app-ar="الصورة {{ it.n }}" data-app-de="Bild {{ it.n }}">الصورة {{ it.n }}</span>
               </button>
             {% endfor %}
           </div>
 
           <dialog class="ramadan-drawing-dialog" id="ramadanDrawingDialog" aria-labelledby="ramadanDrawingDialogTitle">
             <div class="ramadan-drawing-dialog-card">
-              <header class="ramadan-drawing-dialog-header">
+              <header class="ramadan-drawing-dialog-header" data-app-language-surface>
                 <h3 id="ramadanDrawingDialogTitle">صورة التلوين</h3>
                 <button type="button" class="ramadan-drawing-dialog-close" data-ramadan-drawing-close aria-label="إغلاق">×</button>
               </header>
               <div class="ramadan-drawing-dialog-preview">
                 <img src="" alt="" id="ramadanDrawingDialogImage">
               </div>
-              <a href="#" download class="ramadan-drawing-download" id="ramadanDrawingDownload">تحميل الصورة</a>
+              <a href="#" download class="ramadan-drawing-download" id="ramadanDrawingDownload" data-app-ar="تحميل الصورة" data-app-de="Bild herunterladen">تحميل الصورة</a>
             </div>
           </dialog>
         </div>
@@ -229,12 +229,12 @@
       
 
        {% elif active_act == "fiqh" %}
-        <div class="ramadan-quiz">
-          <h2 class="ramadan-quiz-title">أسئلة فقهية <bdi dir="ltr">{{ p_fiqh }} / {{ pages_fiqh }}</bdi></h2>
+        <div class="ramadan-quiz" data-app-language-surface>
+          <h2 class="ramadan-quiz-title"><span data-app-ar="أسئلة فقهية" data-app-de="Fiqh-Fragen">أسئلة فقهية</span> <bdi dir="ltr">{{ p_fiqh }} / {{ pages_fiqh }}</bdi></h2>
           
           {% if fiqh_score is not None %}
             <div class="ramadan-quiz-score">
-              نتيجتك: {{ fiqh_score }} / {{ fiqh_total }}
+              <span data-app-ar="نتيجتك" data-app-de="Dein Ergebnis">نتيجتك</span>: {{ fiqh_score }} / {{ fiqh_total }}
             </div>
           {% endif %}
 
@@ -246,14 +246,14 @@
             {% for item in fiqh_questions %}
               <div class="ramadan-question-card">
                 <div class="ramadan-question-title">
-                  {{ forloop.counter }}. {{ item.q }}
+                  <bdi dir="ltr">{{ forloop.counter }}.</bdi> <span data-app-ar="{{ item.q }}" data-app-de="{{ item.q_de }}">{{ item.q }}</span>
                 </div>
 
                 <div class="ramadan-answer-list">
-                  {% for opt in item.opts %}
+                  {% for opt in item.localized_options %}
                     <label class="ramadan-answer-option">
                       <input type="radio" name="q{{ item.id }}" value="{{ forloop.counter0 }}">
-                      <span>{{ opt }}</span>
+                      <span data-app-ar="{{ opt.ar }}" data-app-de="{{ opt.de }}">{{ opt.ar }}</span>
                     </label>
                   {% endfor %}
                 </div>
@@ -261,14 +261,14 @@
             {% endfor %}
 
             <button type="submit" class="ramadan-quiz-submit">
-              إرسال الإجابات
+              <span data-app-ar="إرسال الإجابات" data-app-de="Antworten absenden">إرسال الإجابات</span>
             </button>
           </form>
 
           <div class="ramadan-quiz-pagination">
           {% if p_fiqh > 1 %}
             <a href="?tab=activity&act=fiqh&p_fiqh={{ p_fiqh|add:-1 }}" class="ramadan-quiz-page-button">
-              السابق
+              <span data-app-ar="السابق" data-app-de="Zurück">السابق</span>
             </a>
           {% else %}
             <div style="flex:1;"></div>
@@ -276,7 +276,7 @@
 
           {% if p_fiqh < pages_fiqh %}
             <a href="?tab=activity&act=fiqh&p_fiqh={{ p_fiqh|add:1 }}" class="ramadan-quiz-page-button">
-               التالي
+               <span data-app-ar="التالي" data-app-de="Weiter">التالي</span>
             </a>
           {% else %}
             <div style="flex:1;"></div>
@@ -305,10 +305,11 @@
       button.addEventListener("click", () => {
         const number = button.dataset.imageNumber || "";
         image.src = button.dataset.imageUrl || "";
-        image.alt = `صورة التلوين ${number}`;
-        title.textContent = `صورة التلوين ${number}`;
+        const isGerman = localStorage.getItem("registrationLanguage") === "de";
+        image.alt = isGerman ? `Ausmalbild ${number}` : `صورة التلوين ${number}`;
+        title.textContent = isGerman ? `Ausmalbild ${number}` : `صورة التلوين ${number}`;
         download.href = button.dataset.downloadUrl || button.dataset.imageUrl || "#";
-        download.textContent = `تحميل الصورة ${number}`;
+        download.textContent = isGerman ? `Bild ${number} herunterladen` : `تحميل الصورة ${number}`;
         dialog.showModal();
       });
     });

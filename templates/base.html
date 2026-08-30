@@ -25,7 +25,7 @@
       }
     } catch (_) {}
   </script>
-  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260830-167">  <style>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260830-171">  <style>
   .act-grid{
     display: grid;
     gap: 12px;
@@ -231,7 +231,7 @@
   {% endif %}
 
   {% if user.is_authenticated and request.resolver_match.url_name != 'school_year' and request.resolver_match.url_name != 'registration_information' %}
-  <nav class="app-bottom-nav" dir="rtl" aria-label="التنقل السريع">
+  <nav class="app-bottom-nav" dir="rtl" aria-label="التنقل السريع" data-app-language-surface>
     <span class="app-bottom-nav-indicator" aria-hidden="true"></span>
     <a href="{% url 'home' %}?tab=home" class="app-bottom-nav-link {% if request.resolver_match.url_name == 'home' and not request.GET.tab or request.resolver_match.url_name == 'home' and request.GET.tab == 'home' %}is-active{% endif %}" aria-label="الصفحة الرئيسية">
       <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5M5.5 10v10h13V10M9.5 20v-6h5v6"/></svg>

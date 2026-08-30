@@ -2,14 +2,14 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-<div class="app-page-frame mx-auto max-w-5xl px-4 mt-8" dir="rtl">
+<div class="app-page-frame ramadan-day-page mx-auto max-w-5xl px-4 mt-8" dir="rtl">
   <div class="app-content-card bg-white rounded-2xl shadow p-6 relative overflow-hidden">
 
     <div class="flex items-center justify-between mb-4" data-app-language-surface>
       <h2 class="text-2xl font-bold text-blue-800" data-app-ar="{{ title }}" data-app-de="{{ title_de }}">{{ title }}</h2>
     </div>
 
-    <div class="text-center mb-8">
+    <div class="ramadan-day-task text-center mb-8">
 
       {# Ergebnis wird direkt in der Karte gezeigt, ohne Overlay. #}
       <div id="final-feedback" class="mb-5 hidden" role="status" aria-live="polite">
@@ -32,20 +32,19 @@
         </div>
       </div>
 
-      <h3 class="text-xl font-bold text-blue-800 mb-2" data-app-ar="{{ item_title }}" data-app-de="{{ item_title_de }}">{{ item_title }}</h3>
-
+      <h3 class="ramadan-day-item-title text-xl font-bold text-blue-800 mb-2" data-app-ar="{{ item_title }}" data-app-de="{{ item_title_de }}">{{ item_title }}</h3>
       {% if current_image %}
-        <div class="mx-auto mb-4 h-64 w-64 overflow-hidden rounded-2xl">
+        <div class="ramadan-day-image mx-auto mb-4 h-64 w-64 overflow-hidden rounded-2xl">
           <img src="{{ current_image }}" alt="{{ item_title }}"
                class="h-full w-full object-contain">
         </div>
       {% endif %}
 
-      <div class="text-lg leading-loose whitespace-pre-line"{% if current_text_de %} data-app-ar="{{ current_text }}" data-app-de="{{ current_text_de }}"{% endif %}>
+      <div class="ramadan-day-copy text-lg leading-loose whitespace-pre-line"{% if current_text_de %} data-app-ar="{{ current_text }}" data-app-de="{{ current_text_de }}"{% endif %}>
         {{ current_text|safe }}
       </div>
 
-      <div class="mt-6 flex items-center justify-between" data-app-language-surface>
+      <div class="ramadan-day-navigation mt-6 flex items-center justify-between" data-app-language-surface>
         {% if prev_href %}
           <a href="{{ prev_href }}" class="px-4 py-2 rounded-xl bg-gray-200 hover:bg-gray-300" data-app-ar="السابق" data-app-de="Zurück">السابق</a>
         {% else %}
@@ -64,18 +63,13 @@
           </button>
         {% endif %}
       </div>
-
       {% if p == total %}
-        <div class="mt-6">
+        <div class="ramadan-done-area mt-6">
           {% if already_done %}
-            <button id="mark-done-btn" class="ramadan-done-button is-complete" aria-pressed="true" aria-label="مكتمل" disabled>
-              ✓
-            </button>
+            <button id="mark-done-btn" class="ramadan-done-button is-complete" aria-pressed="true" aria-label="مكتمل" disabled>✓</button>
           {% else %}
             <button id="mark-done-btn" class="ramadan-done-button" aria-pressed="false" data-app-ar="تم" data-app-de="Erledigt"
-                    {% if selected_school_year != "2027" %}disabled aria-disabled="true"{% endif %}>
-              تم
-            </button>
+                    {% if selected_school_year != "2027" %}disabled aria-disabled="true"{% endif %}>تم</button>
           {% endif %}
           <p id="mark-done-msg" class="mt-2 text-sm text-gray-600"></p>
         </div>

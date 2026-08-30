@@ -21,6 +21,7 @@ from .ramadan_data import RAMADAN_CONTENT, RAMADAN_ITEMS_META, RAMADAN_ITEMS_ORD
 from django.shortcuts import render
 from .stories_data import STORIES
 from .fiqh_questions import FIQH_QUESTIONS_ADVANCED
+from .ramadan_translations import FIQH_QUESTIONS_DE, ISLAM_QUESTIONS_DE
 import math
 from .islam_questions import ISLAM_QUESTIONS
 from .drawing_links import DRAWING_LINKS_VIEW, DRAWING_LINKS_DOWNLOAD
@@ -1299,6 +1300,23 @@ def ramadan_plan(request):
     p_islam, pages_islam, islam_page = slice_questions(quiz_questions_all, p_islam)
     p_fiqh,  pages_fiqh,  fiqh_page  = slice_questions(fiqh_questions_all, p_fiqh)
 
+    def add_german_quiz_text(items, translations):
+        localized = []
+        for item in items:
+            question_de, options_de = translations.get(item["id"], (item["q"], item["opts"]))
+            localized.append({
+                **item,
+                "q_de": question_de,
+                "localized_options": [
+                    {"ar": option_ar, "de": option_de}
+                    for option_ar, option_de in zip(item["opts"], options_de)
+                ],
+            })
+        return localized
+
+    islam_page = add_german_quiz_text(islam_page, ISLAM_QUESTIONS_DE)
+    fiqh_page = add_german_quiz_text(fiqh_page, FIQH_QUESTIONS_DE)
+
     # --- Scores pro Quiz (nur für aktuelle Seite) ---
     islam_score = None
     islam_total = len(islam_page)
@@ -1346,7 +1364,7 @@ def ramadan_plan(request):
 
             # nach Submit auf derselben Seite bleiben
             p_islam = posted_p
-            islam_page = page_questions
+            islam_page = add_german_quiz_text(page_questions, ISLAM_QUESTIONS_DE)
 
         elif quiz_type == "fiqh":
             try:
@@ -1380,7 +1398,7 @@ def ramadan_plan(request):
             )
 
             p_fiqh = posted_p
-            fiqh_page = page_questions
+            fiqh_page = add_german_quiz_text(page_questions, FIQH_QUESTIONS_DE)
 
     return render(request, "core/ramadan_plan.html", {
         "unlocked_day": unlocked_day,
