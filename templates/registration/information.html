@@ -141,7 +141,7 @@
             </label>
             <label>
               <input type="radio" name="program" value="arabic_only" required>
-              <span><b>اللغة العربية فقط (مع ثمن الكتب)</b><small>لكل فصل دراسي 150 يورو </small></span>
+              <span><b data-app-ar="اللغة العربية فقط" data-app-de="Nur Arabischunterricht">اللغة العربية فقط</b><small>لكل فصل دراسي 150 يورو</small></span>
             </label>
           </div>
         </fieldset>
@@ -174,7 +174,7 @@
   </div>
 </section>
 
-<script src="{% static 'js/registration-language.js' %}?v=20260823-2"></script>
+<script src="{% static 'js/registration-language.js' %}?v=20260830-3"></script>
 <script>
   (() => {
     const isGerman = window.registrationLanguage === "de";

@@ -54,7 +54,7 @@
     "لكل فصل دراسي 225 يورو": "225 Euro pro Schulhalbjahr",
     "الدروس الدينية فقط": "Nur Religionsunterricht",
     "لكل فصل دراسي 150 يورو": "150 Euro pro Schulhalbjahr",
-    "اللغة العربية فقط (مع ثمن الكتب)": "Nur Arabischunterricht (einschließlich Bücher)",
+    "اللغة العربية فقط": "Nur Arabischunterricht",
     "إرسال طلب التسجيل": "Anmeldung absenden",
     "تم إرسال الطلب بنجاح": "Anmeldung erfolgreich gesendet",
     "تم تسجيل طفلك للعام الدراسي القادم": "Ihr Kind wurde für das kommende Schuljahr angemeldet",
