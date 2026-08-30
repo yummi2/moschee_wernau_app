@@ -11,10 +11,10 @@
                 {% if user.is_authenticated %}
                 {% with active_tab=request.GET.tab|default:"home" %}
                 {% if active_tab == "home" %}
-                <div class="home-user-summary">
+                <div class="home-user-summary" data-home-overview-only>
                     <div>
                         <h2 class="text-2xl font-semibold text-black-600">
-                            <span class="home-greeting" data-home-ar="السلام عليكم" data-home-de="Hallo">السلام عليكم</span>
+                            <span class="home-greeting" data-home-ar="السلام عليكم" data-home-de="Assalamu Alaikum">السلام عليكم</span>
                             <span class="home-user-name">{{ user.username }}</span>
                         </h2>
                         <p data-home-ar="نتمنى لك يومًا موفقًا" data-home-de="Wir wünschen dir einen schönen Tag">نتمنى لك يومًا موفقًا</p>
@@ -29,8 +29,7 @@
                 </div>
                 {% endif %}
 
-                {% if active_tab != "home" %}
-                <div class="home-section-tabs flex flex-wrap gap-2 mb-2" role="tablist" aria-label="أقسام الصفحة" data-app-language-surface>
+                <div class="home-section-tabs flex flex-wrap gap-2 mb-2 {% if active_tab == 'home' %}hidden{% endif %}" data-home-tabs-bar role="tablist" aria-label="أقسام الصفحة" data-app-language-surface>
                     <a href="?tab=assignments" data-home-tab="assignments" role="tab" aria-selected="{% if active_tab == 'assignments' %}true{% else %}false{% endif %}" class="home-section-tab {% if active_tab == 'assignments' %}is-active{% endif %} px-3 py-1 rounded-lg border
            {% if active_tab == 'assignments' %} bg-blue-600 text-white border-blue-600
            {% else %} text-blue-700 hover:bg-blue-50 border-blue-200 {% endif %}">
@@ -65,11 +64,9 @@
                     {% endif %}
 
                 </div>
-                {% endif %}
-
                 {% if can_complete_assignments and show_assignment_stats %}
                 {% if active_tab == "home" %}
-                <section class="assignment-stats" aria-label="ملخص الواجبات">
+                <section class="assignment-stats" data-home-overview-only aria-label="ملخص الواجبات">
                     <article class="assignment-stat assignment-stat--completed">
                         <span class="assignment-stat-label" data-home-ar="تم إنجازها" data-home-de="Erledigt">تم إنجازها</span>
                         <strong data-assignment-count="completed">{{ assignment_counts.completed }}</strong>
@@ -549,19 +546,42 @@
                 if (!tabs.length || !panels.length) return;
 
                 const availableTabs = new Set(panels.map((panel) => panel.dataset.homePanel));
+                const overviewElements = Array.from(document.querySelectorAll("[data-home-overview-only]"));
+                const tabsBars = Array.from(document.querySelectorAll("[data-home-tabs-bar]"));
+                const dashboardCard = document.querySelector(".home-dashboard-card");
+                const bottomNavLinks = Array.from(document.querySelectorAll(".app-bottom-nav-link"));
+                const homeBottomLink = bottomNavLinks.find((link) => new URL(link.href, window.location.href).searchParams.get("tab") === "home");
+                const assignmentsBottomLink = bottomNavLinks.find((link) => link.dataset.homeTab === "assignments");
+                const sidebarHomeLink = Array.from(document.querySelectorAll(".app-nav-link[href]")).find((link) => new URL(link.href, window.location.href).searchParams.get("tab") === "home");
+                const sidebarAssignmentsLink = document.querySelector(".app-nav-link[data-home-tab='assignments']");
 
                 const showTab = (requestedTab, updateHistory = false) => {
-                    const tabName = availableTabs.has(requestedTab) ? requestedTab : "assignments";
+                    const showOverview = requestedTab === "home" && overviewElements.length > 0;
+                    const tabName = showOverview ? "home" : (availableTabs.has(requestedTab) ? requestedTab : "assignments");
+
+                    overviewElements.forEach((element) => element.classList.toggle("hidden", !showOverview));
+                    tabsBars.forEach((bar) => bar.classList.toggle("hidden", showOverview));
+                    dashboardCard?.classList.toggle("is-home-overview", showOverview);
+
+                    const activeBottomLink = showOverview ? homeBottomLink : assignmentsBottomLink;
+                    if (activeBottomLink) {
+                        bottomNavLinks.forEach((link) => link.classList.toggle("is-active", link === activeBottomLink));
+                        window.dispatchEvent(new CustomEvent("app-bottom-nav-change", { detail: { link: activeBottomLink } }));
+                    }
+                    const activeSidebarLink = showOverview ? sidebarHomeLink : sidebarAssignmentsLink;
+                    [sidebarHomeLink, sidebarAssignmentsLink].filter(Boolean).forEach((link) => {
+                        link.classList.toggle("is-active", link === activeSidebarLink);
+                    });
 
                     tabs.forEach((tab) => {
-                        const isActive = tab.dataset.homeTab === tabName;
+                        const isActive = !showOverview && tab.dataset.homeTab === tabName;
                         tab.classList.toggle("is-active", isActive);
                         tab.setAttribute("aria-selected", String(isActive));
                         tab.tabIndex = isActive ? 0 : -1;
                     });
 
                     panels.forEach((panel) => {
-                        const isActive = panel.dataset.homePanel === tabName;
+                        const isActive = !showOverview && panel.dataset.homePanel === tabName;
                         panel.classList.toggle("hidden", !isActive);
                         panel.setAttribute("aria-hidden", String(!isActive));
 
@@ -596,11 +616,11 @@
                 });
 
                 window.addEventListener("popstate", () => {
-                    const tabName = new URL(window.location.href).searchParams.get("tab") || "assignments";
+                    const tabName = new URL(window.location.href).searchParams.get("tab") || "home";
                     showTab(tabName);
                 });
 
-                const initialTab = new URL(window.location.href).searchParams.get("tab") || "assignments";
+                const initialTab = new URL(window.location.href).searchParams.get("tab") || "home";
                 showTab(initialTab);
             });
             </script>

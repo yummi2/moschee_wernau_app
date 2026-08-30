@@ -91,6 +91,11 @@ option {
   display: none;
 }
 
+[data-home-overview-only].hidden,
+[data-home-tabs-bar].hidden {
+  display: none !important;
+}
+
 @keyframes home-tab-panel-enter {
   from {
     opacity: 0;

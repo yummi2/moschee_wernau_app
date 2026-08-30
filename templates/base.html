@@ -50,7 +50,7 @@
       }
     } catch (_) {}
   </script>
-  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260830-186">  <style>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260830-187">  <style>
   .act-grid{
     display: grid;
     gap: 12px;
@@ -126,7 +126,7 @@
       </a>
 
       {% if user.is_authenticated %}
-      <a href="{% url 'home' %}?tab=assignments" class="app-nav-link app-mobile-bottom-item {% if request.resolver_match.url_name == 'home' and request.GET.tab and request.GET.tab != 'home' %}is-active{% endif %}">
+      <a href="{% url 'home' %}?tab=assignments" data-home-tab="assignments" class="app-nav-link app-mobile-bottom-item {% if request.resolver_match.url_name == 'home' and request.GET.tab and request.GET.tab != 'home' %}is-active{% endif %}">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h6"/></svg>
         <span data-app-ar="الواجبات" data-app-de="Hausaufgaben">الواجبات</span>
       </a>
@@ -261,7 +261,7 @@
     <a href="{% url 'home' %}?tab=home" class="app-bottom-nav-link {% if request.resolver_match.url_name == 'home' and not request.GET.tab or request.resolver_match.url_name == 'home' and request.GET.tab == 'home' %}is-active{% endif %}" aria-label="الصفحة الرئيسية">
       <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5M5.5 10v10h13V10M9.5 20v-6h5v6"/></svg>
     </a>
-    <a href="{% url 'home' %}?tab=assignments" class="app-bottom-nav-link {% if request.resolver_match.url_name == 'home' and request.GET.tab and request.GET.tab != 'home' %}is-active{% endif %}" aria-label="الواجبات">
+    <a href="{% url 'home' %}?tab=assignments" data-home-tab="assignments" class="app-bottom-nav-link {% if request.resolver_match.url_name == 'home' and request.GET.tab and request.GET.tab != 'home' %}is-active{% endif %}" aria-label="الواجبات">
       <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h6"/></svg>
     </a>
     <a href="{% url 'calendar' %}" class="app-bottom-nav-link {% if request.resolver_match.url_name == 'calendar' %}is-active{% endif %}" aria-label="التقويم">
@@ -383,7 +383,7 @@
       if (!bottomNav) return;
 
       const links = Array.from(bottomNav.querySelectorAll(".app-bottom-nav-link"));
-      const activeIndex = links.findIndex((link) => link.classList.contains("is-active"));
+      let activeIndex = links.findIndex((link) => link.classList.contains("is-active"));
       if (activeIndex < 0) {
         sessionStorage.removeItem("bottomNavPreviousIndex");
         return;
@@ -440,6 +440,36 @@
         link.addEventListener("click", () => {
           sessionStorage.setItem("bottomNavPreviousIndex", String(activeIndex));
         });
+      });
+
+      window.addEventListener("app-bottom-nav-change", (event) => {
+        const nextIndex = links.indexOf(event.detail?.link);
+        if (nextIndex < 0 || nextIndex === activeIndex) return;
+
+        const indicator = bottomNav.querySelector(".app-bottom-nav-indicator");
+        const previousPosition = getIndicatorPosition(activeIndex);
+        const nextPosition = getIndicatorPosition(nextIndex);
+        const previousIndex = activeIndex;
+        activeIndex = nextIndex;
+        sessionStorage.setItem("bottomNavPreviousIndex", String(previousIndex));
+
+        if (!indicator || previousPosition === null || nextPosition === null || motionReduced) {
+          setIndicatorPosition(nextIndex);
+          return;
+        }
+
+        bottomNav.classList.add("is-moving");
+        bottomNav.style.setProperty("--nav-position", `${nextPosition}px`);
+        indicator.getAnimations().forEach((animation) => animation.cancel());
+        indicator.animate([
+          { left: `${previousPosition}px`, transform: "translateY(-50%) scaleX(1)" },
+          { left: `${(previousPosition + nextPosition) / 2}px`, transform: "translateY(-50%) scaleX(1.28)", offset: 0.5 },
+          { left: `${nextPosition}px`, transform: "translateY(-50%) scaleX(1)" }
+        ], {
+          duration: 520,
+          easing: "cubic-bezier(.22, 1, .36, 1)"
+        });
+        window.setTimeout(() => bottomNav.classList.remove("is-moving"), 540);
       });
 
       window.addEventListener("resize", () => {

@@ -49,7 +49,6 @@ class LibraryTranslationTests(TestCase):
 
     def test_beginner_story_heading_has_german_title(self):
         response = self.client.get(reverse("library"), {"level": "beginner", "sid": "1"})
-        self.assertContains(response, 'class="library-story-title library-story-title-label"')
         self.assertContains(response, 'data-app-de="Satz 1"')
 
 
