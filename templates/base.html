@@ -21,11 +21,11 @@
   <script>
     try {
       if (localStorage.getItem("registrationLanguage") === "de") {
-        document.documentElement.classList.add("app-language-german");
+        document.documentElement.classList.add("app-language-german", "app-language-pending");
       }
     } catch (_) {}
   </script>
-  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260830-184">  <style>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260830-185">  <style>
   .act-grid{
     display: grid;
     gap: 12px;
@@ -286,7 +286,6 @@
   <script>
     (() => {
       const languageToggle = document.querySelector("[data-app-language-toggle]");
-      if (!languageToggle) return;
 
       const applyLanguage = (language) => {
         const isGerman = language === "de";
@@ -304,11 +303,12 @@
           surface.dir = isGerman ? "ltr" : "rtl";
           surface.lang = language;
         });
-        const label = languageToggle.querySelector("[data-app-language-label]");
+        const label = languageToggle?.querySelector("[data-app-language-label]");
         if (label) label.textContent = isGerman ? "العربية" : "Deutsch";
-        languageToggle.setAttribute("aria-label", isGerman ? "Zur arabischen Sprache wechseln" : "Deutsch anzeigen");
+        languageToggle?.setAttribute("aria-label", isGerman ? "Zur arabischen Sprache wechseln" : "Deutsch anzeigen");
         document.body.classList.toggle("app-language-german", isGerman);
         document.documentElement.classList.toggle("app-language-german", isGerman);
+        document.documentElement.classList.remove("app-language-pending");
         window.dispatchEvent(new CustomEvent("app-language-change", { detail: { language } }));
       };
 
@@ -317,7 +317,7 @@
         applyLanguage(language);
       };
 
-      languageToggle.addEventListener("click", () => {
+      languageToggle?.addEventListener("click", () => {
         const current = localStorage.getItem("registrationLanguage") === "de" ? "de" : "ar";
         localStorage.setItem("registrationLanguage", current === "de" ? "ar" : "de");
         window.applyAppLanguage();

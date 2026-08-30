@@ -370,7 +370,7 @@ body {
     padding-right: 17.5rem;
   }
 
-  html.app-language-german body.app-shell-page {
+html.app-language-german body.app-shell-page {
     padding-right: 0;
     padding-left: 17.5rem;
   }
@@ -406,6 +406,13 @@ body {
     min-height: clamp(2.4rem, 5.7vh, 3.25rem);
     padding-block: clamp(0.3rem, 0.8vh, 0.65rem);
   }
+}
+
+/* Prevent Arabic server defaults from flashing before the saved German UI is applied. */
+html.app-language-pending .app-sidebar,
+html.app-language-pending .app-main,
+html.app-language-pending .app-bottom-nav {
+  visibility: hidden !important;
 }
 
 @media (max-width: 63.999rem) {
