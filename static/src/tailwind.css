@@ -4605,21 +4605,6 @@ body.auth-page {
   pointer-events: auto;
 }
 
-@media (min-width: 40rem) {
-  .login-page.is-german .login-shell {
-    width: min(100%, 36rem);
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .login-page.is-german .login-intro {
-    display: none;
-  }
-
-  .login-page.is-german .login-card {
-    width: 100%;
-  }
-}
-
 .login-shell .login-intro {
   transition: opacity 420ms ease, filter 420ms ease;
 }
