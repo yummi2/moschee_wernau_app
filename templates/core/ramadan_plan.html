@@ -41,7 +41,7 @@
                 <rect x="5" y="10" width="14" height="11" rx="2"/>
                 <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
               </svg>
-              <span data-app-ar="رمضان – اليوم {{ item.day }}" data-app-de="Ramadan – Tag {{ item.day }}">رمضان – اليوم <bdi dir="ltr">{{ item.day }}</bdi></span>
+              <span data-app-ar="رمضان {{ item.day }}" data-app-de="Ramadan {{ item.day }}">رمضان <bdi dir="ltr">{{ item.day }}</bdi></span>
             </div>
             {% else %}
             <a href="{% url 'ramadan_day' item.day %}" class="ramadan-day-link">
@@ -49,7 +49,7 @@
                 <path d="M19 15.5A8 8 0 0 1 9 5a8 8 0 1 0 10 10.5Z"/>
                 <path d="M17.5 4v3M16 5.5h3"/>
               </svg>
-              <span data-app-ar="رمضان – اليوم {{ item.day }}" data-app-de="Ramadan – Tag {{ item.day }}">رمضان – اليوم <bdi dir="ltr">{{ item.day }}</bdi></span>
+              <span data-app-ar="رمضان {{ item.day }}" data-app-de="Ramadan {{ item.day }}">رمضان <bdi dir="ltr">{{ item.day }}</bdi></span>
             </a>
             {% endif %}
           {% endfor %}
