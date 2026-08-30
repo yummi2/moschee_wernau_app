@@ -408,13 +408,6 @@ html.app-language-german body.app-shell-page {
   }
 }
 
-/* Prevent Arabic server defaults from flashing before the saved German UI is applied. */
-html.app-language-pending .app-sidebar,
-html.app-language-pending .app-main,
-html.app-language-pending .app-bottom-nav {
-  visibility: hidden !important;
-}
-
 @media (max-width: 63.999rem) {
   body {
     padding-block-end: calc(5.8rem + env(safe-area-inset-bottom));

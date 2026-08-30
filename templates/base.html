@@ -21,11 +21,36 @@
   <script>
     try {
       if (localStorage.getItem("registrationLanguage") === "de") {
-        document.documentElement.classList.add("app-language-german", "app-language-pending");
+        document.documentElement.classList.add("app-language-german");
+
+        const translateGermanNode = (node) => {
+          const element = node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement;
+          if (!element) return;
+          const candidates = [];
+          if (element.matches?.("[data-app-de], [data-home-de], [data-app-language-surface]")) candidates.push(element);
+          element.querySelectorAll?.("[data-app-de], [data-home-de], [data-app-language-surface]").forEach((item) => candidates.push(item));
+          candidates.forEach((item) => {
+            const germanText = item.dataset.appDe ?? item.dataset.homeDe;
+            if (germanText !== undefined && item.textContent !== germanText) item.textContent = germanText;
+            if (item.hasAttribute("data-app-language-surface")) {
+              item.dir = "ltr";
+              item.lang = "de";
+            }
+          });
+        };
+
+        const earlyLanguageObserver = new MutationObserver((records) => {
+          records.forEach((record) => record.addedNodes.forEach(translateGermanNode));
+        });
+        earlyLanguageObserver.observe(document.documentElement, { childList: true, subtree: true });
+        document.addEventListener("DOMContentLoaded", () => {
+          translateGermanNode(document.documentElement);
+          earlyLanguageObserver.disconnect();
+        }, { once: true });
       }
     } catch (_) {}
   </script>
-  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260830-185">  <style>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260830-186">  <style>
   .act-grid{
     display: grid;
     gap: 12px;
@@ -308,7 +333,6 @@
         languageToggle?.setAttribute("aria-label", isGerman ? "Zur arabischen Sprache wechseln" : "Deutsch anzeigen");
         document.body.classList.toggle("app-language-german", isGerman);
         document.documentElement.classList.toggle("app-language-german", isGerman);
-        document.documentElement.classList.remove("app-language-pending");
         window.dispatchEvent(new CustomEvent("app-language-change", { detail: { language } }));
       };
 
