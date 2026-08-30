@@ -5,8 +5,8 @@
 <div class="app-page-frame mx-auto max-w-5xl px-4 mt-8" dir="rtl">
   <div class="app-content-card bg-white rounded-2xl shadow p-6 relative overflow-hidden">
 
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-2xl font-bold text-blue-800">{{ title }}</h2>
+    <div class="flex items-center justify-between mb-4" data-app-language-surface>
+      <h2 class="text-2xl font-bold text-blue-800" data-app-ar="{{ title }}" data-app-de="{{ title_de }}">{{ title }}</h2>
     </div>
 
     <div class="text-center mb-8">
@@ -24,15 +24,15 @@
           <span class="ramadan-success-particle p4"></span>
           <span class="ramadan-success-particle p5"></span>
           <span class="ramadan-success-particle p6"></span>
-          <strong>أحسنت!</strong>
-          <small>أكملت جميع مهام اليوم</small>
+          <strong data-app-ar="أحسنت!" data-app-de="Sehr gut!">أحسنت!</strong>
+          <small data-app-ar="أكملت جميع مهام اليوم" data-app-de="Du hast alle Aufgaben des Tages erledigt.">أكملت جميع مهام اليوم</small>
         </div>
         <div id="final-feedback-msg"
              class="hidden text-lg font-semibold leading-relaxed text-red-600">
         </div>
       </div>
 
-      <h3 class="text-xl font-bold text-blue-800 mb-2">{{ item_title }}</h3>
+      <h3 class="text-xl font-bold text-blue-800 mb-2" data-app-ar="{{ item_title }}" data-app-de="{{ item_title_de }}">{{ item_title }}</h3>
 
       {% if current_image %}
         <div class="mx-auto mb-4 h-64 w-64 overflow-hidden rounded-2xl">
@@ -41,26 +41,26 @@
         </div>
       {% endif %}
 
-      <div class="text-lg leading-loose whitespace-pre-line">
+      <div class="text-lg leading-loose whitespace-pre-line"{% if current_text_de %} data-app-ar="{{ current_text }}" data-app-de="{{ current_text_de }}"{% endif %}>
         {{ current_text|safe }}
       </div>
 
-      <div class="mt-6 flex items-center justify-between">
+      <div class="mt-6 flex items-center justify-between" data-app-language-surface>
         {% if prev_href %}
-          <a href="{{ prev_href }}" class="px-4 py-2 rounded-xl bg-gray-200 hover:bg-gray-300">السابق</a>
+          <a href="{{ prev_href }}" class="px-4 py-2 rounded-xl bg-gray-200 hover:bg-gray-300" data-app-ar="السابق" data-app-de="Zurück">السابق</a>
         {% else %}
-          <span class="px-4 py-2 rounded-xl bg-gray-100 text-gray-400 cursor-not-allowed">السابق</span>
+          <span class="px-4 py-2 rounded-xl bg-gray-100 text-gray-400 cursor-not-allowed" data-app-ar="السابق" data-app-de="Zurück">السابق</span>
         {% endif %}
 
         {% if next_href %}
           <a href="{{ next_href }}" class="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700">
-            التالي
+            <span data-app-ar="التالي" data-app-de="Weiter">التالي</span>
           </a>
         {% else %}
           <button id="final-btn"
                   data-show-success="{{ show_success|yesno:'1,0' }}"
                   class="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700">
-            التالي
+            <span data-app-ar="التالي" data-app-de="Weiter">التالي</span>
           </button>
         {% endif %}
       </div>
@@ -72,7 +72,7 @@
               ✓
             </button>
           {% else %}
-            <button id="mark-done-btn" class="ramadan-done-button" aria-pressed="false"
+            <button id="mark-done-btn" class="ramadan-done-button" aria-pressed="false" data-app-ar="تم" data-app-de="Erledigt"
                     {% if selected_school_year != "2027" %}disabled aria-disabled="true"{% endif %}>
               تم
             </button>
@@ -113,11 +113,16 @@ function playSuccessAnimation(onComplete) {
   finalBtn.addEventListener("click", function () {
     const showSuccess = finalBtn.dataset.showSuccess === "1";
     feedback.classList.remove("hidden");
+    window.requestAnimationFrame(function () {
+      feedback.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
 
     if (!showSuccess) {
       animation.classList.add("hidden");
       msg.classList.remove("hidden");
-      msg.textContent = "أكمل كل المهام أولاً";
+      msg.textContent = localStorage.getItem("registrationLanguage") === "de"
+        ? "Erledige zuerst alle Aufgaben"
+        : "أكمل كل المهام أولاً";
       return;
     }
 
@@ -182,7 +187,9 @@ function playSuccessAnimation(onComplete) {
       }
     } catch (e) {
       btn.disabled = false;
-      document.getElementById('mark-done-msg').textContent = "حدث خطأ، حاول مرة أخرى.";
+      document.getElementById('mark-done-msg').textContent = localStorage.getItem("registrationLanguage") === "de"
+        ? "Ein Fehler ist aufgetreten. Bitte versuche es erneut."
+        : "حدث خطأ، حاول مرة أخرى.";
       console.error(e);
     }
   });

@@ -7,19 +7,19 @@
 
     {% with active_tab=request.GET.tab|default:"contest" %}
     <!-- Tabs -->
-    <div class="flex gap-2 mb-4">
+    <div class="flex gap-2 mb-4" data-app-language-surface>
       <a href="?tab=contest"
          class="px-3 py-1 rounded-lg border
          {% if active_tab == 'contest' %} bg-blue-600 text-white border-blue-600
          {% else %} text-blue-700 hover:bg-blue-50 border-blue-200 {% endif %}">
-        مسابقة رمضان
+        <span data-app-ar="مسابقة رمضان" data-app-de="Ramadan-Wettbewerb">مسابقة رمضان</span>
       </a>
 
       <a href="?tab=activity"
          class="px-3 py-1 rounded-lg border
          {% if active_tab == 'activity' %} bg-blue-600 text-white border-blue-600
          {% else %} text-blue-700 hover:bg-blue-50 border-blue-200 {% endif %}">
-        أنشطة رمضان
+        <span data-app-ar="أنشطة رمضان" data-app-de="Ramadan-Aktivitäten">أنشطة رمضان</span>
       </a>
     </div>
 
@@ -29,11 +29,11 @@
       <!-- Contest -->
       <section class="min-w-0 lg:col-span-2 {% if active_tab != 'contest' %}hidden{% endif %}">
         {% if selected_school_year == "2026" %}
-        <header class="ramadan-results-heading">
-          <span>أيام رمضان</span>
-          <h1>مسابقة رمضان</h1>
+        <header class="ramadan-results-heading" data-app-language-surface>
+          <span data-app-ar="أيام رمضان" data-app-de="Ramadan-Tage">أيام رمضان</span>
+          <h1 data-app-ar="مسابقة رمضان" data-app-de="Ramadan-Wettbewerb">مسابقة رمضان</h1>
         </header>
-        <div class="ramadan-days-grid ramadan-days-grid-legacy">
+        <div class="ramadan-days-grid ramadan-days-grid-legacy" data-app-language-surface>
           {% for item in day_progress %}
             {% if item.locked %}
             <div class="ramadan-day-link is-locked" aria-disabled="true">
@@ -41,7 +41,7 @@
                 <rect x="5" y="10" width="14" height="11" rx="2"/>
                 <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
               </svg>
-              <span><bdi dir="ltr">{{ item.day }}</bdi> رمضان</span>
+              <span data-app-ar="رمضان – اليوم {{ item.day }}" data-app-de="Ramadan – Tag {{ item.day }}">رمضان – اليوم <bdi dir="ltr">{{ item.day }}</bdi></span>
             </div>
             {% else %}
             <a href="{% url 'ramadan_day' item.day %}" class="ramadan-day-link">
@@ -49,7 +49,7 @@
                 <path d="M19 15.5A8 8 0 0 1 9 5a8 8 0 1 0 10 10.5Z"/>
                 <path d="M17.5 4v3M16 5.5h3"/>
               </svg>
-              <span><bdi dir="ltr">{{ item.day }}</bdi> رمضان</span>
+              <span data-app-ar="رمضان – اليوم {{ item.day }}" data-app-de="Ramadan – Tag {{ item.day }}">رمضان – اليوم <bdi dir="ltr">{{ item.day }}</bdi></span>
             </a>
             {% endif %}
           {% endfor %}
@@ -57,27 +57,40 @@
             <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
               <path d="M4 20V10m6 10V4m6 16v-7m4 7H2"/>
             </svg>
-            <span>النتائج</span>
+            <span data-app-ar="النتائج" data-app-de="Ergebnisse">النتائج</span>
           </a>
           {% if eid_unlocked %}
-          <a href="https://res.cloudinary.com/drlpkuf9q/image/upload/v1770060951/IMG_3995_e22lgz.jpg"
+          <button type="button"
              class="ramadan-day-link ramadan-legacy-special ramadan-legacy-eid"
-             target="_blank" rel="noopener noreferrer">
+             data-ramadan-eid-open>
             <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
               <path d="M20 12v9H4v-9M2 7h20v5H2zM12 7v14M12 7H7.5a2.5 2.5 0 1 1 2.1-3.85L12 7Zm0 0h4.5a2.5 2.5 0 1 0-2.1-3.85L12 7Z"/>
             </svg>
-            <span>العيد</span>
-          </a>
+            <span data-app-ar="العيد" data-app-de="Eid">العيد</span>
+          </button>
           {% else %}
           <div class="ramadan-day-link ramadan-legacy-special is-locked" aria-disabled="true">
             <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
               <rect x="5" y="10" width="14" height="11" rx="2"/>
               <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
             </svg>
-            <span>العيد</span>
+            <span data-app-ar="العيد" data-app-de="Eid">العيد</span>
           </div>
           {% endif %}
         </div>
+
+        <dialog class="ramadan-drawing-dialog ramadan-eid-dialog" id="ramadanEidDialog" aria-labelledby="ramadanEidDialogTitle">
+          <div class="ramadan-drawing-dialog-card">
+            <header class="ramadan-drawing-dialog-header" data-app-language-surface>
+              <h3 id="ramadanEidDialogTitle" data-app-ar="العيد" data-app-de="Eid">العيد</h3>
+              <button type="button" class="ramadan-drawing-dialog-close" data-ramadan-eid-close aria-label="إغلاق">×</button>
+            </header>
+            <div class="ramadan-drawing-dialog-preview">
+              <img src="https://res.cloudinary.com/drlpkuf9q/image/upload/v1770060951/IMG_3995_e22lgz.jpg"
+                   alt="العيد" loading="lazy">
+            </div>
+          </div>
+        </dialog>
         {% else %}
         <header class="ramadan-results-heading">
           <span>رحلة الإنجاز</span>
@@ -306,6 +319,18 @@
     });
     dialog.addEventListener("close", () => {
       image.removeAttribute("src");
+    });
+  })();
+
+  (() => {
+    const dialog = document.getElementById("ramadanEidDialog");
+    const openButton = document.querySelector("[data-ramadan-eid-open]");
+    if (!dialog || !openButton) return;
+
+    openButton.addEventListener("click", () => dialog.showModal());
+    dialog.querySelector("[data-ramadan-eid-close]")?.addEventListener("click", () => dialog.close());
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog) dialog.close();
     });
   })();
 </script>

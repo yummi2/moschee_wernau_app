@@ -2,6 +2,7 @@ import datetime as dt
 
 from django.contrib.auth import get_user_model
 from django.test import RequestFactory, TestCase
+from django.urls import reverse
 from django.utils import timezone
 
 from .school_years import can_switch_school_years
@@ -33,5 +34,14 @@ class SchoolYearAccessTests(TestCase):
         self.assertFalse(can_switch_school_years(user))
         self.assertEqual(selected_school_year_ranges(request)["year"], "2027")
         self.assertEqual(request.session["school_year"], "2027")
+
+
+class LibraryTranslationTests(TestCase):
+    def test_library_uses_content_specific_german_titles(self):
+        beginner = self.client.get(reverse("library"), {"level": "beginner"})
+        intermediate = self.client.get(reverse("library"), {"level": "intermediate"})
+
+        self.assertContains(beginner, 'data-app-de="Satz 1"')
+        self.assertContains(intermediate, 'data-app-de="Nur und der Besuch bei ihrer Großmutter"')
 
 # Create your tests here.

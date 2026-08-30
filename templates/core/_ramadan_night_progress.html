@@ -1,4 +1,4 @@
-<section class="ramadan-night-progress {% if completed_days == total_days %}is-finished{% endif %}" aria-labelledby="ramadan-progress-title">
+<section class="ramadan-night-progress {% if completed_days == total_days %}is-finished{% endif %}" aria-labelledby="ramadan-progress-title" data-app-language-surface>
   <div class="ramadan-night-sky">
     <div class="ramadan-night-stars" aria-hidden="true">
       <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
@@ -31,16 +31,16 @@
     <div class="ramadan-night-horizon" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
   </div>
   <div class="ramadan-progress-summary">
-    <span class="ramadan-progress-kicker">فوانيس مضيئة</span>
+    <span class="ramadan-progress-kicker" data-app-ar="فوانيس مضيئة" data-app-de="Leuchtende Laternen">فوانيس مضيئة</span>
     <strong><bdi dir="ltr">{{ completed_days }} / {{ total_days }}</bdi></strong>
     <div class="ramadan-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="{{ total_days }}" aria-valuenow="{{ completed_days }}">
       <span style="width: {{ completion_percent }}%"></span>
     </div>
     <small><bdi dir="ltr">{{ completion_percent }}%</bdi></small>
     {% if completed_days == total_days %}
-    <div class="ramadan-night-finish" role="status">أحسنت! أكملت رحلة رمضان</div>
+    <div class="ramadan-night-finish" role="status" data-app-ar="أحسنت! أكملت رحلة رمضان" data-app-de="Sehr gut! Du hast deine Ramadan-Reise abgeschlossen.">أحسنت! أكملت رحلة رمضان</div>
     {% else %}
-    <div class="ramadan-night-next">أكمل يومًا آخر وأضئ الفانوس التالي</div>
+    <div class="ramadan-night-next" data-app-ar="أكمل يومًا آخر وأضئ الفانوس التالي" data-app-de="Erledige einen weiteren Tag und bringe die nächste Laterne zum Leuchten.">أكمل يومًا آخر وأضئ الفانوس التالي</div>
     {% endif %}
   </div>
 </section>

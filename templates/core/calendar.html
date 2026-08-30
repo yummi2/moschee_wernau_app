@@ -2,9 +2,9 @@
 {% load extras %}
 {% block title %}التقويم | دار الفرح{% endblock %}
 {% block content %}
-<section class="app-page-frame" dir="rtl">
+<section class="app-page-frame" dir="rtl" data-app-language-surface>
   <div class="calendar-page-heading mb-6">
-    <h1 class="text-2xl font-bold tracking-normal text-gray-950">التقويم</h1>
+    <h1 class="text-2xl font-bold tracking-normal text-gray-950" data-app-ar="التقويم" data-app-de="Kalender">التقويم</h1>
   </div>
 
   <div class="app-content-card mini-calendar calendar-page">
@@ -20,7 +20,7 @@
     </div>
 
     <table class="mini-calendar-table">
-      <thead><tr>{% for day_name in cal_weekday_names %}<th>{{ day_name }}</th>{% endfor %}</tr></thead>
+      <thead><tr>{% for day_name in cal_weekdays %}<th data-app-ar="{{ day_name.ar }}" data-app-de="{{ day_name.de }}">{{ day_name.ar }}</th>{% endfor %}</tr></thead>
       <tbody>
         {% for week in cal_weeks %}<tr>
           {% for day in week %}
@@ -40,12 +40,12 @@
     </table>
 
     <div class="mini-calendar-legend">
-      <div class="flex items-center gap-2"><span class="inline-block w-3.5 h-3.5 rounded calendar-teaching"></span><span>دوام</span></div>
-      <div class="flex items-center gap-2"><span class="inline-block w-3.5 h-3.5 rounded calendar-today"></span><span>اليوم</span></div>
-      <div class="flex items-center gap-2"><span class="inline-block w-3.5 h-3.5 rounded calendar-holiday"></span><span>العطل الرسمية</span></div>
-      <div class="flex items-center gap-2"><span class="inline-block w-3.5 h-3.5 rounded calendar-eid"></span><span>عطلة العيد</span></div>
-      <div class="flex items-center gap-2"><span class="inline-block w-3.5 h-3.5 rounded calendar-final"></span><span>الحفل النهائي</span></div>
-      <div class="flex items-center gap-2"><span class="inline-block w-3.5 h-3.5 rounded bg-red-600"></span><span>الغيابات: <b id="absencesCount">{{ absences_total }}</b></span></div>
+      <div class="flex items-center gap-2"><span class="inline-block w-3.5 h-3.5 rounded calendar-teaching"></span><span data-app-ar="دوام" data-app-de="Unterricht">دوام</span></div>
+      <div class="flex items-center gap-2"><span class="inline-block w-3.5 h-3.5 rounded calendar-today"></span><span data-app-ar="اليوم" data-app-de="Heute">اليوم</span></div>
+      <div class="flex items-center gap-2"><span class="inline-block w-3.5 h-3.5 rounded calendar-holiday"></span><span data-app-ar="العطل الرسمية" data-app-de="Schulferien">العطل الرسمية</span></div>
+      <div class="flex items-center gap-2"><span class="inline-block w-3.5 h-3.5 rounded calendar-eid"></span><span data-app-ar="عطلة العيد" data-app-de="Eid-Ferien">عطلة العيد</span></div>
+      <div class="flex items-center gap-2"><span class="inline-block w-3.5 h-3.5 rounded calendar-final"></span><span data-app-ar="الحفل النهائي" data-app-de="Abschlussfeier">الحفل النهائي</span></div>
+      <div class="flex items-center gap-2"><span class="inline-block w-3.5 h-3.5 rounded bg-red-600"></span><span><span data-app-ar="الغيابات" data-app-de="Fehltage">الغيابات</span>: <b id="absencesCount">{{ absences_total }}</b></span></div>
     </div>
   </div>
 </section>

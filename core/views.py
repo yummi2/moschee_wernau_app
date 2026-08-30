@@ -247,6 +247,22 @@ ARABIC_WEEKDAYS = {
     5: "السبت",
     6: "الأحد",
 }
+GERMAN_WEEKDAYS = {
+    0: "Montag",
+    1: "Dienstag",
+    2: "Mittwoch",
+    3: "Donnerstag",
+    4: "Freitag",
+    5: "Samstag",
+    6: "Sonntag",
+}
+GERMAN_PRAYERS = {
+    1: "Fadschr",
+    2: "Dhuhr",
+    3: "Asr",
+    4: "Maghrib",
+    5: "Ischa",
+}
 RAMADAN_START = dt.date(2026, 2, 18)
 RAMADAN_DAYS = 30
 
@@ -562,6 +578,7 @@ def home(request):
         week_days.append({
             "date": d,
             "weekday_ar": ARABIC_WEEKDAYS[d.weekday()],
+            "weekday_de": GERMAN_WEEKDAYS[d.weekday()],
             "day": d.day,
             "month": d.month,
             "in_range": school_year_ranges["prayer_start"] <= d <= school_year_ranges["prayer_end"],
@@ -585,12 +602,14 @@ def home(request):
         row = {
             "key": prayer_key,
             "name": prayer_name,
+            "name_de": GERMAN_PRAYERS[prayer_key],
             "days": []
         }
         for d in week_days:
             row["days"].append({
                 "date": d["date"],
                 "weekday_ar": d["weekday_ar"],
+                "weekday_de": d["weekday_de"],
                 "day": d["day"],
                 "month": d["month"],
                 "in_range": d["in_range"],
@@ -904,6 +923,15 @@ def calendar_page(request):
         "cal_month": month,
         "cal_month_name": calendar.month_name[month],
         "cal_weeks": calendar_weeks,
+        "cal_weekdays": [
+            {"ar": "الاثنين", "de": "Montag"},
+            {"ar": "الثلاثاء", "de": "Dienstag"},
+            {"ar": "الأربعاء", "de": "Mittwoch"},
+            {"ar": "الخميس", "de": "Donnerstag"},
+            {"ar": "الجمعة", "de": "Freitag"},
+            {"ar": "السبت", "de": "Samstag"},
+            {"ar": "الأحد", "de": "Sonntag"},
+        ],
         "cal_weekday_names": ["الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت", "الأحد"],
         "cal_prev_y": previous_month.year,
         "cal_prev_m": previous_month.month,
@@ -1030,6 +1058,32 @@ def library(request):
     sid = request.GET.get("sid") 
     p_str = request.GET.get("p", "1")  
     valid_levels = {"beginner": "المبتدئ", "intermediate": "المتوسط", "advanced": "المتقدم"}
+    valid_levels_de = {"beginner": "Anfänger", "intermediate": "Mittelstufe", "advanced": "Fortgeschritten"}
+    story_titles_de = {
+        "beginner": {
+            "1": "Satz 1", "2": "Satz 2", "3": "Satz 3", "4": "Satz 4",
+        },
+        "intermediate": {
+            "1": "Schamhaftigkeit vor Allah",
+            "2": "Layla und der Gehorsam gegenüber den Eltern",
+            "3": "Umar und sein großzügiger Nachbar",
+            "4": "Nur und der Besuch bei ihrer Großmutter",
+            "5": "Khalid und der Gast",
+            "6": "Yusuf und das richtige Verhalten unterwegs",
+            "7": "Maryam und die Tischmanieren",
+        },
+        "advanced": {
+            "1": "Die rechtgeleiteten Kalifen",
+            "2": "Abu Bakr as-Siddiq",
+            "3": "Umar ibn al-Khattab",
+            "4": "Uthman ibn Affan",
+            "5": "Ali ibn Abi Talib",
+            "6": "Khadidscha bint Chuwailid",
+            "7": "Hafsa bint Umar – Mutter der Gläubigen",
+            "8": "Zainab, Tochter des Gesandten",
+            "9": "Fatima az-Zahra, Tochter Muhammads",
+        },
+    }
     
     already_read = False
     if not level:
@@ -1076,6 +1130,7 @@ def library(request):
         return render(request, "core/library.html", {
             "level": level,
             "level_title": valid_levels[level],
+            "level_title_de": valid_levels_de[level],
             "sid": sid,
             "story": story,
             "p":p,
@@ -1091,11 +1146,16 @@ def library(request):
     sentences = []
     for s_id, s_data in STORIES.get(level, {}).items():
         href = f"{reverse('library')}?level={level}&sid={s_id}"
-        sentences.append({"title": s_data["title"], "href": href})
+        sentences.append({
+            "title": s_data["title"],
+            "title_de": story_titles_de[level].get(s_id, s_data["title"]),
+            "href": href,
+        })
 
     return render(request, "core/library.html", {
         "level": level,
         "level_title": valid_levels[level],
+        "level_title_de": valid_levels_de[level],
         "sentences": sentences,
         "already_read": already_read,
         "ramadan_open": ramadan_is_open()
@@ -1368,6 +1428,7 @@ def ramadan_day(request, day: int):
 
     day_data = RAMADAN_CONTENT.get(day, {"title": f"{day} رمضان", "items": {}})
     title = day_data.get("title", f"{day} رمضان")
+    title_de = f"Ramadan – Tag {day}"
 
     # aktives item + seite
     item_key = request.GET.get("item", RAMADAN_ITEMS_ORDER[0])
@@ -1410,6 +1471,7 @@ def ramadan_day(request, day: int):
     # Detail: Inhalt + Pagination
     item_data = (day_data.get("items", {}) or {}).get(item_key, {})
     item_title = item_data.get("title") or RAMADAN_ITEMS_META[item_key]["label_de"]
+    item_title_de = RAMADAN_ITEMS_META[item_key]["label_de"]
     body = item_data.get("body") or [{"text": "لا يوجد محتوى بعد."}]
 
     total = max(1, len(body))
@@ -1432,6 +1494,14 @@ def ramadan_day(request, day: int):
     else:
         current_text = str(raw_para)
         current_image = item_image
+
+    translated_item_texts = {
+        "fasting": "Fasten",
+        "quran": "Koran lesen",
+        "tarawih_witr": "Das Tarawih-Gebet und anschließend das Witr-Gebet verrichten",
+        "good_deed": "Einem Fastenden Iftar geben – spenden – helfen – den Eltern helfen",
+    }
+    current_text_de = translated_item_texts.get(item_key)
 
     # --- Story-Navigation ---
     order = RAMADAN_ITEMS_ORDER
@@ -1476,16 +1546,19 @@ def ramadan_day(request, day: int):
     return render(request, "core/ramadan_day.html", {
         "day": day,
         "title": title,
+        "title_de": title_de,
 
         # falls du Karten nicht mehr nutzt, kannst du "items" entfernen
         "items": items,
 
         "item_key": item_key,
         "item_title": item_title,
+        "item_title_de": item_title_de,
 
         "p": p,
         "total": total,
         "current_text": current_text,
+        "current_text_de": current_text_de,
         "current_image": current_image,
 
         "prev_href": prev_href,
@@ -1582,6 +1655,7 @@ def ramadan_results(request):
         rows.append({
             "key": key,
             "label": label,
+            "label_de": RAMADAN_ITEMS_META.get(key, {}).get("label_de") or label,
             "done": done_days,
             "total": TOTAL_DAYS,
             "percent": round((done_days / TOTAL_DAYS) * 100) if TOTAL_DAYS else 0,

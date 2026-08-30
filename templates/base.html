@@ -18,7 +18,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260830-157">  <style>
+  <script>
+    try {
+      if (localStorage.getItem("registrationLanguage") === "de") {
+        document.documentElement.classList.add("app-language-german");
+      }
+    } catch (_) {}
+  </script>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260830-167">  <style>
   .act-grid{
     display: grid;
     gap: 12px;
@@ -51,7 +58,7 @@
 
 <body class="bg-gray-50 text-gray-900 {% if request.resolver_match.url_name == 'login' or request.resolver_match.url_name == 'school_year' or request.resolver_match.url_name == 'registration_information' %}auth-page{% else %}app-shell-page{% endif %}{% if request.resolver_match.url_name == 'login' %} login-auth-page{% elif request.resolver_match.url_name == 'registration_information' %} registration-auth-page{% endif %}">
   {% if request.resolver_match.url_name != 'login' and request.resolver_match.url_name != 'school_year' and request.resolver_match.url_name != 'registration_information' %}
-  <header class="app-sidebar" dir="rtl">
+  <header class="app-sidebar" dir="rtl" data-app-language-surface>
     <a href="{% url 'home' %}?tab=home" class="app-brand" aria-label="دار الفرح، الصفحة الرئيسية">
       <span class="app-brand-mark">
         <img src="{% static 'images/logo.png' %}"
@@ -59,10 +66,15 @@
         class="app-brand-logo">
       </span>
       <span>
-        <strong>دار الفرح</strong>
-        <small>للتعليم والتربية</small>
+        <strong data-app-ar="دار الفرح" data-app-de="Dar Al Farah">دار الفرح</strong>
+        <small data-app-ar="للتعليم والتربية" data-app-de="Bildung und Erziehung">للتعليم والتربية</small>
       </span>
     </a>
+
+    <button type="button" class="app-language-toggle" data-app-language-toggle aria-label="Deutsch anzeigen">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.4 2.5 3.6 5.5 3.6 9S14.4 18.5 12 21M12 3C9.6 5.5 8.4 8.5 8.4 12S9.6 18.5 12 21"/></svg>
+      <span data-app-language-label>Deutsch</span>
+    </button>
 
     <button type="button"
             class="app-menu-toggle"
@@ -81,39 +93,39 @@
 
       <a href="{% url 'home' %}{% if user.is_authenticated %}?tab=home{% endif %}" class="app-nav-link {% if user.is_authenticated %}app-mobile-bottom-item{% else %}app-mobile-top{% endif %} {% if request.resolver_match.url_name == 'home' %}{% if not user.is_authenticated or not request.GET.tab or request.GET.tab == 'home' %}is-active{% endif %}{% endif %}">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5M5.5 10v10h13V10M9.5 20v-6h5v6"/></svg>
-        <span>الصفحة الرئيسية</span>
+        <span data-app-ar="الصفحة الرئيسية" data-app-de="Startseite">الصفحة الرئيسية</span>
       </a>
       <a href="{% url 'calendar' %}" class="app-nav-link app-mobile-bottom-item {% if request.resolver_match.url_name == 'calendar' %}is-active{% endif %}">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14a2 2 0 0 1 2 2v14H3V6a2 2 0 0 1 2-2ZM8 2v4M16 2v4M3 9h18M7 13h2M11 13h2M15 13h2M7 17h2M11 17h2"/></svg>
-        <span>التقويم</span>
+        <span data-app-ar="التقويم" data-app-de="Kalender">التقويم</span>
       </a>
 
       {% if user.is_authenticated %}
       <a href="{% url 'home' %}?tab=assignments" class="app-nav-link app-mobile-bottom-item {% if request.resolver_match.url_name == 'home' and request.GET.tab and request.GET.tab != 'home' %}is-active{% endif %}">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h6"/></svg>
-        <span>الواجبات</span>
+        <span data-app-ar="الواجبات" data-app-de="Hausaufgaben">الواجبات</span>
       </a>
 
       <a href="{% url 'library' %}" class="app-nav-link app-mobile-top {% if request.resolver_match.url_name == 'library' %}is-active{% endif %}">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11v16H6.5A2.5 2.5 0 0 0 4 21.5v-16ZM20 5.5A2.5 2.5 0 0 0 17.5 3H13v16h4.5a2.5 2.5 0 0 1 2.5 2.5v-16Z"/></svg>
-        <span>مكتبتي</span>
+        <span data-app-ar="مكتبتي" data-app-de="Meine Bibliothek">مكتبتي</span>
       </a>
 
       {% if request.session.school_year == "2026" %}
       <a href="{% url 'ramadan_plan' %}" class="app-nav-link app-mobile-bottom-item {% if request.resolver_match.url_name == 'ramadan_plan' or request.resolver_match.url_name == 'ramadan_day' or request.resolver_match.url_name == 'ramadan_results' %}is-active{% endif %}">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 15.5A8 8 0 0 1 9 5a8 8 0 1 0 10 10.5ZM17.5 4v3M16 5.5h3"/></svg>
-        <span>رمضان</span>
+        <span data-app-ar="رمضان" data-app-de="Ramadan">رمضان</span>
       </a>
       {% else %}
       <span class="app-nav-link app-mobile-bottom-item is-disabled" aria-disabled="true" title="متاح في السنة الدراسية 2026">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 15.5A8 8 0 0 1 9 5a8 8 0 1 0 10 10.5ZM17.5 4v3M16 5.5h3"/></svg>
-        <span>رمضان</span>
+        <span data-app-ar="رمضان" data-app-de="Ramadan">رمضان</span>
       </span>
       {% endif %}
 
       <a href="{% url 'profile' %}" class="app-nav-link app-mobile-bottom-item {% if request.resolver_match.url_name == 'profile' %}is-active{% endif %}">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4.5 21a7.5 7.5 0 0 1 15 0"/></svg>
-        <span>الصفحة الشخصية</span>
+        <span data-app-ar="الصفحة الشخصية" data-app-de="Profil">الصفحة الشخصية</span>
       </a>
 
     
@@ -194,7 +206,7 @@
       <form method="post" action="{% url 'school_year' %}" class="school-year-switch" aria-label="اختيار السنة الدراسية">
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ request.get_full_path }}">
-        <span class="school-year-switch-label">السنة الدراسية</span>
+        <span class="school-year-switch-label" data-app-ar="السنة الدراسية" data-app-de="Schuljahr">السنة الدراسية</span>
         <span class="school-year-switch-options">
           <button type="submit" name="school_year" value="2027" class="school-year-switch-button {% if selected_year == '2027' %}is-active{% endif %}" aria-pressed="{% if selected_year == '2027' %}true{% else %}false{% endif %}"><bdi dir="ltr">2027</bdi></button>
           <button type="submit" name="school_year" value="2026" class="school-year-switch-button {% if selected_year == '2026' %}is-active{% endif %}" aria-pressed="{% if selected_year == '2026' %}true{% else %}false{% endif %}"><bdi dir="ltr">2026</bdi></button>
@@ -205,7 +217,7 @@
 
       <button type="button" onclick="document.getElementById('logoutForm').submit();" class="app-nav-link app-mobile-top app-logout">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H5v14h5M14 8l4 4-4 4M8 12h10"/></svg>
-        <span>تسجيل الخروج</span>
+        <span data-app-ar="تسجيل الخروج" data-app-de="Abmelden">تسجيل الخروج</span>
       </button>
       <form id="logoutForm" method="post" action="{% url 'logout' %}" class="hidden">{% csrf_token %}</form>
       {% else %}
@@ -270,6 +282,43 @@
 
     {% block content %}{% endblock %}
   </main>
+
+  <script>
+    (() => {
+      const languageToggle = document.querySelector("[data-app-language-toggle]");
+      if (!languageToggle) return;
+
+      const applyLanguage = (language) => {
+        const isGerman = language === "de";
+        document.documentElement.lang = language;
+        document.querySelectorAll("[data-app-ar][data-app-de]").forEach((element) => {
+          element.textContent = isGerman ? element.dataset.appDe : element.dataset.appAr;
+        });
+        document.querySelectorAll("[data-app-language-surface]").forEach((surface) => {
+          surface.dir = isGerman ? "ltr" : "rtl";
+          surface.lang = language;
+        });
+        const label = languageToggle.querySelector("[data-app-language-label]");
+        if (label) label.textContent = isGerman ? "العربية" : "Deutsch";
+        languageToggle.setAttribute("aria-label", isGerman ? "Zur arabischen Sprache wechseln" : "Deutsch anzeigen");
+        document.body.classList.toggle("app-language-german", isGerman);
+        document.documentElement.classList.toggle("app-language-german", isGerman);
+        window.dispatchEvent(new CustomEvent("app-language-change", { detail: { language } }));
+      };
+
+      window.applyAppLanguage = () => {
+        const language = localStorage.getItem("registrationLanguage") === "de" ? "de" : "ar";
+        applyLanguage(language);
+      };
+
+      languageToggle.addEventListener("click", () => {
+        const current = localStorage.getItem("registrationLanguage") === "de" ? "de" : "ar";
+        localStorage.setItem("registrationLanguage", current === "de" ? "ar" : "de");
+        window.applyAppLanguage();
+      });
+      window.applyAppLanguage();
+    })();
+  </script>
 
   <script>
     (() => {
@@ -400,25 +449,40 @@
       const message = document.getElementById("absenceConfirmMessage");
       const cancelButton = document.getElementById("absenceConfirmCancel");
       const submitButton = document.getElementById("absenceConfirmSubmit");
+      const isGerman = () => localStorage.getItem("registrationLanguage") === "de";
+
+      const translatedError = (errorMessage) => {
+        if (!isGerman()) return errorMessage;
+        const messages = new Map([
+          ["يمكن وضع علامة الغياب فقط من يوم الجمعة الساعة 10:00 حتى السبت الساعة 10:00.", "Eine Abwesenheit kann nur von Freitag um 10:00 Uhr bis Samstag um 10:00 Uhr eingetragen werden."],
+          ["لقد تم وضع علامة الغياب لهذا اليوم من قبل.", "Für diesen Tag wurde die Abwesenheit bereits eingetragen."],
+          ["لا يمكن وضع علامة الغياب إلا في الأيام المحددة (باللون البنفسجي).", "Eine Abwesenheit kann nur an den dafür vorgesehenen Unterrichtstagen eingetragen werden."],
+          ["تعذر تنفيذ الطلب.", "Die Anfrage konnte nicht ausgeführt werden."],
+          ["حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.", "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es erneut."],
+        ]);
+        return messages.get(errorMessage) || "Die Abwesenheit konnte nicht eingetragen werden.";
+      };
 
       window.confirmAbsence = (date) => new Promise((resolve) => {
         if (!dialog || typeof dialog.showModal !== "function") {
-          resolve(window.confirm("هل تريد تسجيل الغياب لهذا اليوم؟"));
+          resolve(window.confirm(isGerman() ? "Möchtest du für diesen Tag eine Abwesenheit eintragen?" : "هل تريد تسجيل الغياب لهذا اليوم؟"));
           return;
         }
 
+        dialog.dir = isGerman() ? "ltr" : "rtl";
         dialog.classList.remove("is-message");
-        eyebrow.textContent = "تأكيد الغياب";
-        title.textContent = "هل تريد تسجيل الغياب؟";
-        message.textContent = "سيتم تسجيل هذا اليوم كغياب في التقويم.";
+        eyebrow.textContent = isGerman() ? "Abwesenheit bestätigen" : "تأكيد الغياب";
+        title.textContent = isGerman() ? "Möchtest du die Abwesenheit eintragen?" : "هل تريد تسجيل الغياب؟";
+        message.textContent = isGerman() ? "Dieser Tag wird im Kalender als Abwesenheit markiert." : "سيتم تسجيل هذا اليوم كغياب في التقويم.";
+        cancelButton.textContent = isGerman() ? "Abbrechen" : "إلغاء";
         cancelButton.hidden = false;
         submitButton.value = "confirm";
-        submitButton.textContent = "نعم، تسجيل الغياب";
+        submitButton.textContent = isGerman() ? "Ja, Abwesenheit eintragen" : "نعم، تسجيل الغياب";
 
         const parsedDate = new Date(`${date}T12:00:00`);
         dateLabel.textContent = Number.isNaN(parsedDate.getTime())
           ? date
-          : new Intl.DateTimeFormat("ar", { day: "numeric", month: "long", year: "numeric" }).format(parsedDate);
+          : new Intl.DateTimeFormat(isGerman() ? "de-DE" : "ar", { day: "numeric", month: "long", year: "numeric" }).format(parsedDate);
 
         const handleClose = () => resolve(dialog.returnValue === "confirm");
         dialog.addEventListener("close", handleClose, { once: true });
@@ -430,14 +494,15 @@
           window.alert(errorMessage);
           return;
         }
+        dialog.dir = isGerman() ? "ltr" : "rtl";
         dialog.classList.add("is-message");
-        eyebrow.textContent = "تعذر تسجيل الغياب";
-        title.textContent = "لا يمكن تنفيذ الطلب الآن";
-        message.textContent = errorMessage;
+        eyebrow.textContent = isGerman() ? "Abwesenheit nicht gespeichert" : "تعذر تسجيل الغياب";
+        title.textContent = isGerman() ? "Die Anfrage kann gerade nicht ausgeführt werden" : "لا يمكن تنفيذ الطلب الآن";
+        message.textContent = translatedError(errorMessage);
         dateLabel.textContent = "";
         cancelButton.hidden = true;
         submitButton.value = "cancel";
-        submitButton.textContent = "حسنًا";
+        submitButton.textContent = isGerman() ? "Okay" : "حسنًا";
         dialog.showModal();
       };
 

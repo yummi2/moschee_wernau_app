@@ -6,25 +6,25 @@
 <div class="app-page-frame app-content-card library-page {% if story %}library-page--story{% elif level %}library-page--list{% else %}library-page--levels{% endif %} content-page-fill bg-white rounded-2xl mt-8" dir="rtl">
     {# === 0) Level-Auswahl === #}
     {% if not level %}
-    <div class="library-levels-shell mx-auto max-w-5xl p-6">
-        <h3 class="library-section-title text-xl font-semibold mb-4 text-right">اختر مستوى</h3>
+    <div class="library-levels-shell mx-auto max-w-5xl p-6" data-app-language-surface>
+        <h3 class="library-section-title text-xl font-semibold mb-4 text-right" data-app-ar="اختر مستوى" data-app-de="Wähle ein Level">اختر مستوى</h3>
         <div class="library-levels-grid grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             <a href="{% url 'library' %}?level=beginner"
                 class="library-level-card group block rounded-2xl bg-white shadow transition p-3 h-full">
                 <div class="flex flex-col h-full text-right">
-                    <h4 class="library-level-title text-lg font-bold text-blue-600 mb-1">المبتدئ</h4>
+                    <h4 class="library-level-title text-lg font-bold text-blue-600 mb-1" data-app-ar="المبتدئ" data-app-de="Anfänger">المبتدئ</h4>
                 </div>
             </a>
             <a href="{% url 'library' %}?level=intermediate"
                 class="library-level-card group block rounded-2xl bg-white shadow transition p-3 h-full">
                 <div class="flex flex-col h-full text-right">
-                    <h4 class="library-level-title text-lg font-bold text-blue-600 mb-1">المتوسط</h4>
+                    <h4 class="library-level-title text-lg font-bold text-blue-600 mb-1" data-app-ar="المتوسط" data-app-de="Mittelstufe">المتوسط</h4>
                 </div>
             </a>
             <a href="{% url 'library' %}?level=advanced"
                 class="library-level-card group block rounded-2xl bg-white shadow transition p-3 h-full">
                 <div class="flex flex-col h-full text-right">
-                    <h4 class="library-level-title text-lg font-bold text-blue-600 mb-1">المتقدم</h4>
+                    <h4 class="library-level-title text-lg font-bold text-blue-600 mb-1" data-app-ar="المتقدم" data-app-de="Fortgeschritten">المتقدم</h4>
                 </div>
             </a>
         </div>
@@ -32,20 +32,20 @@
 
     {# === 1) Satzliste (für beliebiges Level) === #}
     {% elif level and not story %}
-    <div class="library-list-shell mx-auto max-w-5xl px-4">
+    <div class="library-list-shell mx-auto max-w-5xl px-4" data-app-language-surface>
         <div class="library-list-content p-6">
             <div class="flex items-center justify-between mb-4">
-                <h2 class="text-2xl font-semibold text-blue-800">{{ level_title }}</h2>
+                <h2 class="text-2xl font-semibold text-blue-800" data-app-ar="{{ level_title }}" data-app-de="{{ level_title_de }}">{{ level_title }}</h2>
             </div>
 
             <div class="library-sentence-grid grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                 {% for s in sentences %}
                 <a href="{{ s.href }}"
                     class="library-sentence-card block bg-blue-50 hover:bg-blue-100 rounded-xl shadow p-6 text-right transition">
-                    <h3 class="text-lg font-bold text-blue-600 mb-2">{{ s.title }}</h3>
+                    <h3 class="text-lg font-bold text-blue-600 mb-2" data-app-ar="{{ s.title }}" data-app-de="{{ s.title_de }}">{{ s.title }}</h3>
                 </a>
                 {% empty %}
-                <p class="text-gray-600 text-right">لا توجد جمل بعد.</p>
+                <p class="text-gray-600 text-right" data-app-ar="لا توجد جمل بعد." data-app-de="Noch keine Geschichten vorhanden.">لا توجد جمل بعد.</p>
                 {% endfor %}
             </div>
 
@@ -57,7 +57,7 @@
     <div class="library-story-shell mx-auto max-w-3xl px-4">
         <div class="library-story-content p-6 text-right">
             <h2 class="text-2xl font-bold text-blue-800 mb-2">{{ story.title }}</h2>
-            <p class="text-sm text-gray-500 mb-4">{{ level_title }} • {{ p }} / {{ total }}</p>
+            <p class="text-sm text-gray-500 mb-4"><span data-app-ar="{{ level_title }}" data-app-de="{{ level_title_de }}">{{ level_title }}</span> • <bdi dir="ltr">{{ p }} / {{ total }}</bdi></p>
 
             {% if current_image %}
             <img src="{{ current_image }}" alt="{{ story.title }}"
@@ -66,18 +66,18 @@
             <p class="text-xl leading-loose text-center whitespace-pre-line">{{ current_text|safe }}</p>
 
             {% if level == "beginner" %}
-            <div class="mt-6 flex items-center justify-between">
+            <div class="mt-6 flex items-center justify-between" data-app-language-surface>
                 {% if prev_href %}
-                <a href="{{ prev_href }}" class="px-4 py-2 rounded-xl bg-gray-200 hover:bg-gray-300">السابق</a>
+                <a href="{{ prev_href }}" class="px-4 py-2 rounded-xl bg-gray-200 hover:bg-gray-300" data-app-ar="السابق" data-app-de="Zurück">السابق</a>
                 {% else %}
-                <span class="px-4 py-2 rounded-xl bg-gray-100 text-gray-400 cursor-not-allowed">السابق</span>
+                <span class="px-4 py-2 rounded-xl bg-gray-100 text-gray-400 cursor-not-allowed" data-app-ar="السابق" data-app-de="Zurück">السابق</span>
                 {% endif %}
 
                 {% if next_href %}
                 <a href="{{ next_href }}"
-                    class="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700">التالي</a>
+                    class="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700" data-app-ar="التالي" data-app-de="Weiter">التالي</a>
                 {% else %}
-                <span class="px-4 py-2 rounded-xl bg-blue-100 text-blue-300 cursor-not-allowed">التالي</span>
+                <span class="px-4 py-2 rounded-xl bg-blue-100 text-blue-300 cursor-not-allowed" data-app-ar="التالي" data-app-de="Weiter">التالي</span>
                 {% endif %}
             </div>
             {% endif %}
@@ -92,8 +92,8 @@
                     <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>
                 </button>
                 {% else %}
-                <button id="mark-read-btn" class="library-read-button px-4 py-2 rounded bg-green-600 text-white">
-                  تم 
+                <button id="mark-read-btn" class="library-read-button px-4 py-2 rounded bg-green-600 text-white" data-app-ar="تم" data-app-de="Erledigt">
+                  تم
                 </button>
                 {% endif %}
                 <p id="mark-read-msg" class="mt-2 text-sm text-gray-600"></p>

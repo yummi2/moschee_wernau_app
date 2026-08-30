@@ -14,10 +14,10 @@
                 <div class="home-user-summary">
                     <div>
                         <h2 class="text-2xl font-semibold text-black-600">
-                            <span class="home-greeting">السلام عليكم</span>
+                            <span class="home-greeting" data-home-ar="السلام عليكم" data-home-de="Hallo">السلام عليكم</span>
                             <span class="home-user-name">{{ user.username }}</span>
                         </h2>
-                        <p>نتمنى لك يومًا موفقًا</p>
+                        <p data-home-ar="نتمنى لك يومًا موفقًا" data-home-de="Wir wünschen dir einen erfolgreichen Tag.">نتمنى لك يومًا موفقًا</p>
                     </div>
                     <a href="{% url 'profile' %}" class="home-avatar" aria-label="فتح الصفحة الشخصية">
                         {% if profile and profile.avatar %}
@@ -30,29 +30,29 @@
                 {% endif %}
 
                 {% if active_tab != "home" %}
-                <div class="home-section-tabs flex flex-wrap gap-2 mb-2" role="tablist" aria-label="أقسام الصفحة">
+                <div class="home-section-tabs flex flex-wrap gap-2 mb-2" role="tablist" aria-label="أقسام الصفحة" data-app-language-surface>
                     <a href="?tab=assignments" data-home-tab="assignments" role="tab" aria-selected="{% if active_tab == 'assignments' %}true{% else %}false{% endif %}" class="home-section-tab {% if active_tab == 'assignments' %}is-active{% endif %} px-3 py-1 rounded-lg border
            {% if active_tab == 'assignments' %} bg-blue-600 text-white border-blue-600
            {% else %} text-blue-700 hover:bg-blue-50 border-blue-200 {% endif %}">
-                        الواجبات
+                        <span data-app-ar="الواجبات" data-app-de="Hausaufgaben">الواجبات</span>
                     </a>
 
                     <a href="?tab=notes" data-home-tab="notes" role="tab" aria-selected="{% if active_tab == 'notes' %}true{% else %}false{% endif %}" class="home-section-tab {% if active_tab == 'notes' %}is-active{% endif %} px-3 py-1 rounded-lg border
            {% if active_tab == 'notes' %} bg-blue-600 text-white border-blue-600
            {% else %} text-blue-700 hover:bg-blue-50 border-blue-200 {% endif %}">
-                        الملاحظات
+                        <span data-app-ar="الملاحظات" data-app-de="Notizen">الملاحظات</span>
                     </a>
 
                     <a href="?tab=checklist" data-home-tab="checklist" role="tab" aria-selected="{% if active_tab == 'checklist' %}true{% else %}false{% endif %}" class="home-section-tab {% if active_tab == 'checklist' %}is-active{% endif %} px-3 py-1 rounded-lg border
            {% if active_tab == 'checklist' %} bg-blue-600 text-white border-blue-600
            {% else %} text-blue-700 hover:bg-blue-50 border-blue-200 {% endif %}">
-                        ما تم تسميعه
+                        <span data-app-ar="ما تم تسميعه" data-app-de="Lernfortschritt">ما تم تسميعه</span>
                     </a>
                     <a href="?tab=prayer" data-home-tab="prayer" role="tab" aria-selected="{% if active_tab == 'prayer' %}true{% else %}false{% endif %}"
                     class="home-section-tab {% if active_tab == 'prayer' %}is-active{% endif %} px-3 py-1 rounded-lg border
                     {% if active_tab == 'prayer' %} bg-blue-600 text-white border-blue-600
                     {% else %} text-blue-700 hover:bg-blue-50 border-blue-200 {% endif %}">
-                        الصلاة
+                        <span data-app-ar="الصلاة" data-app-de="Gebete">الصلاة</span>
                     </a>
 
                     {% if banner and selected_school_year == "2026" %}
@@ -60,7 +60,7 @@
                     class="home-section-tab {% if active_tab == 'map' %}is-active{% endif %} px-3 py-1 rounded-lg border
                     {% if active_tab == 'map' %} bg-blue-600 text-white border-blue-600
                     {% else %} text-blue-700 hover:bg-blue-50 border-blue-200 {% endif %}">
-                        خريطة المسابقة
+                        <span data-app-ar="خريطة المسابقة" data-app-de="Wettbewerbskarte">خريطة المسابقة</span>
                     </a>
                     {% endif %}
 
@@ -71,15 +71,15 @@
                 {% if active_tab == "home" %}
                 <section class="assignment-stats" aria-label="ملخص الواجبات">
                     <article class="assignment-stat assignment-stat--completed">
-                        <span class="assignment-stat-label">تم إنجازها</span>
+                        <span class="assignment-stat-label" data-home-ar="تم إنجازها" data-home-de="Erledigt">تم إنجازها</span>
                         <strong data-assignment-count="completed">{{ assignment_counts.completed }}</strong>
                     </article>
                     <article class="assignment-stat assignment-stat--urgent">
-                        <span class="assignment-stat-label">عاجلة اليوم</span>
+                        <span class="assignment-stat-label" data-home-ar="عاجلة اليوم" data-home-de="Heute dringend">عاجلة اليوم</span>
                         <strong data-assignment-count="urgent">{{ assignment_counts.urgent }}</strong>
                     </article>
                     <article class="assignment-stat assignment-stat--missed">
-                        <span class="assignment-stat-label">غير مكتملة</span>
+                        <span class="assignment-stat-label" data-home-ar="غير مكتملة" data-home-de="Nicht erledigt">غير مكتملة</span>
                         <strong data-assignment-count="missed">{{ assignment_counts.missed }}</strong>
                     </article>
                 </section>
@@ -87,7 +87,7 @@
                 {% endif %}
 
                 {# --- Inhalt: Hausaufgaben --- #}
-                <div data-home-panel="assignments" role="tabpanel" class="home-tab-panel mt-4 {% if active_tab != 'assignments' %}hidden{% endif %}">
+                <div data-home-panel="assignments" role="tabpanel" class="home-tab-panel mt-4 {% if active_tab != 'assignments' %}hidden{% endif %}" data-app-language-surface>
                     {% if user.is_authenticated and assignments %}
                     <div class="space-y-6">
                         {% for week in assignment_weeks %}
@@ -95,10 +95,10 @@
                             <div class="mb-3 border-b border-gray-200 pb-2">
                                 <h3 id="assignment-week-{{ forloop.counter }}" class="font-semibold text-gray-900">
                                     {% if week.number %}
-                                    الأسبوع
+                                    <span data-app-ar="الأسبوع" data-app-de="Woche">الأسبوع</span>
                                     <bdi dir="ltr">{{ week.number }}</bdi>
                                     {% else %}
-                                    خارج أسابيع الدوام
+                                    <span data-app-ar="خارج أسابيع الدوام" data-app-de="Außerhalb der Schulwochen">خارج أسابيع الدوام</span>
                                     {% endif %}
                                 </h3>
                             </div>
@@ -147,7 +147,7 @@
                                             aria-pressed="{% if a.is_done %}true{% else %}false{% endif %}"
                                             disabled>
                                         <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>
-                                        <span>تم</span>
+                                        <span data-app-ar="تم" data-app-de="Erledigt">تم</span>
                                     </button>
                                     {% endif %}
 
@@ -172,24 +172,24 @@
                                                 {% endif %}
                                             </span>
                                             <div>
-                                                <span class="assignment-dialog-eyebrow">تفاصيل الواجب</span>
+                                                <span class="assignment-dialog-eyebrow" data-app-ar="تفاصيل الواجب" data-app-de="Details zur Hausaufgabe">تفاصيل الواجب</span>
                                                 <h3 class="assignment-dialog-title">{{ a.title }}</h3>
                                             </div>
                                         </header>
                                         <dl class="assignment-dialog-meta">
-                                            <div><dt>المعلم</dt><dd>{{ a.created_by.get_full_name|default:a.created_by.username }}</dd></div>
-                                            <div><dt>الصف</dt><dd>{{ a.classroom.name }}</dd></div>
-                                            <div><dt>التاريخ</dt><dd><bdi dir="ltr">{{ a.created_at|date:"d.m.Y" }}</bdi></dd></div>
+                                            <div><dt data-app-ar="المعلم" data-app-de="Lehrkraft">المعلم</dt><dd>{{ a.created_by.get_full_name|default:a.created_by.username }}</dd></div>
+                                            <div><dt data-app-ar="الصف" data-app-de="Klasse">الصف</dt><dd>{{ a.classroom.name }}</dd></div>
+                                            <div><dt data-app-ar="التاريخ" data-app-de="Datum">التاريخ</dt><dd><bdi dir="ltr">{{ a.created_at|date:"d.m.Y" }}</bdi></dd></div>
                                         </dl>
                                         {% if a.description %}
                                         <section class="assignment-dialog-description">
-                                            <h4>المطلوب</h4>
+                                            <h4 data-app-ar="المطلوب" data-app-de="Aufgabe">المطلوب</h4>
                                             <p>{{ a.description|linebreaksbr }}</p>
                                         </section>
                                         {% endif %}
                                         {% if a.link %}
                                         <a href="{{ a.link }}" target="_blank" rel="noopener noreferrer" class="assignment-dialog-link">
-                                            <span>فتح الرابط</span>
+                                            <span data-app-ar="فتح الرابط" data-app-de="Link öffnen">فتح الرابط</span>
                                             <svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h7v7M10 14 21 3M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>
                                         </a>
                                         {% endif %}
@@ -201,7 +201,7 @@
                                                 aria-pressed="{% if a.is_done %}true{% else %}false{% endif %}"
                                                 {% if a.is_done %}disabled{% endif %}>
                                             <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>
-                                            <span>تم</span>
+                                            <span data-app-ar="تم" data-app-de="Erledigt">تم</span>
                                         </button>
                                         {% endif %}
                                     </template>
@@ -210,7 +210,7 @@
                             </ul>
                             {% if week.assignments|length > 1 %}
                             <div class="assignment-scroll-status">
-                                <span>{{ week.assignments|length }} واجبات</span>
+                                <span><bdi dir="ltr">{{ week.assignments|length }}</bdi> <span data-app-ar="واجبات" data-app-de="Hausaufgaben">واجبات</span></span>
                                 <div class="assignment-scroll-track"
                                      role="progressbar"
                                      aria-label="موضع التمرير"
@@ -244,7 +244,9 @@
                                     const template = document.getElementById(button.dataset.details);
                                     if (!template) return;
                                     content.replaceChildren(template.content.cloneNode(true));
+                                    window.applyAppLanguage?.();
                                     dialog.className = `assignment-dialog assignment-dialog--${button.dataset.color}`;
+                                    dialog.dir = localStorage.getItem("registrationLanguage") === "de" ? "ltr" : "rtl";
                                     dialog.showModal();
                                 });
                             });
@@ -372,12 +374,12 @@
                         })();
                     </script>
                     {% else %}
-                    <p class="text-gray-600">لا توجد واجبات (ربما لم يتم تعيينك إلى صف بعد).</p>
+                    <p class="text-gray-600" data-app-ar="لا توجد واجبات (ربما لم يتم تعيينك إلى صف بعد)." data-app-de="Es gibt keine Hausaufgaben. Möglicherweise wurdest du noch keiner Klasse zugeordnet.">لا توجد واجبات (ربما لم يتم تعيينك إلى صف بعد).</p>
                     {% endif %}
                 </div>
 
                 {# --- Inhalt: Notizen --- #}
-                <div data-home-panel="notes" role="tabpanel" class="home-tab-panel notes-panel mt-4 {% if active_tab != 'notes' %}hidden{% endif %}">
+                <div data-home-panel="notes" role="tabpanel" class="home-tab-panel notes-panel mt-4 {% if active_tab != 'notes' %}hidden{% endif %}" data-app-language-surface>
                     {% if teacher_notes and teacher_notes|length > 0 %}
                     <ul class="notes-list">
                         {% for n in teacher_notes %}
@@ -386,9 +388,9 @@
                                 <span class="note-card-person">
                                     <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4.5 21a7.5 7.5 0 0 1 15 0"/></svg>
                                     {% if is_teacher %}
-                                    <span><small>إلى</small>{{n.student.get_full_name|default:n.student.username}}</span>
+                                    <span><small data-app-ar="إلى" data-app-de="An">إلى</small>{{n.student.get_full_name|default:n.student.username}}</span>
                                     {% else %}
-                                    <span><small>من</small>{{n.teacher.get_full_name|default:n.teacher.username}}</span>
+                                    <span><small data-app-ar="من" data-app-de="Von">من</small>{{n.teacher.get_full_name|default:n.teacher.username}}</span>
                                     {% endif %}
                                 </span>
                                 <time class="note-card-date" datetime="{{ n.created_at|date:'c' }}">
@@ -396,7 +398,7 @@
                                     <bdi dir="ltr">{{ n.created_at|date:"d.m.Y H:i" }}</bdi>
                                 </time>
                             </div>
-                            {% if n.classroom %}<span class="note-card-class">الصف {{ n.classroom.name }}</span>{% endif %}
+                            {% if n.classroom %}<span class="note-card-class"><span data-app-ar="الصف" data-app-de="Klasse">الصف</span> {{ n.classroom.name }}</span>{% endif %}
                             <p class="note-card-body">{{ n.body|linebreaksbr }}</p>
                         </li>
                         {% endfor %}
@@ -406,16 +408,15 @@
                         <span aria-hidden="true">
                             <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z"/><path d="M9 11h6"/></svg>
                         </span>
-                        <strong>لا توجد ملاحظات حتى الآن</strong>
-                        <p>ستظهر الملاحظات الجديدة هنا عند إضافتها.</p>
+                        <strong data-app-ar="لا توجد ملاحظات حتى الآن" data-app-de="Noch keine Notizen vorhanden">لا توجد ملاحظات حتى الآن</strong>
+                        <p data-app-ar="ستظهر الملاحظات الجديدة هنا عند إضافتها." data-app-de="Neue Notizen werden hier angezeigt, sobald sie hinzugefügt wurden.">ستظهر الملاحظات الجديدة هنا عند إضافتها.</p>
                     </div>
                     {% endif %}
                 </div>
 
 
                 <!-- --- Inhalt: ما تم تسميعه (Checkliste) --- -->
-                <div data-home-panel="checklist" role="tabpanel" class="home-tab-panel mt-4 {% if active_tab != 'checklist' %}hidden{% endif %}">
-                    <h4 class="font-semibold text-blue-700 mb-3">ما تم تسميعه</h4>
+                <div data-home-panel="checklist" role="tabpanel" class="home-tab-panel mt-4 {% if active_tab != 'checklist' %}hidden{% endif %}" data-app-language-surface>
                     {% if checklist_items %}
                     <ul class="space-y-2">
                         {% for it in checklist_items %}
@@ -426,24 +427,24 @@
                         {% endfor %}
                     </ul>
                     {% else %}
-                    <p class="text-gray-500">لا توجد عناصر.</p>
+                    <p class="text-gray-500" data-app-ar="لا توجد عناصر." data-app-de="Es sind keine Einträge vorhanden.">لا توجد عناصر.</p>
                     {% endif %}
                 </div>
                 {# --- Inhalt: الصلاة --- #}
-                <section data-home-panel="prayer" role="tabpanel" class="home-tab-panel prayer-panel {% if active_tab != 'prayer' %}hidden{% endif %}">
+                <section data-home-panel="prayer" role="tabpanel" class="home-tab-panel prayer-panel {% if active_tab != 'prayer' %}hidden{% endif %}" data-app-language-surface>
                 <div class="prayer-week-nav">
                 <!-- السابق -->
                 {% if has_prev_prayer_week %}
                 <a href="?tab=prayer&date={{ prev_week_date|date:'Y-m-d' }}" class="prayer-week-button">
-                     السابق
+                     <span data-app-ar="السابق" data-app-de="Zurück">السابق</span>
                 </a>
                 {% else %}
-                <span class="prayer-week-button is-disabled" aria-disabled="true">السابق</span>
+                <span class="prayer-week-button is-disabled" aria-disabled="true" data-app-ar="السابق" data-app-de="Zurück">السابق</span>
                 {% endif %}
 
                 <!-- Überschrift -->
                 <h4 class="prayer-week-title">
-                    صلوات الأسبوع
+                    <span data-app-ar="صلوات الأسبوع" data-app-de="Gebete der Woche">صلوات الأسبوع</span>
                     <span>
                         <bdi dir="ltr">{{ week_days.0.date|date:"d.m" }} – {{ week_days.6.date|date:"d.m.Y" }}</bdi>
                     </span>
@@ -452,10 +453,10 @@
                 <!-- التالي -->
                 {% if has_next_prayer_week %}
                 <a href="?tab=prayer&date={{ next_week_date|date:'Y-m-d' }}" class="prayer-week-button">
-                    التالي
+                    <span data-app-ar="التالي" data-app-de="Weiter">التالي</span>
                 </a>
                 {% else %}
-                <span class="prayer-week-button is-disabled" aria-disabled="true">التالي</span>
+                <span class="prayer-week-button is-disabled" aria-disabled="true" data-app-ar="التالي" data-app-de="Weiter">التالي</span>
                 {% endif %}
 
 
@@ -466,10 +467,10 @@
                 <table class="prayer-table">
                     <thead>
                         <tr>
-                            <th>الصلاة</th>
+                            <th data-app-ar="الصلاة" data-app-de="Gebet">الصلاة</th>
                             {% for d in week_days %}
                             <th>
-                                <span>{{ d.weekday_ar }}</span>
+                                <span data-app-ar="{{ d.weekday_ar }}" data-app-de="{{ d.weekday_de }}">{{ d.weekday_ar }}</span>
                                 <bdi dir="ltr">{{ d.day }}.{{ d.month }}</bdi>
                             </th>
                         {% endfor %}
@@ -479,7 +480,7 @@
                     <tbody>
                         {% for p in weekly_prayers %}
                         <tr>
-                            <th scope="row">{{ p.name }}</th>
+                            <th scope="row" data-app-ar="{{ p.name }}" data-app-de="{{ p.name_de }}">{{ p.name }}</th>
 
                             {% for day in p.days %}
                             <td>
@@ -685,6 +686,26 @@
                     requestAnimationFrame(updateCounter);
                 });
             });
+            </script>
+
+            <script>
+            (() => {
+                const card = document.querySelector(".home-dashboard-card.is-home-overview");
+                if (!card) return;
+
+                const applyLanguage = (language) => {
+                    const isGerman = language === "de";
+                    card.dir = isGerman ? "ltr" : "rtl";
+                    card.lang = language;
+                    card.classList.toggle("is-german", isGerman);
+                    card.querySelectorAll("[data-home-ar][data-home-de]").forEach((element) => {
+                        element.textContent = isGerman ? element.dataset.homeDe : element.dataset.homeAr;
+                    });
+                };
+
+                applyLanguage(localStorage.getItem("registrationLanguage") === "de" ? "de" : "ar");
+                window.addEventListener("app-language-change", (event) => applyLanguage(event.detail.language));
+            })();
             </script>
 
 

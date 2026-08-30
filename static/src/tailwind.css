@@ -194,6 +194,44 @@ body {
   display: none;
 }
 
+.app-language-toggle {
+  display: flex;
+  width: 100%;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  margin-block-start: 0.75rem;
+  border: 1px solid rgb(234 217 183 / 42%);
+  border-radius: 0.85rem;
+  background: rgb(245 234 212 / 10%);
+  padding: 0.5rem 0.75rem;
+  color: #f5ead4;
+  font-size: 0.78rem;
+  font-weight: 750;
+  line-height: 1.5;
+  cursor: pointer;
+  transition: color 180ms ease, background-color 180ms ease, transform 180ms ease;
+}
+
+.app-language-toggle svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+}
+
+.app-language-toggle:hover {
+  background: rgb(245 234 212 / 18%);
+  color: #fff;
+}
+
+.app-language-toggle:focus-visible {
+  outline: 2px solid #f5ead4;
+  outline-offset: 2px;
+}
+
 .app-bottom-nav {
   display: none;
 }
@@ -332,6 +370,19 @@ body {
     padding-right: 17.5rem;
   }
 
+  html.app-language-german body {
+    padding-right: 0;
+    padding-left: 17.5rem;
+  }
+
+  html.app-language-german body .app-sidebar {
+    right: auto;
+    left: 0;
+    border-right: 1px solid rgb(234 217 183 / 24%);
+    border-left: 0;
+    box-shadow: 14px 0 42px rgb(4 29 23 / 18%);
+  }
+
   .app-sidebar {
     padding-block: clamp(0.55rem, 1.8vh, 1.5rem);
     overflow-y: hidden;
@@ -366,7 +417,8 @@ body {
     position: sticky;
     inset-block-start: 0;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 0.55rem;
     align-items: center;
     width: 100%;
     right: auto;
@@ -401,6 +453,24 @@ body {
     color: #fff;
     box-shadow: 0 7px 16px rgb(11 73 56 / 22%);
     cursor: pointer;
+  }
+
+  .app-language-toggle {
+    display: grid;
+    width: 2.75rem;
+    height: 2.75rem;
+    min-height: 2.75rem;
+    margin: 0;
+    place-items: center;
+    border-color: rgb(234 217 183 / 72%);
+    background: #f5ead4;
+    padding: 0;
+    color: #082f25;
+    box-shadow: 0 7px 16px rgb(4 29 23 / 18%);
+  }
+
+  .app-language-toggle span {
+    display: none;
   }
 
   .app-menu-toggle svg {
@@ -659,6 +729,10 @@ body {
   margin-block-end: 0.9rem;
 }
 
+html.app-language-german .mini-calendar-header {
+  flex-direction: row-reverse;
+}
+
 .mini-calendar-title {
   color: #0f172a;
   font-weight: 700;
@@ -833,6 +907,15 @@ body {
   margin-block-end: 1rem;
   font-family: "Segoe UI", Tahoma, Arial, sans-serif;
   letter-spacing: normal;
+}
+
+.home-dashboard-card.is-home-overview {
+  position: relative;
+}
+
+.home-dashboard-card.is-home-overview.is-german .home-user-summary,
+.home-dashboard-card.is-home-overview.is-german .assignment-stats {
+  direction: ltr;
 }
 
 .home-user-summary p {
@@ -1103,6 +1186,16 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+@media (min-width: 40rem) {
+  html.app-language-german .profile-page .app-content-card {
+    justify-content: flex-start;
+  }
+
+  html.app-language-german .profile-page [data-app-language-surface] {
+    text-align: left;
+  }
 }
 
 .mini-calendar-legend {
@@ -2197,6 +2290,14 @@ button.prayer-status:focus-visible {
   outline-offset: 3px;
 }
 
+html.app-language-german .library-levels-shell .library-section-title,
+html.app-language-german .library-level-card > div,
+html.app-language-german .library-list-shell .library-list-content,
+html.app-language-german .library-sentence-card,
+html.app-language-german .library-list-shell .text-right {
+  text-align: left;
+}
+
 .library-page {
   width: 100%;
 }
@@ -2635,8 +2736,17 @@ button.prayer-status:focus-visible {
   letter-spacing: normal;
   text-align: center;
   text-decoration: none;
+  cursor: pointer;
   box-shadow: 0 4px 12px rgb(11 73 56 / 8%);
   transition: transform 180ms ease, background-color 180ms ease, color 180ms ease, box-shadow 180ms ease;
+}
+
+.ramadan-eid-dialog .ramadan-drawing-dialog-card {
+  width: min(94vw, 48rem);
+}
+
+.ramadan-eid-dialog .ramadan-drawing-dialog-preview img {
+  max-height: 72dvh;
 }
 
 .ramadan-days-grid-legacy {

@@ -2,25 +2,25 @@
 {% block title %}نتائج رمضان{% endblock %}
 
 {% block content %}
-<div class="app-page-frame" dir="rtl">
+<div class="app-page-frame ramadan-results-page" dir="rtl">
   <div class="app-content-card ramadan-results-card bg-white rounded-2xl shadow p-6">
     {% if selected_school_year == "2027" %}
-    <header class="ramadan-results-heading">
-      <span>رحلة الإنجاز</span>
-      <h1>نتائج مسابقة رمضان</h1>
-      <p>أكمل مهام اليوم لتضيء فانوسًا جديدًا في سماء رمضان.</p>
+    <header class="ramadan-results-heading" data-app-language-surface>
+      <span data-app-ar="رحلة الإنجاز" data-app-de="Deine Ramadan-Reise">رحلة الإنجاز</span>
+      <h1 data-app-ar="نتائج مسابقة رمضان" data-app-de="Ergebnisse des Ramadan-Wettbewerbs">نتائج مسابقة رمضان</h1>
+      <p data-app-ar="أكمل مهام اليوم لتضيء فانوسًا جديدًا في سماء رمضان." data-app-de="Erledige die Aufgaben des Tages und bringe eine neue Laterne am Ramadan-Himmel zum Leuchten.">أكمل مهام اليوم لتضيء فانوسًا جديدًا في سماء رمضان.</p>
     </header>
 
     {% include "core/_ramadan_night_progress.html" %}
     {% else %}
-    <header class="ramadan-results-heading">
-      <span>ملخص الإنجاز</span>
-      <h1>نتائج شهر رمضان</h1>
+    <header class="ramadan-results-heading" data-app-language-surface>
+      <span data-app-ar="ملخص الإنجاز" data-app-de="Fortschrittsübersicht">ملخص الإنجاز</span>
+      <h1 data-app-ar="نتائج شهر رمضان" data-app-de="Deine Ramadan-Ergebnisse">نتائج شهر رمضان</h1>
     </header>
-    <div class="ramadan-results-list">
+    <div class="ramadan-results-list" data-app-language-surface>
       {% for r in rows %}
       <article class="ramadan-result-row">
-        <div><strong>{{ r.label }}</strong><bdi dir="ltr">{{ r.done }} / {{ r.total }}</bdi></div>
+        <div><strong data-app-ar="{{ r.label }}" data-app-de="{{ r.label_de }}">{{ r.label }}</strong><bdi dir="ltr">{{ r.done }} / {{ r.total }}</bdi></div>
         <div class="ramadan-progress-track" role="progressbar" aria-label="{{ r.label }}" aria-valuemin="0" aria-valuemax="{{ r.total }}" aria-valuenow="{{ r.done }}">
           <span style="width: {{ r.percent }}%"></span>
         </div>
