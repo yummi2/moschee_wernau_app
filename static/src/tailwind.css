@@ -365,6 +365,26 @@ body {
   cursor: pointer;
 }
 
+.app-instagram-link {
+  margin-block-start: auto;
+  color: #9f5d82;
+}
+
+.school-year-switch + .app-instagram-link,
+.app-instagram-link + .app-logout {
+  margin-block-start: 0;
+}
+
+.app-instagram-link:hover {
+  background: rgb(159 93 130 / 10%);
+  color: #7c3f67;
+}
+
+.app-instagram-link .app-instagram-dot {
+  fill: currentColor;
+  stroke: none;
+}
+
 .app-logout:hover {
   background: #fef2f2;
   color: #991b1b;
@@ -542,6 +562,10 @@ html.app-language-german body.app-shell-page {
   }
 
   .app-logout {
+    margin-block-start: 0;
+  }
+
+  .app-instagram-link {
     margin-block-start: 0;
   }
 
@@ -3899,6 +3923,15 @@ body:not(.login-auth-page):not(.registration-auth-page)::after {
 
 .app-sidebar .app-logout:hover {
   background: rgb(254 226 226 / 12%);
+  color: #ffffff;
+}
+
+.app-sidebar .app-instagram-link {
+  color: #f2c8df;
+}
+
+.app-sidebar .app-instagram-link:hover {
+  background: rgb(242 200 223 / 12%);
   color: #ffffff;
 }
 
