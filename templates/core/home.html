@@ -241,9 +241,13 @@
                                     const template = document.getElementById(button.dataset.details);
                                     if (!template) return;
                                     content.replaceChildren(template.content.cloneNode(true));
+                                    const isGerman = localStorage.getItem("registrationLanguage") === "de";
+                                    content.querySelectorAll("[data-app-ar][data-app-de]").forEach((element) => {
+                                        element.textContent = isGerman ? element.dataset.appDe : element.dataset.appAr;
+                                    });
                                     window.applyAppLanguage?.();
                                     dialog.className = `assignment-dialog assignment-dialog--${button.dataset.color}`;
-                                    dialog.dir = localStorage.getItem("registrationLanguage") === "de" ? "ltr" : "rtl";
+                                    dialog.dir = isGerman ? "ltr" : "rtl";
                                     dialog.showModal();
                                 });
                             });

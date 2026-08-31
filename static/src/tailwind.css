@@ -895,8 +895,8 @@ html.app-language-german .mini-calendar-header {
 
 .mini-calendar-table .cal-day.calendar-final > span,
 .calendar-final:not(.cal-day) {
-  background: #c99b4a;
-  color: #fffdf8;
+  background: #76649b;
+  color: #ffffff;
 }
 
 .calendar-today {
@@ -1075,7 +1075,10 @@ html.app-language-german .mini-calendar-header {
     gap: 0.2rem 0.35rem;
     margin-block-start: 0.2rem;
     padding-block-start: 0.3rem;
-    font-size: 0.62rem;
+    color: #334155;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.6;
   }
 
   .home-user-summary {
@@ -1210,8 +1213,9 @@ html.app-language-german .mini-calendar-header {
   margin-block-start: 1rem;
   border-block-start: 1px solid #e2e8f0;
   padding-block-start: 0.9rem;
-  color: #475569;
-  font-size: 0.72rem;
+  color: #334155;
+  font-size: 0.8rem;
+  font-weight: 700;
   line-height: 1.5;
 }
 
@@ -2386,6 +2390,26 @@ html.app-language-german [data-home-panel="assignments"] .assignment-row-shell {
 html.app-language-german [data-home-panel="assignments"] .assignment-row {
   direction: ltr;
   justify-content: flex-start;
+}
+
+html.app-language-german [data-home-panel="assignments"] .assignment-card,
+html.app-language-german [data-home-panel="assignments"] .assignment-card-trigger {
+  direction: ltr;
+  text-align: left;
+}
+
+html.app-language-german [data-home-panel="assignments"] .assignment-card-icon,
+html.app-language-german [data-home-panel="assignments"] .assignment-card-title,
+html.app-language-german [data-home-panel="assignments"] .assignment-card-date {
+  align-self: flex-start;
+}
+
+html.app-language-german .assignment-dialog,
+html.app-language-german .assignment-dialog-header,
+html.app-language-german .assignment-dialog-meta,
+html.app-language-german .assignment-dialog-description {
+  direction: ltr;
+  text-align: left;
 }
 
 .library-page {
@@ -5906,7 +5930,17 @@ body.auth-page {
 @media (max-width: 39.999rem) {
   body.app-shell-page .calendar-page-heading {
     padding-block-start: 1.5rem;
-    padding-inline: 1.5rem;
+    padding-inline: 0;
+  }
+
+  body.app-shell-page .calendar-page.app-content-card {
+    width: 100%;
+    max-width: none;
+    padding-inline: 0;
+  }
+
+  body.app-shell-page .calendar-page .mini-calendar-table {
+    border-spacing: 0.08rem 0.38rem;
   }
 
   html.app-language-german .library-list-shell .library-list-content h2,
