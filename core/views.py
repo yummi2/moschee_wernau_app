@@ -182,15 +182,14 @@ def registration_information(request):
             for part in data["phone_numbers"].replace("،", ",").split(",")
         ]
         invalid_phone = any(
-            not number
-            or (number.startswith("+") and (not number[1:].isdigit() or len(number[1:]) > 15))
-            or (not number.startswith("+") and (not number.isdigit() or len(number) > 15))
+            not (number[1:] if number.startswith("+") else number).isdigit()
+            or not 7 <= len(number[1:] if number.startswith("+") else number) <= 15
             for number in phone_numbers
         )
         if len(phone_numbers) > 2 or invalid_phone:
             return error_response(
-                "يرجى إدخال رقم أو رقمين صحيحين، وبحد أقصى 15 رقمًا لكل رقم. يمكن أن يبدأ الرقم بـ 0 أو 0049 أو +49.",
-                "Bitte geben Sie höchstens zwei gültige Telefonnummern mit jeweils maximal 15 Ziffern ein. Die Nummer darf mit 0, 0049 oder +49 beginnen.",
+                "يرجى إدخال رقم أو رقمين صحيحين، من 7 إلى 15 رقمًا لكل رقم. يمكن أن يبدأ الرقم بـ 0 أو 0049 أو +49، لكن +49 وحدها ليست رقم هاتف.",
+                "Bitte geben Sie höchstens zwei gültige Telefonnummern mit jeweils 7 bis 15 Ziffern ein. Die Nummer darf mit 0, 0049 oder +49 beginnen; +49 allein ist jedoch keine Telefonnummer.",
             )
         if data["photo_permission"] not in {"yes", "no"} or data["program"] not in {
             "arabic_and_religion", "religion_only", "arabic_only"

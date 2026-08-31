@@ -392,6 +392,24 @@
       renderCalendar();
     }
 
+    const phoneErrorMessage = isGerman
+      ? "Bitte geben Sie eine gültige Telefonnummer mit 7 bis 15 Ziffern ein. +49 allein ist keine Telefonnummer."
+      : "يرجى إدخال رقم هاتف صحيح يتكوّن من 7 إلى 15 رقمًا. ‎+49 وحدها ليست رقم هاتف.";
+
+    const validatePhoneNumbers = () => {
+      if (!phoneInput) return true;
+      const numbers = phoneInput.value
+        .replace(/،/g, ",")
+        .split(",")
+        .map((number) => number.replace(/\s/g, ""));
+      const valid = numbers.length <= 2 && numbers.every((number) => {
+        const digits = number.startsWith("+") ? number.slice(1) : number;
+        return /^[0-9٠-٩]{7,15}$/.test(digits);
+      });
+      phoneInput.setCustomValidity(valid ? "" : phoneErrorMessage);
+      return valid;
+    };
+
     phoneInput?.addEventListener("input", () => {
       const parts = phoneInput.value
         .replace(/،/g, ",")
@@ -405,6 +423,7 @@
           return `${prefix}${digits}`;
         });
       phoneInput.value = parts.join(", ");
+      validatePhoneNumbers();
     });
 
     phonePrefixButton?.addEventListener("click", () => {
@@ -462,9 +481,11 @@
       field.setAttribute("aria-invalid", "true");
       const error = document.createElement("span");
       error.className = "registration-field-error";
-      error.textContent = field.type === "email" && field.value
-        ? (isGerman ? "Bitte geben Sie eine gültige E-Mail-Adresse ein." : "يرجى إدخال بريد إلكتروني صحيح.")
-        : (isGerman ? "Bitte füllen Sie das Feld oben aus." : "يرجى تعبئة الحقل أعلاه.");
+      error.textContent = field === phoneInput && field.value
+        ? phoneErrorMessage
+        : field.type === "email" && field.value
+          ? (isGerman ? "Bitte geben Sie eine gültige E-Mail-Adresse ein." : "يرجى إدخال بريد إلكتروني صحيح.")
+          : (isGerman ? "Bitte füllen Sie das Feld oben aus." : "يرجى تعبئة الحقل أعلاه.");
       owner.appendChild(error);
     };
 
@@ -476,6 +497,7 @@
     detailsForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       if (submitFeedback) submitFeedback.hidden = true;
+      validatePhoneNumbers();
       let firstInvalid = null;
       detailsForm.querySelectorAll("[required]").forEach((field) => {
         const valid = field.type === "radio"
