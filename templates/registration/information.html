@@ -104,8 +104,12 @@
           </fieldset>
           <label class="registration-field registration-field--wide">
             <span>رقم الهاتف</span>
-            <input type="tel" name="phone_numbers" id="registrationPhoneNumbers" inputmode="tel" autocomplete="tel" placeholder="مثال:01234567891 ، 01234567891" required>
-            <small>يمكن إدخال رقم أو رقمين وعند إضافة رقم ثانٍ افصل بينهما بفاصلة.</small>
+            <input type="tel" name="phone_numbers" id="registrationPhoneNumbers" inputmode="tel" autocomplete="tel" maxlength="36" placeholder="مثال: 017612345678، 004917612345678 أو +4917612345678" required>
+            <span class="registration-phone-actions">
+              <button type="button" data-phone-prefix>+49</button>
+              <button type="button" data-phone-separator data-app-ar="إضافة رقم ثانٍ" data-app-de="Zweite Nummer">إضافة رقم ثانٍ</button>
+            </span>
+            <small>يمكن إدخال رقم أو رقمين وعند إضافة رقم ثانٍ اضغط على إضافة رقم ثان لتفصل بينهما بفاصلة.</small>
           </label>
           <label class="registration-field registration-field--wide">
             <span>البريد الإلكتروني</span>
@@ -174,7 +178,7 @@
   </div>
 </section>
 
-<script src="{% static 'js/registration-language.js' %}?v=20260830-3"></script>
+<script src="{% static 'js/registration-language.js' %}?v=20260831-4"></script>
 <script>
   (() => {
     const isGerman = window.registrationLanguage === "de";
@@ -191,6 +195,8 @@
     const successPanel = document.getElementById("registrationSuccessPanel");
     const anotherChildButton = document.getElementById("registrationAnotherChild");
     const phoneInput = document.getElementById("registrationPhoneNumbers");
+    const phonePrefixButton = document.querySelector("[data-phone-prefix]");
+    const phoneSeparatorButton = document.querySelector("[data-phone-separator]");
     const birthDate = document.getElementById("registrationBirthDate");
     const submitButton = document.getElementById("registrationSubmitButton");
     const submitFeedback = document.getElementById("registrationSubmitFeedback");
@@ -389,11 +395,39 @@
     phoneInput?.addEventListener("input", () => {
       const parts = phoneInput.value
         .replace(/،/g, ",")
-        .replace(/[^0-9٠-٩,]/g, "")
+        .replace(/[^+0-9٠-٩,\s]/g, "")
         .split(",")
         .slice(0, 2)
-        .map((number) => Array.from(number).slice(0, 11).join(""));
+        .map((number) => {
+          const compact = number.replace(/\s/g, "");
+          const prefix = compact.startsWith("+") ? "+" : "";
+          const digits = compact.replace(/\+/g, "").slice(0, 15);
+          return `${prefix}${digits}`;
+        });
       phoneInput.value = parts.join(", ");
+    });
+
+    phonePrefixButton?.addEventListener("click", () => {
+      if (!phoneInput) return;
+      const parts = phoneInput.value.replace(/،/g, ",").split(",").slice(0, 2);
+      const lastIndex = parts.length - 1;
+      if (!parts[lastIndex].trim()) parts[lastIndex] = "+49";
+      phoneInput.value = parts.join(", ");
+      phoneInput.dispatchEvent(new Event("input", { bubbles: true }));
+      phoneInput.focus();
+      phoneInput.setSelectionRange(phoneInput.value.length, phoneInput.value.length);
+    });
+
+    phoneSeparatorButton?.addEventListener("click", () => {
+      if (!phoneInput || phoneInput.value.includes(",")) return;
+      if (!phoneInput.value.trim()) {
+        phoneInput.focus();
+        return;
+      }
+      phoneInput.value = `${phoneInput.value.trim()}, `;
+      phoneInput.dispatchEvent(new Event("input", { bubbles: true }));
+      phoneInput.focus();
+      phoneInput.setSelectionRange(phoneInput.value.length, phoneInput.value.length);
     });
 
     detailsForm.querySelectorAll("[data-numeric-only]").forEach((field) => {

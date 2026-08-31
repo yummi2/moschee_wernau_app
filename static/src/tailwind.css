@@ -5072,6 +5072,32 @@ body.auth-page {
   resize: vertical;
 }
 
+.registration-phone-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-block-start: 0.55rem;
+}
+
+.registration-phone-actions button {
+  min-height: 2.4rem;
+  border: 1px solid #d8c49d;
+  border-radius: 999px;
+  background: #fffdf8;
+  padding-inline: 0.85rem;
+  color: #0b4938;
+  font-size: 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background-color 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+
+.registration-phone-actions button:hover {
+  border-color: #17805e;
+  background: #edf8f2;
+  transform: translateY(-1px);
+}
+
 .registration-field small,
 .registration-choice-group > p {
   color: #64748b;

@@ -176,11 +176,21 @@ def registration_information(request):
             validate_email(data["parent_email"])
         except ValidationError:
             return error_response("يرجى إدخال بريد إلكتروني صحيح.", "Bitte geben Sie eine gültige E-Mail-Adresse ein.")
-        phone_numbers = [part.strip().replace(" ", "") for part in data["phone_numbers"].replace("،", ",").split(",")]
-        if len(phone_numbers) > 2 or any(not number.isdigit() or len(number) > 11 for number in phone_numbers):
+        arabic_digits = str.maketrans("٠١٢٣٤٥٦٧٨٩", "0123456789")
+        phone_numbers = [
+            part.strip().replace(" ", "").translate(arabic_digits)
+            for part in data["phone_numbers"].replace("،", ",").split(",")
+        ]
+        invalid_phone = any(
+            not number
+            or (number.startswith("+") and (not number[1:].isdigit() or len(number[1:]) > 15))
+            or (not number.startswith("+") and (not number.isdigit() or len(number) > 15))
+            for number in phone_numbers
+        )
+        if len(phone_numbers) > 2 or invalid_phone:
             return error_response(
-                "يرجى إدخال رقم أو رقمين فقط، وبحد أقصى 11 رقمًا لكل رقم.",
-                "Bitte geben Sie höchstens zwei Telefonnummern mit jeweils maximal 11 Ziffern ein.",
+                "يرجى إدخال رقم أو رقمين صحيحين، وبحد أقصى 15 رقمًا لكل رقم. يمكن أن يبدأ الرقم بـ 0 أو 0049 أو +49.",
+                "Bitte geben Sie höchstens zwei gültige Telefonnummern mit jeweils maximal 15 Ziffern ein. Die Nummer darf mit 0, 0049 oder +49 beginnen.",
             )
         if data["photo_permission"] not in {"yes", "no"} or data["program"] not in {
             "arabic_and_religion", "religion_only", "arabic_only"
