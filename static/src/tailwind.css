@@ -1251,6 +1251,12 @@ html.app-language-german .mini-calendar-header {
   outline-offset: 4px;
 }
 
+@media (hover: none), (pointer: coarse) {
+  .assignment-row:focus-visible {
+    outline: none;
+  }
+}
+
 .assignment-card {
   position: relative;
   flex: 0 0 14rem;
@@ -1505,6 +1511,12 @@ html.app-language-german .mini-calendar-header {
 .assignment-card-trigger:focus-visible {
   outline: 2px solid #2563eb;
   outline-offset: -4px;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .assignment-card-trigger:focus-visible {
+    outline: none;
+  }
 }
 
 .assignment-card-icon {
