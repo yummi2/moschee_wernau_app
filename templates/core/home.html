@@ -540,7 +540,7 @@
     </div>
 </div>
             <script>
-            document.addEventListener("DOMContentLoaded", () => {
+            (() => {
                 const tabs = Array.from(document.querySelectorAll("[data-home-tab]"));
                 const panels = Array.from(document.querySelectorAll("[data-home-panel]"));
                 if (!tabs.length || !panels.length) return;
@@ -622,7 +622,7 @@
 
                 const initialTab = new URL(window.location.href).searchParams.get("tab") || "home";
                 showTab(initialTab);
-            });
+            })();
             </script>
             <script>
             document.addEventListener("DOMContentLoaded", () => {
