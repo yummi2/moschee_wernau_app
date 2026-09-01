@@ -152,6 +152,7 @@
     document.querySelectorAll("[data-ios-login-guard]").forEach((field) => {
       const unlockField = () => {
         field.readOnly = false;
+        field.autocomplete = field.dataset.iosAutocomplete || "off";
         field.removeAttribute("data-ios-login-guard");
       };
       const unlockAndFocusField = (event) => {
@@ -168,6 +169,12 @@
       field.addEventListener("pointerdown", unlockField, { once: true });
       field.addEventListener("touchstart", unlockField, { once: true, passive: true });
       field.addEventListener("touchend", unlockAndFocusField, { once: true });
+    });
+
+    window.addEventListener("pageshow", () => {
+      const activeField = document.activeElement;
+      if (activeField?.matches?.("[data-ios-login-guard]")) activeField.blur();
+      window.getSelection?.()?.removeAllRanges();
     });
 
     const fieldsAreAutofilled = () => {
