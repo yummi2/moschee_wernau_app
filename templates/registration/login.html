@@ -154,8 +154,20 @@
         field.readOnly = false;
         field.removeAttribute("data-ios-login-guard");
       };
+      const unlockAndFocusField = (event) => {
+        event.preventDefault();
+        unlockField();
+        field.focus({ preventScroll: true });
+        const cursorPosition = field.value.length;
+        try {
+          field.setSelectionRange(cursorPosition, cursorPosition);
+        } catch (error) {
+          // Some iOS input types do not expose a selectable text range.
+        }
+      };
       field.addEventListener("pointerdown", unlockField, { once: true });
       field.addEventListener("touchstart", unlockField, { once: true, passive: true });
+      field.addEventListener("touchend", unlockAndFocusField, { once: true });
     });
 
     const fieldsAreAutofilled = () => {
