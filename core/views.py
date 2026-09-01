@@ -137,6 +137,11 @@ def selected_school_year_ranges(request):
 class SchoolLoginView(LoginView):
     template_name = "registration/login.html"
 
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields["username"].widget.attrs.pop("autofocus", None)
+        return form
+
     def form_valid(self, form):
         response = super().form_valid(form)
         self.request.session.set_expiry(settings.SESSION_COOKIE_AGE)
