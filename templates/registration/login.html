@@ -149,6 +149,15 @@
     let credentialFillDetected = false;
     let credentialSelectionArmed = false;
 
+    document.querySelectorAll("[data-ios-login-guard]").forEach((field) => {
+      const unlockField = () => {
+        field.readOnly = false;
+        field.removeAttribute("data-ios-login-guard");
+      };
+      field.addEventListener("pointerdown", unlockField, { once: true });
+      field.addEventListener("touchstart", unlockField, { once: true, passive: true });
+    });
+
     const fieldsAreAutofilled = () => {
       if (!username || !password) return false;
       try {

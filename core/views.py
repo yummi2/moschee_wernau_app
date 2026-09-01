@@ -140,6 +140,13 @@ class SchoolLoginView(LoginView):
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
         form.fields["username"].widget.attrs.pop("autofocus", None)
+        user_agent = self.request.headers.get("User-Agent", "").lower()
+        if any(device in user_agent for device in ("iphone", "ipad", "ipod")):
+            for field_name in ("username", "password"):
+                form.fields[field_name].widget.attrs.update({
+                    "readonly": True,
+                    "data-ios-login-guard": "",
+                })
         return form
 
     def form_valid(self, form):
