@@ -4405,12 +4405,6 @@ body.auth-page {
   box-shadow: 0 0 0 4px rgb(34 197 94 / 12%);
 }
 
-.login-input-wrap input[data-ios-login-guard]:focus {
-  border-color: #d8e4da;
-  background: #f8fbf8;
-  box-shadow: none;
-}
-
 .login-input-wrap input:-webkit-autofill {
   -webkit-box-shadow: 0 0 0 1000px #f8fbf8 inset;
   -webkit-text-fill-color: #0f172a;

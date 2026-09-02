@@ -149,26 +149,6 @@
     let credentialFillDetected = false;
     let credentialSelectionArmed = false;
 
-    const iosGuardedFields = [...document.querySelectorAll("[data-ios-login-guard]")];
-    const iosLoginGuardEnabled = iosGuardedFields.length > 0;
-    const unlockIosLoginFields = () => {
-      iosGuardedFields.forEach((field) => {
-        field.readOnly = false;
-        field.autocomplete = field.dataset.iosAutocomplete || "off";
-        field.removeAttribute("data-ios-login-guard");
-      });
-    };
-    iosGuardedFields.forEach((field) => {
-      field.addEventListener("pointerdown", unlockIosLoginFields, { once: true });
-      field.addEventListener("touchstart", unlockIosLoginFields, { once: true, passive: true });
-    });
-
-    window.addEventListener("pageshow", () => {
-      const activeField = document.activeElement;
-      if (iosLoginGuardEnabled && activeField?.matches?.(".login-form input")) activeField.blur();
-      window.getSelection?.()?.removeAllRanges();
-    });
-
     const fieldsAreAutofilled = () => {
       if (!username || !password) return false;
       try {
