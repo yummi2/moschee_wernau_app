@@ -112,9 +112,14 @@
   {% if show_assignment_tracking %}
   <section class="assignment-tracking">
     <header class="assignment-tracking-header">
-      <div>
-        <span data-app-ar="السنة الدراسية" data-app-de="Schuljahr">السنة الدراسية</span>
-        <h2 data-app-ar="متابعة الواجبات" data-app-de="Hausaufgabenstatus">متابعة الواجبات</h2>
+      <div class="assignment-tracking-heading">
+        <span class="admin-ranking-icon assignment-tracking-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M9 5h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V9"/><path d="M9 3H5a2 2 0 0 0-2 2v12M9 3v6H3M10 13h7M10 17h5"/></svg>
+        </span>
+        <div>
+          <span data-app-ar="السنة الدراسية" data-app-de="Schuljahr">السنة الدراسية</span>
+          <h2 data-app-ar="متابعة الواجبات" data-app-de="Hausaufgabenstatus">متابعة الواجبات</h2>
+        </div>
       </div>
       <bdi dir="ltr">{{ assignment_school_year }}</bdi>
     </header>

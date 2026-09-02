@@ -6582,14 +6582,20 @@ html.app-language-german .about-page { direction: ltr; }
   width: min(100%, 70rem);
   margin: 1.25rem auto 0;
   padding: clamp(1rem, 2.5vw, 1.4rem);
-  border: 1px solid rgb(118 100 155 / 24%);
+  border: 1px solid rgb(23 128 94 / 24%);
   border-radius: 1.5rem;
-  background: linear-gradient(145deg, rgb(239 235 249 / 90%), rgb(255 253 248 / 78%));
-  box-shadow: 0 15px 35px rgb(70 52 104 / 9%);
+  background: linear-gradient(145deg, rgb(231 243 236 / 92%), rgb(245 234 212 / 72%));
+  box-shadow: 0 15px 35px rgb(11 73 56 / 9%);
   backdrop-filter: blur(14px);
 }
 .assignment-tracking-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.assignment-tracking-heading { display: flex; align-items: center; gap: .85rem; min-width: 0; }
+.assignment-tracking-icon {
+  background: linear-gradient(145deg, #17805e, #0b4938);
+  box-shadow: 0 9px 20px rgb(11 73 56 / 22%);
+}
 .assignment-tracking-header span { color: #17805e; font-size: .76rem; font-weight: 800; }
+.assignment-tracking-header .assignment-tracking-icon { color: #fff; }
 .assignment-tracking-header h2 { font-size: clamp(1.35rem, 3vw, 2rem); font-weight: 850; line-height: 1.5; }
 .assignment-tracking-header > bdi {
   padding: .45rem .75rem;
