@@ -149,6 +149,7 @@
     let credentialFillDetected = false;
     let credentialSelectionArmed = false;
 
+    const iosLoginGuardEnabled = Boolean(document.querySelector("[data-ios-login-guard]"));
     document.querySelectorAll("[data-ios-login-guard]").forEach((field) => {
       const unlockField = () => {
         field.readOnly = false;
@@ -173,7 +174,7 @@
 
     window.addEventListener("pageshow", () => {
       const activeField = document.activeElement;
-      if (activeField?.matches?.("[data-ios-login-guard]")) activeField.blur();
+      if (iosLoginGuardEnabled && activeField?.matches?.(".login-form input")) activeField.blur();
       window.getSelection?.()?.removeAllRanges();
     });
 
