@@ -50,7 +50,7 @@
       }
     } catch (_) {}
   </script>
-  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260902-203">  <style>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260902-209">  <style>
   .act-grid{
     display: grid;
     gap: 12px;
@@ -226,6 +226,12 @@
       </script>
       {% endif %}
 
+      <a href="{% url 'about' %}"
+         class="app-nav-link app-mobile-top {% if request.resolver_match.url_name == 'about' %}is-active{% endif %}">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 10v6M12 7h.01"/></svg>
+        <span data-app-ar="من نحن" data-app-de="Über uns">من نحن</span>
+      </a>
+
       {% if can_switch_school_years %}
       {% with selected_year=request.session.school_year|default:"2027" %}
       <form method="post" action="{% url 'school_year' %}" class="school-year-switch" aria-label="اختيار السنة الدراسية">
@@ -239,12 +245,6 @@
       </form>
       {% endwith %}
       {% endif %}
-
-      <a href="{% url 'about' %}"
-         class="app-nav-link app-mobile-top {% if request.resolver_match.url_name == 'about' %}is-active{% endif %}">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 10v6M12 7h.01"/></svg>
-        <span data-app-ar="من نحن" data-app-de="Über uns">من نحن</span>
-      </a>
 
       <button type="button" onclick="document.getElementById('logoutForm').submit();" class="app-nav-link app-mobile-top app-logout">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H5v14h5M14 8l4 4-4 4M8 12h10"/></svg>

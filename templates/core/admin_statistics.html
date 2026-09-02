@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block title %}متابعة الطلاب – دار الفرح{% endblock %}
+
+{% block content %}
+<section class="app-page-frame admin-stats-page" dir="rtl" data-app-language-surface>
+  <section class="admin-welcome" aria-labelledby="admin-welcome-title">
+    <a href="{% url 'profile' %}" class="admin-welcome-avatar" aria-label="الصفحة الشخصية">
+      {% if profile and profile.avatar %}
+      <img src="{{ profile.avatar.url }}" alt="صورة {{ user.username }}">
+      {% else %}
+      <span aria-hidden="true">{{ user.username|first|upper }}</span>
+      {% endif %}
+    </a>
+    <div>
+      <h1 id="admin-welcome-title">
+        <span data-app-ar="السلام عليكم" data-app-de="Assalamu Alaikum">السلام عليكم</span>
+        <strong>{{ user.get_full_name|default:user.username }}</strong>
+      </h1>
+      <p data-app-ar="مرحباً بك في لوحة متابعة طلابك." data-app-de="Willkommen in der Übersicht deiner Schüler.">مرحباً بك في لوحة متابعة طلابك.</p>
+    </div>
+  </section>
+
+  <header class="admin-stats-header">
+    <span data-app-ar="لوحة المتابعة" data-app-de="Übersichtsbereich">لوحة المتابعة</span>
+    <h1 data-app-ar="متابعة الطلاب" data-app-de="Schülerübersicht">متابعة الطلاب</h1>
+    <p data-app-ar="تُحدَّث النتائج تلقائياً حسب إنجازات الطلاب المسجلة."
+       data-app-de="Die Übersicht wird automatisch anhand der gespeicherten Leistungen aktualisiert.">
+      تُحدَّث النتائج تلقائياً حسب إنجازات الطلاب المسجلة.
+    </p>
+  </header>
+
+  <div class="admin-stats-grid">
+    <article class="admin-ranking admin-ranking--ramadan">
+      <div class="admin-ranking-heading">
+        <span class="admin-ranking-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M19 15.5A8 8 0 0 1 9 5a8 8 0 1 0 10 10.5ZM17.5 4v3M16 5.5h3"/></svg>
+        </span>
+        <div>
+          <div class="admin-ranking-title-row">
+            <h2 data-app-ar="أفضل 10 في تقويم رمضان" data-app-de="Top 10 im Ramadan-Kalender">أفضل 10 في تقويم رمضان</h2>
+            <bdi class="admin-ranking-year" dir="ltr">{{ ramadan_year }}</bdi>
+          </div>
+          <p data-app-ar="الترتيب حسب الأيام المكتملة ثم عدد المهام."
+             data-app-de="Sortiert nach vollständigen Tagen und anschließend nach erledigten Aufgaben.">
+            الترتيب حسب الأيام المكتملة ثم عدد المهام.
+          </p>
+        </div>
+      </div>
+
+      <ol class="admin-ranking-list">
+        {% for entry in ramadan_ranking %}
+        <li>
+          <span class="admin-rank-number">{{ forloop.counter }}</span>
+          <span class="admin-rank-student">
+            <strong>{{ entry.name }}</strong>
+            <small data-app-ar="{{ entry.completed_days }} يوم مكتمل" data-app-de="{{ entry.completed_days }} vollständige Tage">{{ entry.completed_days }} يوم مكتمل</small>
+          </span>
+          <span class="admin-rank-score">
+            <bdi dir="ltr">{{ entry.completed_items }}</bdi>
+            <small data-app-ar="مهمة" data-app-de="Aufgaben">مهمة</small>
+          </span>
+        </li>
+        {% empty %}
+        <li class="admin-ranking-empty" data-app-ar="لا توجد إنجازات مسجلة لهذه السنة." data-app-de="Für dieses Jahr sind noch keine Leistungen gespeichert.">لا توجد إنجازات مسجلة لهذه السنة.</li>
+        {% endfor %}
+      </ol>
+    </article>
+
+    <article class="admin-ranking admin-ranking--prayer">
+      <div class="admin-ranking-heading">
+        <span class="admin-ranking-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M5 20h14M7 20V9l5-5 5 5v11M10 20v-5h4v5M9 9h6"/></svg>
+        </span>
+        <div>
+          <h2 data-app-ar="أفضل 10 في الصلاة" data-app-de="Top 10 beim Gebet">أفضل 10 في الصلاة</h2>
+          <p>
+            <span data-app-ar="من" data-app-de="Vom">من</span>
+            <bdi dir="ltr">{{ prayer_period_start|date:"d.m.Y" }}</bdi>
+            <span data-app-ar="إلى" data-app-de="bis">إلى</span>
+            <bdi dir="ltr">{{ prayer_period_end|date:"d.m.Y" }}</bdi>
+          </p>
+        </div>
+      </div>
+
+      <nav class="admin-stats-filter" aria-label="Gebetszeitraum">
+        <a href="?prayer_period=week" class="{% if prayer_period == 'week' %}is-active{% endif %}" data-app-ar="الأسبوع الحالي" data-app-de="Aktuelle Woche">الأسبوع الحالي</a>
+        <a href="?prayer_period=month" class="{% if prayer_period == 'month' %}is-active{% endif %}" data-app-ar="هذا الشهر" data-app-de="Dieser Monat">هذا الشهر</a>
+      </nav>
+
+      <ol class="admin-ranking-list">
+        {% for entry in prayer_ranking %}
+        <li>
+          <span class="admin-rank-number">{{ forloop.counter }}</span>
+          <span class="admin-rank-student"><strong>{{ entry.name }}</strong></span>
+          <span class="admin-rank-score">
+            <bdi dir="ltr">{{ entry.completed_prayers }}</bdi>
+            <small data-app-ar="صلاة" data-app-de="Gebete">صلاة</small>
+          </span>
+        </li>
+        {% empty %}
+        <li class="admin-ranking-empty" data-app-ar="لا توجد صلوات مسجلة في هذه الفترة." data-app-de="Für diesen Zeitraum wurden noch keine Gebete gespeichert.">لا توجد صلوات مسجلة في هذه الفترة.</li>
+        {% endfor %}
+      </ol>
+    </article>
+  </div>
+
+  {% if show_assignment_tracking %}
+  <section class="assignment-tracking">
+    <header class="assignment-tracking-header">
+      <div>
+        <span data-app-ar="السنة الدراسية" data-app-de="Schuljahr">السنة الدراسية</span>
+        <h2 data-app-ar="متابعة الواجبات" data-app-de="Hausaufgabenstatus">متابعة الواجبات</h2>
+      </div>
+      <bdi dir="ltr">{{ assignment_school_year }}</bdi>
+    </header>
+
+    <div class="assignment-tracking-list">
+      {% for row in assignment_rows %}
+      <article class="assignment-tracking-item">
+        <header>
+          <div>
+            <h3>{{ row.assignment.title }}</h3>
+            <p>
+              <span data-app-ar="الصف" data-app-de="Klasse">الصف</span>:
+              <strong>{{ row.assignment.classroom.name }}</strong>
+              {% if row.assignment.due_at %}
+              <span aria-hidden="true">•</span>
+              <span data-app-ar="التسليم" data-app-de="Abgabe">التسليم</span>:
+              <bdi dir="ltr">{{ row.assignment.due_at|date:"d.m.Y, H:i" }}</bdi>
+              {% endif %}
+            </p>
+          </div>
+          <span class="assignment-student-total">
+            <bdi dir="ltr">{{ row.student_count }}</bdi>
+            <small data-app-ar="طلاب" data-app-de="Schüler">طلاب</small>
+          </span>
+        </header>
+
+        <div class="assignment-status-columns">
+          <section class="assignment-status assignment-status--done">
+            <h4>
+              <span data-app-ar="تم الإنجاز" data-app-de="Erledigt">تم الإنجاز</span>
+              <bdi dir="ltr">{{ row.completed_students|length }}</bdi>
+            </h4>
+            <ul>
+              {% for student in row.completed_students %}
+              <li><span aria-hidden="true">✓</span>{{ student.name }}</li>
+              {% empty %}
+              <li class="is-empty" data-app-ar="لم ينجزها أحد بعد." data-app-de="Noch niemand hat diese Aufgabe erledigt.">لم ينجزها أحد بعد.</li>
+              {% endfor %}
+            </ul>
+          </section>
+
+          <section class="assignment-status assignment-status--pending">
+            <h4>
+              <span data-app-ar="لم يتم الإنجاز" data-app-de="Nicht erledigt">لم يتم الإنجاز</span>
+              <bdi dir="ltr">{{ row.pending_students|length }}</bdi>
+            </h4>
+            <ul>
+              {% for student in row.pending_students %}
+              <li><span aria-hidden="true">!</span>{{ student.name }}</li>
+              {% empty %}
+              <li class="is-empty" data-app-ar="جميع الطلاب أنجزوا الواجب." data-app-de="Alle Schüler haben diese Aufgabe erledigt.">جميع الطلاب أنجزوا الواجب.</li>
+              {% endfor %}
+            </ul>
+          </section>
+        </div>
+      </article>
+      {% empty %}
+      <div class="assignment-tracking-empty" data-app-ar="لا توجد واجبات في هذه السنة الدراسية." data-app-de="In diesem Schuljahr sind keine Hausaufgaben vorhanden.">لا توجد واجبات في هذه السنة الدراسية.</div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+</section>
+{% endblock %}

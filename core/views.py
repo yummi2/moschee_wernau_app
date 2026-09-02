@@ -551,6 +551,12 @@ def home(request):
     if not request.user.is_authenticated:
         return redirect("login")
 
+    profile = getattr(request.user, "profile", None)
+    has_teacher_role = bool(profile and profile.is_teacher) or request.user.classes_as_teacher.exists()
+    has_admin_role = request.user.is_superuser or (request.user.is_staff and not has_teacher_role)
+    if has_teacher_role or has_admin_role:
+        return admin_statistics(request)
+
     banner = WeeklyBanner.objects.order_by("-updated_at").first()
     school_year_ranges = selected_school_year_ranges(request)
    
@@ -964,6 +970,156 @@ def calendar_page(request):
 @login_required
 def about(request):
     return render(request, "core/about.html")
+
+
+@login_required
+def admin_statistics(request):
+    profile = getattr(request.user, "profile", None)
+    is_teacher = bool(profile and profile.is_teacher) or request.user.classes_as_teacher.exists()
+    # Lehrkräfte benötigen häufig Staff-Zugriff für den Django-Admin. Das allein
+    # darf ihnen aber nicht die schulweite Administrator-Übersicht freischalten.
+    is_admin = request.user.is_superuser or (request.user.is_staff and not is_teacher)
+    if not is_admin and not is_teacher:
+        return HttpResponseForbidden("Diese Seite ist nur für die Verwaltung und Lehrkräfte verfügbar.")
+
+    school_year_ranges = selected_school_year_ranges(request)
+    ramadan_year = school_year_ranges["year"]
+    prayer_period = request.GET.get("prayer_period", "week")
+    if prayer_period not in {"week", "month"}:
+        prayer_period = "week"
+
+    student_filter = Q(user__is_staff=False) & (
+        Q(user__profile__is_teacher=False) | Q(user__profile__isnull=True)
+    )
+    required_ramadan_items = len(RAMADAN_ITEMS_ORDER)
+    ramadan_days = []
+    if is_admin or is_teacher:
+        ramadan_days = (
+            RamadanItemDone.objects
+            .filter(student_filter, done=True, school_year=ramadan_year)
+            .values("user_id", "day")
+            .annotate(done_items=Count("item_key", distinct=True))
+        )
+
+    ramadan_totals = {}
+    for entry in ramadan_days:
+        user_total = ramadan_totals.setdefault(
+            entry["user_id"], {"completed_days": 0, "completed_items": 0}
+        )
+        done_items = min(entry["done_items"], required_ramadan_items)
+        user_total["completed_items"] += done_items
+        if done_items >= required_ramadan_items:
+            user_total["completed_days"] += 1
+
+    today = timezone.localdate()
+    days_since_sunday = (today.weekday() + 1) % 7
+    prayer_week_start = today - dt.timedelta(days=days_since_sunday)
+    prayer_week_end = prayer_week_start + dt.timedelta(days=6)
+    if prayer_period == "month":
+        prayer_period_start = today.replace(day=1)
+        prayer_period_end = today.replace(day=calendar.monthrange(today.year, today.month)[1])
+    else:
+        prayer_period_start = prayer_week_start
+        prayer_period_end = prayer_week_end
+
+    prayer_totals = []
+    if is_admin or is_teacher:
+        prayer_totals = list(
+            PrayerStatus.objects
+            .filter(
+                student_filter,
+                prayed=True,
+                date__range=(prayer_period_start, prayer_period_end),
+            )
+            .values("user_id")
+            .annotate(completed_prayers=Count("id"))
+        )
+
+    ranked_user_ids = set(ramadan_totals)
+    ranked_user_ids.update(entry["user_id"] for entry in prayer_totals)
+    ranked_users = User.objects.filter(id__in=ranked_user_ids).select_related("profile").in_bulk()
+
+    def student_name(user):
+        full_name = user.get_full_name().strip()
+        return full_name or user.username
+
+    ramadan_ranking = sorted(
+        (
+            {
+                "user": ranked_users[user_id],
+                "name": student_name(ranked_users[user_id]),
+                **totals,
+            }
+            for user_id, totals in ramadan_totals.items()
+            if user_id in ranked_users
+        ),
+        key=lambda row: (-row["completed_days"], -row["completed_items"], row["name"].casefold()),
+    )[:10]
+
+    prayer_ranking = sorted(
+        (
+            {
+                "user": ranked_users[entry["user_id"]],
+                "name": student_name(ranked_users[entry["user_id"]]),
+                "completed_prayers": entry["completed_prayers"],
+            }
+            for entry in prayer_totals
+            if entry["user_id"] in ranked_users
+        ),
+        key=lambda row: (-row["completed_prayers"], row["name"].casefold()),
+    )[:10]
+
+    show_assignment_tracking = school_year_ranges["year"] == "2027"
+    assignments = Assignment.objects.none()
+    if show_assignment_tracking:
+        assignment_start = school_year_ranges["calendar_start"]
+        assignment_end = school_year_ranges["prayer_end"]
+        assignments = Assignment.objects.filter(
+            Q(due_at__date__range=(assignment_start, assignment_end))
+            | Q(due_at__isnull=True, created_at__date__range=(assignment_start, assignment_end))
+        ).select_related("classroom", "created_by").prefetch_related(
+            "classroom__students", "completions"
+        )
+        if not is_admin:
+            assignments = assignments.filter(
+                classroom__teachers=request.user,
+                created_by=request.user,
+            ).distinct()
+        assignments = assignments.order_by("-due_at", "-created_at", "-id")
+
+    assignment_rows = []
+    for assignment in assignments:
+        students = [student for student in assignment.classroom.students.all() if not student.is_staff]
+        students.sort(key=lambda student: student_name(student).casefold())
+        completed_ids = {completion.user_id for completion in assignment.completions.all()}
+        completed_students = [
+            {"user": student, "name": student_name(student)}
+            for student in students if student.id in completed_ids
+        ]
+        pending_students = [
+            {"user": student, "name": student_name(student)}
+            for student in students if student.id not in completed_ids
+        ]
+        assignment_rows.append({
+            "assignment": assignment,
+            "completed_students": completed_students,
+            "pending_students": pending_students,
+            "student_count": len(students),
+        })
+
+    return render(request, "core/admin_statistics.html", {
+        "is_admin_statistics": is_admin,
+        "ramadan_ranking": ramadan_ranking,
+        "ramadan_year": ramadan_year,
+        "prayer_ranking": prayer_ranking,
+        "prayer_period": prayer_period,
+        "prayer_period_start": prayer_period_start,
+        "prayer_period_end": prayer_period_end,
+        "assignment_rows": assignment_rows,
+        "assignment_school_year": school_year_ranges["year"],
+        "show_assignment_tracking": show_assignment_tracking,
+        "profile": profile,
+    })
 
 
 @login_required
