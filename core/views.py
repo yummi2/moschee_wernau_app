@@ -142,13 +142,17 @@ class SchoolLoginView(LoginView):
         form.fields["username"].widget.attrs.pop("autofocus", None)
         user_agent = self.request.headers.get("User-Agent", "").lower()
         if any(device in user_agent for device in ("iphone", "ipad", "ipod")):
-            form.fields["username"].widget.attrs["autocomplete"] = "off"
-            form.fields["password"].widget.attrs.update({
-                "readonly": True,
-                "data-ios-login-guard": "",
-                "data-ios-autocomplete": "current-password",
-                "autocomplete": "off",
-            })
+            autocomplete_values = {
+                "username": "username",
+                "password": "current-password",
+            }
+            for field_name, autocomplete_value in autocomplete_values.items():
+                form.fields[field_name].widget.attrs.update({
+                    "readonly": True,
+                    "data-ios-login-guard": "",
+                    "data-ios-autocomplete": autocomplete_value,
+                    "autocomplete": "off",
+                })
         return form
 
     def form_valid(self, form):

@@ -149,27 +149,18 @@
     let credentialFillDetected = false;
     let credentialSelectionArmed = false;
 
-    const iosLoginGuardEnabled = Boolean(document.querySelector("[data-ios-login-guard]"));
-    document.querySelectorAll("[data-ios-login-guard]").forEach((field) => {
-      const unlockField = () => {
+    const iosGuardedFields = [...document.querySelectorAll("[data-ios-login-guard]")];
+    const iosLoginGuardEnabled = iosGuardedFields.length > 0;
+    const unlockIosLoginFields = () => {
+      iosGuardedFields.forEach((field) => {
         field.readOnly = false;
         field.autocomplete = field.dataset.iosAutocomplete || "off";
         field.removeAttribute("data-ios-login-guard");
-      };
-      const unlockAndFocusField = (event) => {
-        event.preventDefault();
-        unlockField();
-        field.focus({ preventScroll: true });
-        const cursorPosition = field.value.length;
-        try {
-          field.setSelectionRange(cursorPosition, cursorPosition);
-        } catch (error) {
-          // Some iOS input types do not expose a selectable text range.
-        }
-      };
-      field.addEventListener("pointerdown", unlockField, { once: true });
-      field.addEventListener("touchstart", unlockField, { once: true, passive: true });
-      field.addEventListener("touchend", unlockAndFocusField, { once: true });
+      });
+    };
+    iosGuardedFields.forEach((field) => {
+      field.addEventListener("pointerdown", unlockIosLoginFields, { once: true });
+      field.addEventListener("touchstart", unlockIosLoginFields, { once: true, passive: true });
     });
 
     window.addEventListener("pageshow", () => {
