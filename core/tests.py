@@ -168,6 +168,11 @@ class AdminStatisticsTests(TestCase):
         self.assertTemplateUsed(home_response, "core/admin_statistics.html")
         self.assertContains(home_response, "Aufgabe eines Kollegen", count=0)
 
+        assignments_response = self.client.get(reverse("home"), {"tab": "assignments"})
+        self.assertEqual(assignments_response.status_code, 200)
+        self.assertTemplateUsed(assignments_response, "core/home.html")
+        self.assertContains(assignments_response, "Eigene Aufgabe")
+
     def test_teacher_can_see_both_rankings(self):
         teacher = get_user_model().objects.create_user("teacher-ranking", password="x", is_staff=True)
         classroom = ClassRoom.objects.create(name="Ranking-Klasse")

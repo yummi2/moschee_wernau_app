@@ -554,7 +554,8 @@ def home(request):
     profile = getattr(request.user, "profile", None)
     has_teacher_role = bool(profile and profile.is_teacher) or request.user.classes_as_teacher.exists()
     has_admin_role = request.user.is_superuser or (request.user.is_staff and not has_teacher_role)
-    if has_teacher_role or has_admin_role:
+    active_home_tab = request.GET.get("tab", "home")
+    if (has_teacher_role or has_admin_role) and active_home_tab == "home":
         return admin_statistics(request)
 
     banner = WeeklyBanner.objects.order_by("-updated_at").first()
