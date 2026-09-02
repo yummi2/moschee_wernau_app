@@ -988,6 +988,15 @@ html.app-language-german .mini-calendar-header {
   outline-offset: 3px;
 }
 
+@media (min-width: 40rem) {
+  .home-avatar {
+    flex-basis: 5rem;
+    width: 5rem;
+    height: 5rem;
+    border-width: 3px;
+  }
+}
+
 @media (max-width: 39.999rem) {
   body.app-shell-page {
     height: 100dvh;
@@ -1010,6 +1019,13 @@ html.app-language-german .mini-calendar-header {
     height: 100%;
     min-height: 0;
     flex-direction: column;
+    padding-inline: 0 !important;
+  }
+
+  body.app-shell-page .profile-page .app-content-card > div {
+    width: 100%;
+    max-width: none;
+    padding-inline: .35rem;
   }
 
   body.app-shell-page .home-page-layout,
@@ -6652,6 +6668,14 @@ html.app-language-german .about-page { direction: ltr; }
 .student-achievement li { display: inline-flex; align-items: center; gap: .25rem; padding: .3rem .55rem; border-radius: 999px; background: rgb(255 255 255 / 72%); font-size: .75rem; font-weight: 800; }
 html.app-language-german .admin-stats-page { direction: ltr; }
 
+@media (min-width: 64rem) {
+  .app-main:has(.admin-stats-page) {
+    width: 100%;
+    max-width: none;
+    margin-inline: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .admin-ranking--prayer { transition: none; }
   .admin-ranking--prayer.is-entering { animation: none; }
@@ -6675,4 +6699,8 @@ html.app-language-german .admin-stats-page { direction: ltr; }
   .assignment-tracking { padding: .85rem; border-radius: 1.25rem; }
   .assignment-status-columns { grid-template-columns: 1fr; }
   .assignment-tracking-item > header { align-items: center; }
+}
+
+@media (min-width: 64rem) {
+  .admin-stats-header h1 { font-size: 1.85rem; }
 }
