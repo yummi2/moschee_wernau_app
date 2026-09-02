@@ -988,6 +988,8 @@ def admin_statistics(request):
     prayer_period = request.GET.get("prayer_period", "week")
     if prayer_period not in {"week", "month"}:
         prayer_period = "week"
+    if school_year_ranges["year"] == "2026":
+        prayer_period = "month"
 
     student_filter = Q(user__is_staff=False) & (
         Q(user__profile__is_teacher=False) | Q(user__profile__isnull=True)
@@ -1013,12 +1015,22 @@ def admin_statistics(request):
             user_total["completed_days"] += 1
 
     today = timezone.localdate()
-    days_since_sunday = (today.weekday() + 1) % 7
-    prayer_week_start = today - dt.timedelta(days=days_since_sunday)
-    prayer_week_end = prayer_week_start + dt.timedelta(days=6)
+    prayer_reference_date = (
+        dt.date(2026, 8, 31)
+        if school_year_ranges["year"] == "2026"
+        else today
+    )
+    days_since_sunday = (prayer_reference_date.weekday() + 1) % 7
+    prayer_week_start = prayer_reference_date - dt.timedelta(days=days_since_sunday)
+    prayer_week_end = min(
+        prayer_week_start + dt.timedelta(days=6),
+        school_year_ranges["prayer_end"],
+    )
     if prayer_period == "month":
-        prayer_period_start = today.replace(day=1)
-        prayer_period_end = today.replace(day=calendar.monthrange(today.year, today.month)[1])
+        prayer_period_start = prayer_reference_date.replace(day=1)
+        prayer_period_end = prayer_reference_date.replace(
+            day=calendar.monthrange(prayer_reference_date.year, prayer_reference_date.month)[1]
+        )
     else:
         prayer_period_start = prayer_week_start
         prayer_period_end = prayer_week_end

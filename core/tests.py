@@ -95,8 +95,7 @@ class AdminStatisticsTests(TestCase):
                 done=True,
             )
 
-        today = timezone.localdate()
-        week_start = today - dt.timedelta(days=(today.weekday() + 1) % 7)
+        week_start = dt.date(2026, 8, 30)
         for prayer in range(1, 4):
             PrayerStatus.objects.create(
                 user=self.second_student,
@@ -122,6 +121,10 @@ class AdminStatisticsTests(TestCase):
         self.assertEqual(response.context["ramadan_ranking"][0]["completed_days"], 1)
         self.assertEqual(response.context["prayer_ranking"][0]["user"], self.second_student)
         self.assertEqual(response.context["prayer_ranking"][0]["completed_prayers"], 3)
+        self.assertEqual(response.context["prayer_period"], "month")
+        self.assertEqual(response.context["prayer_period_start"], dt.date(2026, 8, 1))
+        self.assertEqual(response.context["prayer_period_end"], dt.date(2026, 8, 31))
+        self.assertNotContains(response, 'href="?prayer_period=week"')
 
     def test_teacher_sees_only_assignments_from_own_class(self):
         teacher = get_user_model().objects.create_user(
@@ -172,6 +175,8 @@ class AdminStatisticsTests(TestCase):
         self.assertEqual(assignments_response.status_code, 200)
         self.assertTemplateUsed(assignments_response, "core/home.html")
         self.assertContains(assignments_response, "Eigene Aufgabe")
+        self.assertNotContains(assignments_response, 'data-home-tab="checklist"')
+        self.assertNotContains(assignments_response, 'data-home-tab="prayer"')
 
     def test_teacher_can_see_both_rankings(self):
         teacher = get_user_model().objects.create_user("teacher-ranking", password="x", is_staff=True)

@@ -83,10 +83,16 @@
         </div>
       </div>
 
-      <nav class="admin-stats-filter" aria-label="Gebetszeitraum">
-        <a href="?prayer_period=week" class="{% if prayer_period == 'week' %}is-active{% endif %}" data-app-ar="الأسبوع الحالي" data-app-de="Aktuelle Woche">الأسبوع الحالي</a>
-        <a href="?prayer_period=month" class="{% if prayer_period == 'month' %}is-active{% endif %}" data-app-ar="هذا الشهر" data-app-de="Dieser Monat">هذا الشهر</a>
+      {% if ramadan_year == "2027" %}
+      <nav class="admin-stats-filter" aria-label="Gebetszeitraum" data-prayer-period-switch>
+        <a href="?prayer_period=week" class="{% if prayer_period == 'week' %}is-active{% endif %}" data-prayer-period-link data-app-ar="الأسبوع الحالي" data-app-de="Aktuelle Woche">الأسبوع الحالي</a>
+        <a href="?prayer_period=month" class="{% if prayer_period == 'month' %}is-active{% endif %}" data-prayer-period-link data-app-ar="هذا الشهر" data-app-de="Dieser Monat">هذا الشهر</a>
       </nav>
+      {% else %}
+      <div class="admin-stats-filter is-single" aria-label="Gebetszeitraum">
+        <span class="is-active" data-app-ar="هذا الشهر" data-app-de="Dieser Monat">هذا الشهر</span>
+      </div>
+      {% endif %}
 
       <ol class="admin-ranking-list">
         {% for entry in prayer_ranking %}
@@ -174,4 +180,41 @@
   </section>
   {% endif %}
 </section>
+
+<script>
+  (() => {
+    const page = document.querySelector(".admin-stats-page");
+    if (!page) return;
+
+    page.addEventListener("click", async (event) => {
+      const link = event.target.closest("[data-prayer-period-link]");
+      if (!link || link.classList.contains("is-active")) return;
+      event.preventDefault();
+
+      const currentCard = page.querySelector(".admin-ranking--prayer");
+      if (!currentCard || currentCard.classList.contains("is-loading")) return;
+      currentCard.classList.add("is-loading");
+
+      try {
+        const response = await fetch(link.href, {
+          headers: { "X-Requested-With": "XMLHttpRequest" },
+        });
+        if (!response.ok) throw new Error("Gebetsrangliste konnte nicht geladen werden.");
+
+        const documentNext = new DOMParser().parseFromString(await response.text(), "text/html");
+        const nextCard = documentNext.querySelector(".admin-ranking--prayer");
+        if (!nextCard) throw new Error("Gebetsrangliste fehlt in der Antwort.");
+
+        nextCard.classList.add("is-entering");
+        currentCard.replaceWith(nextCard);
+        window.history.pushState({}, "", link.href);
+        window.applyAppLanguage?.();
+        window.setTimeout(() => nextCard.classList.remove("is-entering"), 320);
+      } catch (error) {
+        currentCard.classList.remove("is-loading");
+        window.location.assign(link.href);
+      }
+    });
+  })();
+</script>
 {% endblock %}

@@ -6505,6 +6505,20 @@ html.app-language-german .about-page { direction: ltr; }
   text-decoration: none;
   transition: color .18s ease, background-color .18s ease, box-shadow .18s ease, transform .18s ease;
 }
+.admin-stats-filter.is-single { grid-template-columns: 1fr; }
+.admin-stats-filter > span {
+  display: grid;
+  min-height: 2.45rem;
+  place-items: center;
+  padding: .35rem .65rem;
+  border-radius: .65rem;
+  color: #fff;
+  background: #0b4938;
+  font-size: .76rem;
+  font-weight: 800;
+  text-align: center;
+  box-shadow: 0 6px 14px rgb(11 73 56 / 20%);
+}
 .admin-stats-filter a:hover { color: #0b4938; transform: translateY(-1px); }
 .admin-stats-filter a.is-active { color: #fff; background: #0b4938; box-shadow: 0 6px 14px rgb(11 73 56 / 20%); }
 .admin-stats-filter a:focus-visible { outline: 2px solid #17805e; outline-offset: 2px; }
@@ -6538,6 +6552,13 @@ html.app-language-german .about-page { direction: ltr; }
 .admin-rank-score bdi { font-size: 1.3rem; font-weight: 900; line-height: 1.2; }
 .admin-rank-score small { color: #64748b; font-size: .65rem; font-weight: 750; }
 .admin-ranking-list > .admin-ranking-empty { display: block; color: #64748b; text-align: center; line-height: 1.8; }
+.admin-ranking--prayer { transition: opacity .18s ease, transform .18s ease; }
+.admin-ranking--prayer.is-loading { opacity: .55; pointer-events: none; transform: scale(.992); }
+.admin-ranking--prayer.is-entering { animation: prayer-ranking-enter .3s cubic-bezier(.22, 1, .36, 1); }
+@keyframes prayer-ranking-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
 .assignment-tracking {
   order: 1;
@@ -6598,6 +6619,11 @@ html.app-language-german .about-page { direction: ltr; }
 .assignment-status li.is-empty { color: #64748b; font-weight: 650; }
 .assignment-tracking-empty { padding: 2rem 1rem; color: #64748b; text-align: center; line-height: 1.8; }
 html.app-language-german .admin-stats-page { direction: ltr; }
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-ranking--prayer { transition: none; }
+  .admin-ranking--prayer.is-entering { animation: none; }
+}
 
 @media (max-width: 63.999rem) {
   .admin-stats-page {
