@@ -6272,6 +6272,10 @@ body.auth-page {
   box-shadow: none;
 }
 .about-info-card--wide { grid-column: 1 / -1; }
+@media (min-width: 40rem) {
+  .about-info-card--location,
+  .about-info-card--whatsapp { grid-column: auto; }
+}
 .about-info-icon {
   display: grid;
   flex: 0 0 3rem;
