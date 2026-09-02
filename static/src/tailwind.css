@@ -6679,7 +6679,8 @@ html.app-language-german .about-page { direction: ltr; }
 html.app-language-german .admin-stats-page { direction: ltr; }
 
 @media (min-width: 64rem) {
-  .app-main:has(.admin-stats-page) {
+  .app-main:has(.admin-stats-page),
+  .app-main:has(.about-page) {
     width: 100%;
     max-width: none;
     margin-inline: 0;
@@ -6709,8 +6710,23 @@ html.app-language-german .admin-stats-page { direction: ltr; }
   .assignment-tracking { padding: .85rem; border-radius: 1.25rem; }
   .assignment-status-columns { grid-template-columns: 1fr; }
   .assignment-tracking-item > header { align-items: center; }
+
+  body.app-shell-page .home-dashboard-card {
+    padding-inline-end: 1rem !important;
+    scrollbar-gutter: stable;
+  }
 }
 
 @media (min-width: 64rem) {
   .admin-stats-header h1 { font-size: 1.85rem; }
+
+  .about-page {
+    width: 100%;
+    margin-inline: auto;
+    padding: clamp(1rem, 3vw, 2.25rem);
+  }
+
+  .about-hero,
+  .about-sections,
+  .about-instagram { width: min(100%, 70rem); max-width: 70rem; }
 }
