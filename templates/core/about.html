@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}من نحن – دار الفرح{% endblock %}
+
+{% block content %}
+<section class="app-page-frame about-page" dir="rtl" data-app-language-surface>
+  <div class="about-hero">
+    <div class="about-hero-copy">
+      <span class="about-kicker" data-app-ar="أهلاً بكم في" data-app-de="Herzlich willkommen bei">أهلاً بكم في</span>
+      <h1 data-app-ar="دار الفرح" data-app-de="Dar Al Farah">دار الفرح</h1>
+      <p data-app-ar="دورتنا تُقدَّم باللغتين العربية والألمانية مع كادر متخصص، وتشمل أنشطة ورحلات جماعية متنوعة."
+         data-app-de="Unser Unterricht wird von einem qualifizierten Team auf Arabisch und Deutsch angeboten und durch vielfältige gemeinsame Aktivitäten und Ausflüge ergänzt.">
+        دورتنا تُقدَّم باللغتين العربية والألمانية مع كادر متخصص، وتشمل أنشطة ورحلات جماعية متنوعة.
+      </p>
+    </div>
+    <div class="about-logo" aria-hidden="true">
+      <img src="{% static 'images/logo.png' %}" alt="">
+    </div>
+  </div>
+
+  <div class="about-sections">
+    <article class="about-info-card">
+      <span class="about-info-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5v13ZM4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></svg>
+      </span>
+      <div>
+        <h2 data-app-ar="رسالتنا" data-app-de="Unsere Aufgabe">رسالتنا</h2>
+        <p data-app-ar="ربط الطالب بالمسجد وتعزيز العلاقة بينه وبين خالقه، ونسعى إلى تقديم تعليم واضح وممتع، وبناء بيئة يشعر فيها كل طالب بالجو الأسري الإيماني."
+           data-app-de="Wir möchten die Schüler mit der Moschee verbinden und ihre Beziehung zu ihrem Schöpfer stärken. Zugleich bieten wir verständlichen und ansprechenden Unterricht in einer familiären, vom Glauben geprägten Atmosphäre.">
+          ربط الطالب بالمسجد وتعزيز العلاقة بينه وبين خالقه، ونسعى إلى تقديم تعليم واضح وممتع، وبناء بيئة يشعر فيها كل طالب بالجو الأسري الإيماني.
+        </p>
+      </div>
+    </article>
+    <article class="about-info-card">
+      <span class="about-info-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.4-7-11a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 6.6-7 11-7 11Z"/></svg>
+      </span>
+      <div>
+        <h2 data-app-ar="ما نقدمه" data-app-de="Was wir anbieten">ما نقدمه</h2>
+        <p data-app-ar="دروس تعليم القرآن الكريم واللغة العربية والتربية الدينية. التحصين الفكري لبناء حماية داخلية لدى الطالب لمقاومة الأفكار الوافدة والانحرافات العقائدية والسلوكية، والتربية الوقائية والتوعية من فتن العصر."
+           data-app-de="Koranunterricht, Arabischunterricht und religiöse Bildung. Zudem stärken wir die geistige Widerstandsfähigkeit der Schüler, damit sie fremden ideologischen Einflüssen sowie religiösen und verhaltensbezogenen Fehlentwicklungen sicher begegnen können. Dazu gehören präventive Erziehung und die Aufklärung über die Herausforderungen unserer Zeit.">
+          دروس تعليم القرآن الكريم واللغة العربية والتربية الدينية. التحصين الفكري لبناء حماية داخلية لدى الطالب لمقاومة الأفكار الوافدة والانحرافات العقائدية والسلوكية، والتربية الوقائية والتوعية من فتن العصر.
+        </p>
+      </div>
+    </article>
+
+    <article class="about-info-card about-info-card--wide">
+      <span class="about-info-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M8 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM2 21a6 6 0 0 1 12 0M16 11a3.5 3.5 0 1 0 0-7M16 14a5.5 5.5 0 0 1 5.5 5.5"/></svg>
+      </span>
+      <div>
+        <h2 data-app-ar="معاً نصنع الفرق" data-app-de="Gemeinsam bewegen wir mehr">معاً نصنع الفرق</h2>
+        <p data-app-ar="نؤمن أن التعاون بين الأطفال والأهل والمعلمين هو أساس النجاح. لذلك نهتم بالتواصل والتشجيع وبكل خطوة صغيرة يحققها أطفالنا."
+           data-app-de="Wir glauben, dass die Zusammenarbeit zwischen Kindern, Eltern und Lehrkräften die Grundlage für Erfolg ist. Deshalb sind uns Austausch, Ermutigung und jeder kleine Fortschritt wichtig.">
+          نؤمن أن التعاون بين الأطفال والأهل والمعلمين هو أساس النجاح. لذلك نهتم بالتواصل والتشجيع وبكل خطوة صغيرة يحققها أطفالنا.
+        </p>
+      </div>
+    </article>
+
+    <article class="about-info-card">
+      <span class="about-info-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M5 4h14a2 2 0 0 1 2 2v14H3V6a2 2 0 0 1 2-2ZM8 2v4M16 2v4M3 9h18M7 13h3M14 13h3M7 17h3"/></svg>
+      </span>
+      <div>
+        <h2 data-app-ar="موعد الدورة" data-app-de="Kurszeitraum">موعد الدورة</h2>
+        <p data-app-ar="كل يوم سبت ابتداءً من 19.09.2026 وحتى 24.07.2027."
+           data-app-de="Jeden Samstag vom 19.09.2026 bis zum 24.07.2027.">
+          كل يوم سبت ابتداءً من <bdi dir="ltr">19.09.2026</bdi> وحتى <bdi dir="ltr">24.07.2027</bdi>.
+        </p>
+      </div>
+    </article>
+
+    <article class="about-info-card">
+      <span class="about-info-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      </span>
+      <div>
+        <h2 data-app-ar="أوقات الدوام" data-app-de="Unterrichtszeit">أوقات الدوام</h2>
+        <p data-app-ar="من الساعة الثامنة صباحاً وحتى الساعة 11:45 ظهراً."
+           data-app-de="Von 08:00 Uhr morgens bis 11:45 Uhr.">
+          من الساعة الثامنة صباحاً وحتى الساعة <bdi dir="ltr">11:45</bdi> ظهراً.
+        </p>
+      </div>
+    </article>
+
+    <article class="about-info-card about-info-card--wide">
+      <span class="about-info-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+      </span>
+      <div>
+        <h2 data-app-ar="المكان" data-app-de="Veranstaltungsort">المكان</h2>
+        <p><bdi dir="ltr">DİTİB Wernau Camii (e.V.)<br>Esslinger Str. 7/1, 73249 Wernau (Neckar)</bdi></p>
+      </div>
+    </article>
+
+    <article class="about-info-card about-info-card--wide">
+      <span class="about-info-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M21 11.5a8.5 8.5 0 0 1-12.5 7.5L3 21l1.8-5.2A8.5 8.5 0 1 1 21 11.5Z"/><path d="M8.5 9.5c.8 2.2 2 3.4 4.2 4.2"/></svg>
+      </span>
+      <div>
+        <h2 data-app-ar="للاستفسار عبر واتساب" data-app-de="Fragen per WhatsApp">للاستفسار عبر واتساب</h2>
+        <p><a class="about-contact-link" href="https://wa.me/4915233966738" target="_blank" rel="noopener noreferrer"><bdi dir="ltr">01523 3966738</bdi></a></p>
+      </div>
+    </article>
+
+    
+
+    
+  </div>
+
+  <div class="about-instagram">
+    <div>
+      <span data-app-ar="ابقوا على تواصل" data-app-de="Bleiben Sie mit uns verbunden">ابقوا على تواصل</span>
+      <h2 data-app-ar="تابعونا على إنستغرام" data-app-de="Folgen Sie uns auf Instagram">تابعونا على إنستغرام</h2>
+      <p data-app-ar="تابعوا أخبار دار الفرح وأنشطتنا ولحظاتنا الجميلة."
+         data-app-de="Entdecken Sie Neuigkeiten, Aktivitäten und besondere Momente von Dar Al Farah.">
+        تابعوا أخبار دار الفرح وأنشطتنا ولحظاتنا الجميلة.
+      </p>
+    </div>
+    <a href="https://www.instagram.com/dar.alfarah17?igsi=bmlpdDU5NWwyMDRh"
+       target="_blank" rel="noopener noreferrer" aria-label="Instagram-Profil von Dar Al Farah öffnen">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.4" cy="6.7" r="0.8"/></svg>
+      <bdi dir="ltr">@dar.alfarah17</bdi>
+    </a>
+  </div>
+</section>
+{% endblock %}

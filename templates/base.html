@@ -50,7 +50,7 @@
       }
     } catch (_) {}
   </script>
-  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260902-196">  <style>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260902-201">  <style>
   .act-grid{
     display: grid;
     gap: 12px;
@@ -240,17 +240,10 @@
       {% endwith %}
       {% endif %}
 
-      <a href="https://www.instagram.com/dar.alfarah17?igsi=bmlpdDU5NWwyMDRh"
-         class="app-nav-link app-mobile-top app-instagram-link"
-         target="_blank"
-         rel="noopener noreferrer"
-         aria-label="Instagram-Profil von Dar Al Farah öffnen">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <rect x="3" y="3" width="18" height="18" rx="5"/>
-          <circle cx="12" cy="12" r="4"/>
-          <circle cx="17.4" cy="6.7" r="0.8" class="app-instagram-dot"/>
-        </svg>
-        <span data-app-ar="تابعنا على إنستغرام" data-app-de="Folge uns auf Instagram">تابعنا على إنستغرام</span>
+      <a href="{% url 'about' %}"
+         class="app-nav-link app-mobile-top {% if request.resolver_match.url_name == 'about' %}is-active{% endif %}">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 10v6M12 7h.01"/></svg>
+        <span data-app-ar="من نحن" data-app-de="Über uns">من نحن</span>
       </a>
 
       <button type="button" onclick="document.getElementById('logoutForm').submit();" class="app-nav-link app-mobile-top app-logout">

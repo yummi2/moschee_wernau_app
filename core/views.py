@@ -962,6 +962,11 @@ def calendar_page(request):
     })
 
 @login_required
+def about(request):
+    return render(request, "core/about.html")
+
+
+@login_required
 def profile_view(request):
     profile, _ = Profile.objects.get_or_create(user=request.user)
 
