@@ -89,7 +89,7 @@
                 <section class="student-achievements" data-home-overview-only aria-label="الإنجازات">
                     {% if ramadan_top10_rank %}
                     <article class="student-achievement student-achievement--ramadan">
-                        <span class="student-achievement-mark" aria-hidden="true">{{ ramadan_top10_rank }}</span>
+                        <span class="student-achievement-mark" aria-hidden="true">✓</span>
                         <div>
                             <strong data-app-ar="أنت من أفضل 10 طلاب في مسابقة رمضان" data-app-de="Du bist unter den Top 10 im Ramadan-Wettbewerb">أنت من أفضل 10 طلاب في مسابقة رمضان</strong>
                             <small><span data-app-ar="السنة الدراسية" data-app-de="Schuljahr">السنة الدراسية</span> <bdi dir="ltr">{{ ramadan_top10_year }}</bdi></small>
@@ -107,7 +107,6 @@
                                 <li>
                                     <span data-app-ar="{{ month.month_ar }}" data-app-de="{{ month.month_de }}">{{ month.month_ar }}</span>
                                     <bdi dir="ltr">{{ month.year }}</bdi>
-                                    <small data-app-ar="المركز {{ month.rank }}" data-app-de="Platz {{ month.rank }}">المركز {{ month.rank }}</small>
                                 </li>
                                 {% endfor %}
                             </ul>
