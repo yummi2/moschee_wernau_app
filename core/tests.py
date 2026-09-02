@@ -76,6 +76,23 @@ class AdminStatisticsTests(TestCase):
         response = self.client.get(reverse("admin_statistics"))
         self.assertEqual(response.status_code, 403)
 
+    def test_student_home_keeps_ramadan_and_monthly_prayer_top10_achievements(self):
+        RamadanItemDone.objects.create(
+            user=self.first_student, day=1, item_key="quran", school_year="2027", done=True,
+        )
+        PrayerStatus.objects.create(
+            user=self.first_student, date=dt.date(2026, 9, 1), prayer=1, prayed=True,
+        )
+        self.client.force_login(self.first_student)
+
+        response = self.client.get(reverse("home"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["ramadan_top10_rank"], 1)
+        self.assertEqual(response.context["prayer_top10_months"][0]["month"], 9)
+        self.assertContains(response, "Du bist unter den Top 10 im Ramadan-Wettbewerb")
+        self.assertContains(response, "September")
+
     def test_rankings_prioritize_complete_ramadan_days_and_weekly_prayers(self):
         item_keys = ["fasting", "athkar", "duaa", "quran", "hadith", "tarawih_witr", "good_deed"]
         for item_key in item_keys:

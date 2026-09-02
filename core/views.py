@@ -849,6 +849,8 @@ def home(request):
         Profile.objects.filter(user=request.user).first()
         if request.user.is_authenticated else None
     )
+    if not has_teacher_role and not has_admin_role:
+        ctx.update(student_top10_achievements(request.user, school_year_ranges))
     return render(request, "core/home.html", ctx)
 
 
@@ -971,6 +973,96 @@ def calendar_page(request):
 @login_required
 def about(request):
     return render(request, "core/about.html")
+
+
+def student_top10_achievements(user, school_year_ranges):
+    """Return the student's lasting Ramadan and monthly prayer Top-10 results."""
+    student_filter = Q(user__is_staff=False) & (
+        Q(user__profile__is_teacher=False) | Q(user__profile__isnull=True)
+    )
+    name_cache = {}
+
+    def ranking_name(user_id):
+        ranked_user = name_cache.get(user_id)
+        if ranked_user is None:
+            return ""
+        return (ranked_user.get_full_name().strip() or ranked_user.username).casefold()
+
+    ramadan_rows = list(
+        RamadanItemDone.objects
+        .filter(student_filter, done=True, school_year=school_year_ranges["year"])
+        .values("user_id", "day")
+        .annotate(done_items=Count("item_key", distinct=True))
+    )
+    ramadan_totals = {}
+    for row in ramadan_rows:
+        totals = ramadan_totals.setdefault(row["user_id"], {"days": 0, "items": 0})
+        done_items = min(row["done_items"], len(RAMADAN_ITEMS_ORDER))
+        totals["items"] += done_items
+        if done_items >= len(RAMADAN_ITEMS_ORDER):
+            totals["days"] += 1
+
+    prayer_rows = list(
+        PrayerStatus.objects
+        .filter(
+            student_filter,
+            prayed=True,
+            date__range=(school_year_ranges["prayer_start"], school_year_ranges["prayer_end"]),
+        )
+        .values("user_id", "date__year", "date__month")
+        .annotate(total=Count("id"))
+    )
+    user_ids = set(ramadan_totals)
+    user_ids.update(row["user_id"] for row in prayer_rows)
+    name_cache.update(User.objects.filter(id__in=user_ids).in_bulk())
+
+    ramadan_rank = None
+    if user.id in ramadan_totals:
+        ranked_ramadan = sorted(
+            ramadan_totals,
+            key=lambda user_id: (
+                -ramadan_totals[user_id]["days"],
+                -ramadan_totals[user_id]["items"],
+                ranking_name(user_id),
+            ),
+        )[:10]
+        if user.id in ranked_ramadan:
+            ramadan_rank = ranked_ramadan.index(user.id) + 1
+
+    months = {}
+    for row in prayer_rows:
+        key = (row["date__year"], row["date__month"])
+        months.setdefault(key, []).append(row)
+
+    month_names_de = (
+        "", "Januar", "Februar", "März", "April", "Mai", "Juni",
+        "Juli", "August", "September", "Oktober", "November", "Dezember",
+    )
+    month_names_ar = (
+        "", "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
+        "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر",
+    )
+    prayer_top10_months = []
+    for (year, month), rows in sorted(months.items(), reverse=True):
+        ranked_month = sorted(
+            rows,
+            key=lambda row: (-row["total"], ranking_name(row["user_id"])),
+        )[:10]
+        ranked_ids = [row["user_id"] for row in ranked_month]
+        if user.id in ranked_ids:
+            prayer_top10_months.append({
+                "year": year,
+                "month": month,
+                "month_de": month_names_de[month],
+                "month_ar": month_names_ar[month],
+                "rank": ranked_ids.index(user.id) + 1,
+            })
+
+    return {
+        "ramadan_top10_rank": ramadan_rank,
+        "ramadan_top10_year": school_year_ranges["year"],
+        "prayer_top10_months": prayer_top10_months,
+    }
 
 
 @login_required
