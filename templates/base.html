@@ -50,7 +50,7 @@
       }
     } catch (_) {}
   </script>
-  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260908-230">  <style>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260908-234">  <style>
   .act-grid{
     display: grid;
     gap: 12px;
@@ -496,7 +496,8 @@
       if (!bottomNav || !page || !mobileViewport.matches) return;
 
       const blockedStart = [
-        "input", "textarea", "select", "dialog", "[contenteditable='true']"
+        "input", "textarea", "select", "dialog", "[contenteditable='true']",
+        ".assignment-row-shell", ".assignment-scroll-status"
       ].join(",");
       let startX = 0;
       let startY = 0;
@@ -554,10 +555,8 @@
 
         event.preventDefault();
 
-        const isGerman = localStorage.getItem("registrationLanguage") === "de";
         const visualStep = deltaX < 0 ? 1 : -1;
-        const step = isGerman ? visualStep : -visualStep;
-        const target = links[activeIndex + step];
+        const target = links[activeIndex + visualStep];
         if (!target) {
           resetPage();
           return;

@@ -6956,6 +6956,57 @@ html.app-language-german .admin-stats-page { direction: ltr; }
   .points-award-panel,
   .points-table-panel,
   .points-history-panel { padding: .85rem; border-radius: 1.25rem; }
+  .points-table-scroll { overflow-x: visible; }
+  .points-table {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+  .points-table thead { display: none; }
+  .points-table tbody { display: grid; gap: .75rem; }
+  .points-table tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .45rem;
+    padding: .65rem;
+    border: 1px solid rgb(23 128 94 / 14%);
+    border-radius: 1rem;
+    background: rgb(255 253 248 / 84%);
+    box-shadow: 0 8px 20px rgb(11 73 56 / 7%);
+  }
+  .points-table td {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: .45rem;
+    padding: .48rem .55rem;
+    border-radius: .7rem !important;
+    background: rgb(231 243 236 / 68%);
+    text-align: end;
+  }
+  .points-table td::before {
+    content: attr(data-label-ar);
+    color: #52645f;
+    font-size: .68rem;
+    font-weight: 850;
+    text-align: start;
+  }
+  html.app-language-german .points-table td::before { content: attr(data-label-de); }
+  html:not(.app-language-german) .points-table td:nth-child(2) { order: -2; }
+  html:not(.app-language-german) .points-table td:first-child { order: -1; }
+  .points-table td:nth-child(2) strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .points-table .points-table-empty {
+    display: block;
+    grid-column: 1 / -1;
+    padding: 1.25rem;
+    text-align: center;
+  }
+  .points-table .points-table-empty::before { content: none; }
   .points-history-list article { grid-template-columns: auto minmax(0, 1fr); }
   .points-history-meta { grid-column: 2; justify-items: start; }
   .student-points-bank { align-items: flex-start; flex-direction: column; }
@@ -6975,8 +7026,23 @@ html.app-language-german .admin-stats-page { direction: ltr; }
   .student-points-breakdown { justify-content: start; }
 
   body.app-shell-page .home-dashboard-card {
-    padding-inline-end: 1rem !important;
-    scrollbar-gutter: stable;
+    width: calc(100% - 0.7rem);
+    margin-inline: auto;
+    padding-inline: 0.35rem !important;
+    scrollbar-gutter: auto;
+  }
+  body.app-shell-page .profile-page .app-content-card {
+    width: calc(100% - 0.7rem);
+    margin-inline: auto;
+    padding-inline: 0.35rem !important;
+  }
+  body.app-shell-page .ramadan-plan-page .app-content-card {
+    width: calc(100% - 0.7rem);
+    margin-inline: auto;
+    padding-inline: 0.35rem !important;
+  }
+  body.app-shell-page .profile-page .app-content-card > div {
+    padding-inline: 0;
   }
 }
 

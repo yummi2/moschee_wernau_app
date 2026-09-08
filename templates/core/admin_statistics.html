@@ -102,14 +102,14 @@
         <tbody>
           {% for entry in point_ranking %}
           <tr>
-            <td><bdi dir="ltr">{{ forloop.counter }}</bdi></td>
-            <td><strong>{{ entry.name }}</strong></td>
-            <td><bdi dir="ltr">{{ entry.assignment_points }}</bdi></td>
-            <td><bdi dir="ltr">{{ entry.prayer_points }}</bdi></td>
-            <td><bdi dir="ltr">{{ entry.ramadan_points }}</bdi></td>
-            <td><bdi dir="ltr">{{ entry.story_points }}</bdi></td>
-            <td><bdi dir="ltr">{{ entry.teacher_points }}</bdi></td>
-            <td><strong class="points-total"><bdi dir="ltr">{{ entry.total_points }}</bdi></strong></td>
+            <td data-label-ar="الترتيب" data-label-de="Platz"><bdi dir="ltr">{{ forloop.counter }}</bdi></td>
+            <td data-label-ar="الطالب" data-label-de="Schüler"><strong>{{ entry.name }}</strong></td>
+            <td data-label-ar="الواجبات" data-label-de="Hausaufgaben"><bdi dir="ltr">{{ entry.assignment_points }}</bdi></td>
+            <td data-label-ar="الصلاة" data-label-de="Gebet"><bdi dir="ltr">{{ entry.prayer_points }}</bdi></td>
+            <td data-label-ar="رمضان 2027" data-label-de="Ramadan 2027"><bdi dir="ltr">{{ entry.ramadan_points }}</bdi></td>
+            <td data-label-ar="القراءة" data-label-de="Lesen"><bdi dir="ltr">{{ entry.story_points }}</bdi></td>
+            <td data-label-ar="نقاط المعلم" data-label-de="Lehrerpunkte"><bdi dir="ltr">{{ entry.teacher_points }}</bdi></td>
+            <td data-label-ar="المجموع" data-label-de="Gesamt"><strong class="points-total"><bdi dir="ltr">{{ entry.total_points }}</bdi></strong></td>
           </tr>
           {% empty %}
           <tr><td colspan="8" class="points-table-empty" data-app-ar="لا يوجد طلاب بعد." data-app-de="Noch keine Schüler vorhanden.">لا يوجد طلاب بعد.</td></tr>
