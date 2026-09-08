@@ -51,7 +51,7 @@ class StudentPointsTests(TestCase):
                 user=self.student,
                 day=1,
                 item_key=item_key,
-                school_year="2026",
+                school_year="2027",
                 done=True,
             )
         TeacherPointAward.objects.create(
@@ -70,6 +70,21 @@ class StudentPointsTests(TestCase):
         self.assertEqual(balance["story_points"], 1)
         self.assertEqual(balance["teacher_points"], 4)
         self.assertEqual(balance["total_points"], 8)
+
+    def test_completed_ramadan_2026_days_do_not_give_points(self):
+        for item_key in RAMADAN_ITEMS_ORDER:
+            RamadanItemDone.objects.create(
+                user=self.student,
+                day=1,
+                item_key=item_key,
+                school_year="2026",
+                done=True,
+            )
+
+        balance = point_balance(self.student)
+
+        self.assertEqual(balance["ramadan_points"], 0)
+        self.assertEqual(balance["total_points"], 0)
 
     def test_incomplete_prayer_or_ramadan_day_gives_no_point(self):
         for prayer in range(1, 5):

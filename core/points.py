@@ -9,8 +9,10 @@ from .ramadan_data import RAMADAN_ITEMS_ORDER
 
 POINTS_PRAYER_START = dt.date(2026, 9, 1)
 POINTS_PRAYER_END = dt.date(2027, 7, 31)
-# Ramadan 2027 belongs to the app's 2026/2027 school-year dataset.
-POINTS_RAMADAN_SCHOOL_YEAR = "2026"
+# Only completed days from the Ramadan 2027 dataset count for the points bank.
+# Archived Ramadan 2026 completions must remain visible in their archive, but
+# must never increase the current points balance.
+POINTS_RAMADAN_SCHOOL_YEAR = "2027"
 
 
 def student_users():
