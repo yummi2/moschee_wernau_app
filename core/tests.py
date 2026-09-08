@@ -178,6 +178,24 @@ class StudentPointsTests(TestCase):
         self.assertEqual(response.context["student_point_rank"], 2)
         self.assertEqual(response.context["student_point_count"], 2)
 
+    def test_library_top10_position_is_visible_in_both_school_year_views(self):
+        StoryRead.objects.create(user=self.student, level="beginner", sid="1")
+        get_user_model().objects.filter(pk=self.student.pk).update(
+            date_joined=timezone.make_aware(dt.datetime(2026, 8, 1, 12, 0))
+        )
+        self.student.refresh_from_db()
+        self.client.force_login(self.student)
+
+        for school_year in ("2026", "2027"):
+            with self.subTest(school_year=school_year):
+                session = self.client.session
+                session["school_year"] = school_year
+                session.save()
+                response = self.client.get(reverse("home"), {"tab": "home"})
+
+                self.assertEqual(response.context["library_top10_rank"], 1)
+                self.assertContains(response, "Du bist unter den Top 10 in der Bibliothek")
+
 
 class SchoolYearAccessTests(TestCase):
     def setUp(self):

@@ -6564,17 +6564,36 @@ html.app-language-german .about-page { direction: ltr; }
 .points-student-select.is-open .points-select-trigger svg { rotate: 180deg; }
 .points-select-menu {
   position: absolute;
-  z-index: 20;
+  z-index: 120;
   inset-block-start: calc(100% + .45rem);
   inset-inline: 0;
   max-height: 15rem;
   padding: .4rem;
+  overscroll-behavior: contain;
+  scrollbar-color: #17805e #efe5d2;
+  scrollbar-width: thin;
+  touch-action: pan-y;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   border: 1px solid rgb(23 128 94 / 22%);
   border-radius: 1rem;
   background: rgb(255 253 248 / 98%);
   box-shadow: 0 18px 38px rgb(11 73 56 / 18%);
   animation: points-menu-in .18s cubic-bezier(.22, 1, .36, 1);
+}
+.points-select-menu::-webkit-scrollbar { width: .38rem; }
+.points-select-menu::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: #efe5d2;
+}
+.points-select-menu::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: linear-gradient(#17805e, #0b4938);
+}
+.points-award-panel:has(.points-student-select.is-open) { position: relative; z-index: 110; }
+.points-student-select.opens-upward .points-select-menu {
+  inset-block-start: auto;
+  inset-block-end: calc(100% + .45rem);
 }
 .points-select-menu[hidden] { display: none; }
 .points-select-menu .points-select-option,
@@ -6901,6 +6920,7 @@ html.app-language-german .about-page { direction: ltr; }
 }
 .student-achievement--ramadan { border-color: rgb(23 128 94 / 22%); background: linear-gradient(135deg, #e7f3ec, #fffdf8); }
 .student-achievement--prayer { border-color: rgb(202 150 57 / 25%); background: linear-gradient(135deg, #fff1c7, #fffdf8); }
+.student-achievement--library { border-color: rgb(32 115 104 / 24%); background: linear-gradient(135deg, #dff3ed, #fffdf8); }
 .student-achievement-mark {
   display: grid;
   flex: 0 0 2.6rem;

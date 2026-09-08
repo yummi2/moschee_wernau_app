@@ -344,17 +344,46 @@
       const label = customSelect.querySelector("[data-points-select-label]");
       const menu = customSelect.querySelector("[data-points-select-menu]");
       const options = Array.from(customSelect.querySelectorAll("[data-points-option]"));
+      let positionFrame = null;
+      const positionMenu = () => {
+        if (menu.hidden) return;
+        const viewport = window.visualViewport;
+        const viewportTop = (viewport?.offsetTop || 0) + 16;
+        const viewportBottom = (viewport?.offsetTop || 0) + (viewport?.height || window.innerHeight) - 16;
+        const triggerRect = trigger.getBoundingClientRect();
+        const spaceBelow = viewportBottom - triggerRect.bottom;
+        const spaceAbove = triggerRect.top - viewportTop;
+        const wantedHeight = Math.min(320, Math.max(160, menu.scrollHeight));
+        const opensUpward = spaceBelow < wantedHeight && spaceAbove > spaceBelow;
+        const availableSpace = opensUpward ? spaceAbove : spaceBelow;
+        customSelect.classList.toggle("opens-upward", opensUpward);
+        menu.style.maxHeight = `${Math.max(140, Math.min(320, availableSpace - 12))}px`;
+      };
+      const scheduleMenuPosition = () => {
+        if (menu.hidden || positionFrame !== null) return;
+        positionFrame = window.requestAnimationFrame(() => {
+          positionFrame = null;
+          positionMenu();
+        });
+      };
       const closeMenu = () => {
         menu.hidden = true;
+        menu.style.removeProperty("max-height");
         trigger.setAttribute("aria-expanded", "false");
-        customSelect.classList.remove("is-open");
+        customSelect.classList.remove("is-open", "opens-upward");
       };
       const openMenu = () => {
         menu.hidden = false;
+        positionMenu();
         trigger.setAttribute("aria-expanded", "true");
         customSelect.classList.add("is-open");
         (options.find((option) => option.getAttribute("aria-selected") === "true") || options[0])?.focus();
       };
+
+      page.addEventListener("scroll", scheduleMenuPosition, { passive: true, capture: true });
+      window.addEventListener("resize", scheduleMenuPosition, { passive: true });
+      window.visualViewport?.addEventListener("resize", scheduleMenuPosition, { passive: true });
+      window.visualViewport?.addEventListener("scroll", scheduleMenuPosition, { passive: true });
 
       trigger.addEventListener("click", () => menu.hidden ? openMenu() : closeMenu());
       nativeSelect.addEventListener("invalid", (event) => {

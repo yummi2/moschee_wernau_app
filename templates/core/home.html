@@ -128,7 +128,7 @@
                 </section>
                 {% endif %}
 
-                {% if active_tab == "home" and ramadan_top10_rank or active_tab == "home" and prayer_top10_months %}
+                {% if active_tab == "home" and ramadan_top10_rank or active_tab == "home" and prayer_top10_months or active_tab == "home" and library_top10_rank %}
                 <section class="student-achievements" data-home-overview-only aria-label="الإنجازات">
                     {% if ramadan_top10_rank %}
                     <article class="student-achievement student-achievement--ramadan">
@@ -153,6 +153,19 @@
                                 </li>
                                 {% endfor %}
                             </ul>
+                        </div>
+                    </article>
+                    {% endif %}
+
+                    {% if library_top10_rank %}
+                    <article class="student-achievement student-achievement--library">
+                        <span class="student-achievement-mark" aria-hidden="true">✓</span>
+                        <div>
+                            <strong data-app-ar="أنت من أفضل 10 طلاب في المكتبة" data-app-de="Du bist unter den Top 10 in der Bibliothek">أنت من أفضل 10 طلاب في المكتبة</strong>
+                            <small>
+                                <span data-app-ar="المركز" data-app-de="Platz">المركز</span>
+                                <bdi dir="ltr">{{ library_top10_rank }}</bdi>
+                            </small>
                         </div>
                     </article>
                     {% endif %}

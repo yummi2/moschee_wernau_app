@@ -995,7 +995,7 @@ def about(request):
 
 
 def student_top10_achievements(user, school_year_ranges):
-    """Return the student's lasting Ramadan and monthly prayer Top-10 results."""
+    """Return the student's lasting Ramadan, prayer and library Top-10 results."""
     student_filter = Q(user__is_staff=False) & (
         Q(user__profile__is_teacher=False) | Q(user__profile__isnull=True)
     )
@@ -1031,8 +1031,15 @@ def student_top10_achievements(user, school_year_ranges):
         .values("user_id", "date__year", "date__month")
         .annotate(total=Count("id"))
     )
+    library_rows = list(
+        StoryRead.objects
+        .filter(student_filter)
+        .values("user_id")
+        .annotate(total=Count("id"))
+    )
     user_ids = set(ramadan_totals)
     user_ids.update(row["user_id"] for row in prayer_rows)
+    user_ids.update(row["user_id"] for row in library_rows)
     name_cache.update(User.objects.filter(id__in=user_ids).in_bulk())
 
     ramadan_rank = None
@@ -1077,10 +1084,20 @@ def student_top10_achievements(user, school_year_ranges):
                 "rank": ranked_ids.index(user.id) + 1,
             })
 
+    library_rank = None
+    ranked_library = sorted(
+        library_rows,
+        key=lambda row: (-row["total"], ranking_name(row["user_id"])),
+    )[:10]
+    ranked_library_ids = [row["user_id"] for row in ranked_library]
+    if user.id in ranked_library_ids:
+        library_rank = ranked_library_ids.index(user.id) + 1
+
     return {
         "ramadan_top10_rank": ramadan_rank,
         "ramadan_top10_year": school_year_ranges["year"],
         "prayer_top10_months": prayer_top10_months,
+        "library_top10_rank": library_rank,
     }
 
 
