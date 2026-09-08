@@ -50,7 +50,7 @@
       }
     } catch (_) {}
   </script>
-  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260908-239">  <style>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260908-240">  <style>
   .act-grid{
     display: grid;
     gap: 12px;
@@ -431,13 +431,13 @@
             { left: `${middlePosition}px`, transform: "translateY(-50%) scaleX(1.28)", offset: 0.5 },
             { left: `${activePosition}px`, transform: "translateY(-50%) scaleX(1)" }
           ], {
-            duration: 520,
+            duration: 280,
             easing: "cubic-bezier(.22, 1, .36, 1)"
           });
         } else {
           setIndicatorPosition(activeIndex);
         }
-        window.setTimeout(() => bottomNav.classList.remove("is-moving"), 540);
+        window.setTimeout(() => bottomNav.classList.remove("is-moving"), 300);
       } else {
         setIndicatorPosition(activeIndex);
       }
@@ -472,10 +472,10 @@
           { left: `${(previousPosition + nextPosition) / 2}px`, transform: "translateY(-50%) scaleX(1.28)", offset: 0.5 },
           { left: `${nextPosition}px`, transform: "translateY(-50%) scaleX(1)" }
         ], {
-          duration: 520,
+          duration: 280,
           easing: "cubic-bezier(.22, 1, .36, 1)"
         });
-        window.setTimeout(() => bottomNav.classList.remove("is-moving"), 540);
+        window.setTimeout(() => bottomNav.classList.remove("is-moving"), 300);
       });
 
       window.addEventListener("resize", () => {
@@ -515,6 +515,21 @@
         bottomNav.querySelectorAll("a.app-bottom-nav-link:not(.is-disabled)")
       ).sort((first, second) => first.getBoundingClientRect().left - second.getBoundingClientRect().left);
 
+      const prefetchAdjacentPages = () => {
+        const links = visibleNavigation();
+        const activeIndex = links.findIndex((link) => link.classList.contains("is-active"));
+        if (activeIndex < 0) return;
+        [links[activeIndex - 1], links[activeIndex + 1]].filter(Boolean).forEach((link) => {
+          if (document.querySelector(`link[rel="prefetch"][href="${CSS.escape(link.href)}"]`)) return;
+          const prefetch = document.createElement("link");
+          prefetch.rel = "prefetch";
+          prefetch.href = link.href;
+          document.head.appendChild(prefetch);
+        });
+      };
+      if ("requestIdleCallback" in window) window.requestIdleCallback(prefetchAdjacentPages, { timeout: 900 });
+      else window.setTimeout(prefetchAdjacentPages, 250);
+
       page.addEventListener("touchstart", (event) => {
         if (event.touches.length !== 1 || event.target.closest(blockedStart)) return;
         if (document.querySelector("dialog[open]")) return;
@@ -533,7 +548,7 @@
           return;
         }
         if (Math.abs(deltaX) < 12) return;
-        const restrainedX = Math.max(-38, Math.min(38, deltaX * 0.22));
+        const restrainedX = Math.max(-48, Math.min(48, deltaX * 0.34));
         page.style.transform = `translate3d(${restrainedX}px, 0, 0)`;
         page.style.opacity = String(1 - Math.min(Math.abs(deltaX) / 900, 0.08));
       }, { passive: true });
@@ -544,7 +559,7 @@
         const touch = event.changedTouches[0];
         const deltaX = touch.clientX - startX;
         const deltaY = touch.clientY - startY;
-        const isSwipe = Math.abs(deltaX) >= 64 && Math.abs(deltaX) > Math.abs(deltaY) * 1.35;
+        const isSwipe = Math.abs(deltaX) >= 48 && Math.abs(deltaX) > Math.abs(deltaY) * 1.25;
         const links = visibleNavigation();
         const activeIndex = links.findIndex((link) => link.classList.contains("is-active"));
 
@@ -573,15 +588,15 @@
           return;
         }
 
-        const exitX = deltaX < 0 ? -52 : 52;
+        const exitX = deltaX < 0 ? -64 : 64;
         const animation = page.animate([
           { transform: page.style.transform || "translate3d(0, 0, 0)", opacity: page.style.opacity || "1" },
           { transform: `translate3d(${exitX}px, 0, 0)`, opacity: 0.72 }
-        ], { duration: 150, easing: "cubic-bezier(.4, 0, 1, 1)", fill: "forwards" });
+        ], { duration: 90, easing: "cubic-bezier(.22, 1, .36, 1)", fill: "forwards" });
         animation.id = "mobile-page-swipe";
         animation.finished.then(() => {
           target.click();
-          window.setTimeout(resetPage, 80);
+          window.setTimeout(resetPage, 40);
         }).catch(resetPage);
       }, { passive: false });
 

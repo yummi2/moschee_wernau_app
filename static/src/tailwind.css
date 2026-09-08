@@ -7056,9 +7056,8 @@ html.app-language-german .admin-stats-page { direction: ltr; }
     background: rgb(255 255 255 / 11%);
   }
   .student-point-awards { flex: none; }
-  .student-points-rank { width: 100%; grid-template-columns: 1fr auto auto; align-items: center; justify-items: start; gap: .4rem; }
-  .student-points-rank strong { justify-self: center; }
-  .student-points-rank > span { justify-self: end; }
+  .student-points-rank { width: 100%; grid-template-columns: 1fr auto; align-items: center; justify-items: start; gap: .4rem; }
+  .student-points-rank strong { justify-self: end; }
   .student-points-breakdown { justify-content: start; }
 
   body.app-shell-page .home-dashboard-card {
@@ -7067,6 +7066,7 @@ html.app-language-german .admin-stats-page { direction: ltr; }
     padding-inline: 0.35rem !important;
     scrollbar-gutter: auto;
   }
+  body.app-shell-page .app-content-card { animation-duration: 220ms; }
   body.app-shell-page .profile-page .app-content-card {
     width: calc(100% - 0.7rem);
     margin-inline: auto;
