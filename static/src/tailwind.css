@@ -6993,12 +6993,18 @@ html.app-language-german .admin-stats-page { direction: ltr; }
     text-align: start;
   }
   html.app-language-german .points-table td::before { content: attr(data-label-de); }
-  html:not(.app-language-german) .points-table td:nth-child(2) { order: -2; }
-  html:not(.app-language-german) .points-table td:first-child { order: -1; }
-  .points-table td:nth-child(2) strong {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  .points-table td:nth-child(2) { order: -2; }
+  .points-table td:first-child { order: -1; }
+  .points-table .points-student-name {
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: flex-start;
+    text-align: start;
+  }
+  .points-table .points-student-name strong {
+    width: 100%;
+    overflow-wrap: anywhere;
+    white-space: normal;
   }
   .points-table .points-table-empty {
     display: block;

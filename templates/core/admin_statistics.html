@@ -103,7 +103,7 @@
           {% for entry in point_ranking %}
           <tr>
             <td data-label-ar="الترتيب" data-label-de="Platz"><bdi dir="ltr">{{ forloop.counter }}</bdi></td>
-            <td data-label-ar="الطالب" data-label-de="Schüler"><strong>{{ entry.name }}</strong></td>
+            <td class="points-student-name" data-label-ar="الطالب" data-label-de="Schüler"><strong>{{ entry.name }}</strong></td>
             <td data-label-ar="الواجبات" data-label-de="Hausaufgaben"><bdi dir="ltr">{{ entry.assignment_points }}</bdi></td>
             <td data-label-ar="الصلاة" data-label-de="Gebet"><bdi dir="ltr">{{ entry.prayer_points }}</bdi></td>
             <td data-label-ar="رمضان 2027" data-label-de="Ramadan 2027"><bdi dir="ltr">{{ entry.ramadan_points }}</bdi></td>
