@@ -196,6 +196,35 @@ class StudentPointsTests(TestCase):
                 self.assertEqual(response.context["library_top10_rank"], 1)
                 self.assertContains(response, "Du bist unter den Top 10 in der Bibliothek")
 
+    def test_student_qualifying_in_all_rankings_gets_mosque_top10_message(self):
+        StoryRead.objects.create(user=self.student, level="beginner", sid="1")
+        for prayer in range(1, 6):
+            PrayerStatus.objects.create(
+                user=self.student,
+                date=dt.date(2026, 9, 8),
+                prayer=prayer,
+                prayed=True,
+            )
+        for item_key in RAMADAN_ITEMS_ORDER:
+            RamadanItemDone.objects.create(
+                user=self.student,
+                day=1,
+                item_key=item_key,
+                school_year="2027",
+                done=True,
+            )
+        self.client.force_login(self.student)
+
+        response = self.client.get(reverse("home"), {"tab": "home"})
+
+        self.assertTrue(response.context["mosque_top10"])
+        self.assertContains(response, "Du bist unter den Top 10 der Moschee")
+
+        self.client.force_login(self.teacher)
+        teacher_response = self.client.get(reverse("home"))
+        self.assertEqual(teacher_response.context["mosque_ranking"][0]["user"], self.student)
+        self.assertContains(teacher_response, "Top 10 der Moschee")
+
 
 class SchoolYearAccessTests(TestCase):
     def setUp(self):

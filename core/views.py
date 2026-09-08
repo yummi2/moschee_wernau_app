@@ -994,6 +994,103 @@ def about(request):
     return render(request, "core/about.html")
 
 
+def mosque_top10_ranking(school_year_ranges):
+    """Rank students who qualify in Ramadan, prayer and library by points."""
+    if school_year_ranges["year"] != "2027":
+        return []
+
+    students = list(student_users().select_related("profile"))
+    student_ids = [student.id for student in students]
+    students_by_id = {student.id: student for student in students}
+    if not student_ids:
+        return []
+
+    def display_name(student):
+        return student.get_full_name().strip() or student.username
+
+    ramadan_rows = (
+        RamadanItemDone.objects
+        .filter(user_id__in=student_ids, done=True, school_year="2027")
+        .values("user_id", "day")
+        .annotate(done_items=Count("item_key", distinct=True))
+    )
+    ramadan_totals = {}
+    for row in ramadan_rows:
+        total = ramadan_totals.setdefault(row["user_id"], {"days": 0, "items": 0})
+        done_items = min(row["done_items"], len(RAMADAN_ITEMS_ORDER))
+        total["items"] += done_items
+        if done_items >= len(RAMADAN_ITEMS_ORDER):
+            total["days"] += 1
+    ramadan_top_ids = set(sorted(
+        ramadan_totals,
+        key=lambda user_id: (
+            -ramadan_totals[user_id]["days"],
+            -ramadan_totals[user_id]["items"],
+            display_name(students_by_id[user_id]).casefold(),
+        ),
+    )[:10])
+
+    prayer_rows = (
+        PrayerStatus.objects
+        .filter(
+            user_id__in=student_ids,
+            prayed=True,
+            date__range=(school_year_ranges["prayer_start"], school_year_ranges["prayer_end"]),
+        )
+        .values("user_id", "date__year", "date__month")
+        .annotate(total=Count("id"))
+    )
+    prayer_months = {}
+    for row in prayer_rows:
+        prayer_months.setdefault((row["date__year"], row["date__month"]), []).append(row)
+    prayer_top_ids = set()
+    for rows in prayer_months.values():
+        prayer_top_ids.update(
+            row["user_id"]
+            for row in sorted(
+                rows,
+                key=lambda row: (
+                    -row["total"],
+                    display_name(students_by_id[row["user_id"]]).casefold(),
+                ),
+            )[:10]
+        )
+
+    library_rows = list(
+        StoryRead.objects
+        .filter(user_id__in=student_ids)
+        .values("user_id")
+        .annotate(total=Count("id"))
+    )
+    library_top_ids = {
+        row["user_id"]
+        for row in sorted(
+            library_rows,
+            key=lambda row: (
+                -row["total"],
+                display_name(students_by_id[row["user_id"]]).casefold(),
+            ),
+        )[:10]
+    }
+
+    eligible_ids = ramadan_top_ids & prayer_top_ids & library_top_ids
+    balances = point_balances(students)
+    return [
+        {
+            "user": students_by_id[user_id],
+            "name": display_name(students_by_id[user_id]),
+            "total_points": balances[user_id]["total_points"],
+        }
+        for user_id in sorted(
+            eligible_ids,
+            key=lambda user_id: (
+                -balances[user_id]["total_points"],
+                display_name(students_by_id[user_id]).casefold(),
+            ),
+        )[:10]
+    ]
+
+
 def student_top10_achievements(user, school_year_ranges):
     """Return the student's lasting Ramadan, prayer and library Top-10 results."""
     student_filter = Q(user__is_staff=False) & (
@@ -1043,6 +1140,7 @@ def student_top10_achievements(user, school_year_ranges):
     name_cache.update(User.objects.filter(id__in=user_ids).in_bulk())
 
     ramadan_rank = None
+    ranked_ramadan = []
     if user.id in ramadan_totals:
         ranked_ramadan = sorted(
             ramadan_totals,
@@ -1065,8 +1163,8 @@ def student_top10_achievements(user, school_year_ranges):
         "Juli", "August", "September", "Oktober", "November", "Dezember",
     )
     month_names_ar = (
-        "", "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
-        "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر",
+        "", "كانون الثاني", "شباط", "آذار", "نيسان", "أيار", "حزيران",
+        "تموز", "آب", "أيلول", "تشرين الأول", "تشرين الثاني", "كانون الأول",
     )
     prayer_top10_months = []
     for (year, month), rows in sorted(months.items(), reverse=True):
@@ -1093,11 +1191,15 @@ def student_top10_achievements(user, school_year_ranges):
     if user.id in ranked_library_ids:
         library_rank = ranked_library_ids.index(user.id) + 1
 
+    ranked_mosque = mosque_top10_ranking(school_year_ranges)
+    mosque_top10 = any(entry["user"].id == user.id for entry in ranked_mosque)
+
     return {
         "ramadan_top10_rank": ramadan_rank,
         "ramadan_top10_year": school_year_ranges["year"],
         "prayer_top10_months": prayer_top10_months,
         "library_top10_rank": library_rank,
+        "mosque_top10": mosque_top10,
     }
 
 
@@ -1283,6 +1385,8 @@ def admin_statistics(request):
         for row in point_ranking:
             row["name"] = student_name(row["user"])
 
+    mosque_ranking = mosque_top10_ranking(school_year_ranges)
+
     teacher_students = User.objects.none()
     if is_teacher and show_points_bank:
         teacher_students = student_users().select_related("profile")
@@ -1298,6 +1402,7 @@ def admin_statistics(request):
         "ramadan_year": ramadan_year,
         "prayer_ranking": prayer_ranking,
         "library_ranking": library_ranking,
+        "mosque_ranking": mosque_ranking,
         "prayer_period": prayer_period,
         "prayer_period_start": prayer_period_start,
         "prayer_period_end": prayer_period_end,

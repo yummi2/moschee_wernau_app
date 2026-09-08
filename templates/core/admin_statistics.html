@@ -151,6 +151,33 @@
   {% endif %}
 
   <div class="admin-stats-grid">
+    {% if mosque_ranking %}
+    <article class="admin-ranking admin-ranking--mosque">
+      <div class="admin-ranking-heading">
+        <span class="admin-ranking-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M12 3l2.2 4.5 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.5 5-.7L12 3Z"/></svg>
+        </span>
+        <div>
+          <h2 data-app-ar="أفضل 10 طلاب في المسجد" data-app-de="Top 10 der Moschee">أفضل 10 طلاب في المسجد</h2>
+          <p data-app-ar="طلاب متميزون في رمضان والصلاة والمكتبة، مرتّبون حسب مجموع النقاط." data-app-de="In Ramadan, Gebet und Bibliothek ausgezeichnet; sortiert nach Gesamtpunkten.">طلاب متميزون في رمضان والصلاة والمكتبة، مرتّبون حسب مجموع النقاط.</p>
+        </div>
+      </div>
+
+      <ol class="admin-ranking-list">
+        {% for entry in mosque_ranking %}
+        <li>
+          <span class="admin-rank-number">{{ forloop.counter }}</span>
+          <span class="admin-rank-student"><strong>{{ entry.name }}</strong></span>
+          <span class="admin-rank-score">
+            <bdi dir="ltr">{{ entry.total_points }}</bdi>
+            <small data-app-ar="نقطة" data-app-de="Punkte">نقطة</small>
+          </span>
+        </li>
+        {% endfor %}
+      </ol>
+    </article>
+    {% endif %}
+
     <article class="admin-ranking admin-ranking--ramadan">
       <div class="admin-ranking-heading">
         <span class="admin-ranking-icon" aria-hidden="true">

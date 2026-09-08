@@ -6697,6 +6697,12 @@ html.app-language-german .about-page { direction: ltr; }
   border-color: rgb(42 117 135 / 24%);
   background: linear-gradient(145deg, rgb(227 244 241 / 90%), rgb(255 253 248 / 78%));
 }
+.admin-ranking--mosque {
+  order: -2;
+  border-color: rgb(202 150 57 / 35%);
+  background: linear-gradient(145deg, rgb(248 232 186 / 92%), rgb(255 253 248 / 80%));
+}
+.admin-ranking--mosque .admin-ranking-icon { background: linear-gradient(145deg, #9a6519, #d29b3f); }
 .admin-ranking--library .admin-ranking-icon { background: linear-gradient(145deg, #176b70, #2a8790); }
 .admin-ranking-heading { display: flex; align-items: flex-start; gap: .85rem; }
 .admin-ranking-icon {
@@ -6931,6 +6937,8 @@ html.app-language-german .about-page { direction: ltr; }
 .student-achievement--ramadan { border-color: rgb(23 128 94 / 22%); background: linear-gradient(135deg, #e7f3ec, #fffdf8); }
 .student-achievement--prayer { border-color: rgb(202 150 57 / 25%); background: linear-gradient(135deg, #fff1c7, #fffdf8); }
 .student-achievement--library { border-color: rgb(32 115 104 / 24%); background: linear-gradient(135deg, #dff3ed, #fffdf8); }
+.student-achievement--mosque { border-color: rgb(202 150 57 / 34%); background: linear-gradient(135deg, #f7e7b8, #fffdf8); }
+.student-achievement--mosque .student-achievement-mark { color: #fff8e7; background: linear-gradient(145deg, #b7791f, #d29b3f); }
 .student-achievement-mark {
   display: grid;
   flex: 0 0 2.6rem;

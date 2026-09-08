@@ -129,6 +129,16 @@
 
                 {% if active_tab == "home" and ramadan_top10_rank or active_tab == "home" and prayer_top10_months or active_tab == "home" and library_top10_rank %}
                 <section class="student-achievements" data-home-overview-only aria-label="الإنجازات">
+                    {% if mosque_top10 %}
+                    <article class="student-achievement student-achievement--mosque">
+                        <span class="student-achievement-mark" aria-hidden="true">★</span>
+                        <div>
+                            <strong data-app-ar="أنت من أفضل 10 طلاب في المسجد" data-app-de="Du bist unter den Top 10 der Moschee">أنت من أفضل 10 طلاب في المسجد</strong>
+                            <small data-app-ar="تميز في رمضان والصلاة والمكتبة وبنك النقاط" data-app-de="Auszeichnung für Ramadan, Gebet, Bibliothek und Punktebank">تميز في رمضان والصلاة والمكتبة وبنك النقاط</small>
+                        </div>
+                    </article>
+                    {% endif %}
+
                     {% if ramadan_top10_rank %}
                     <article class="student-achievement student-achievement--ramadan">
                         <span class="student-achievement-mark" aria-hidden="true">✓</span>
