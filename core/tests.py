@@ -254,6 +254,65 @@ class SchoolYearAccessTests(TestCase):
 
 
 class LibraryTranslationTests(TestCase):
+    def test_books_level_contains_embedded_cloudinary_pdfs(self):
+        response = self.client.get(reverse("library"), {"level": "books"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "الأربعون النووية")
+        self.assertContains(response, "فاتتني صلاة")
+        self.assertContains(response, "أنواع الصدقات")
+        self.assertContains(response, "data-library-pdf-reader")
+        self.assertContains(response, "data-library-pdf-save")
+        self.assertContains(response, "Mir ist ein Gebet entgangen")
+        self.assertContains(response, 'data-book-id="rashidi_part"')
+        self.assertContains(response, "Zum ersten Mal denke ich über den Koran nach")
+        self.assertNotContains(response, "Sterne im Firmament des Prophetentums")
+        self.assertContains(response, "data-library-pdf=", count=3)
+        self.assertContains(response, "PDF öffnen")
+        self.assertContains(response, "res.cloudinary.com", count=5)
+        content = response.content.decode()
+        self.assertLess(
+            content.index("Zum ersten Mal denke ich über den Koran nach"),
+            content.index("Mir ist ein Gebet entgangen"),
+        )
+
+    def test_finishing_a_book_adds_exactly_one_library_point(self):
+        student = get_user_model().objects.create_user("book-reader", password="x")
+        self.client.force_login(student)
+        url = reverse("mark_story_read")
+
+        first = self.client.post(
+            url, data='{"level":"books","sid":"forty_nawawi"}', content_type="application/json"
+        )
+        second = self.client.post(
+            url, data='{"level":"books","sid":"forty_nawawi"}', content_type="application/json"
+        )
+
+        self.assertEqual(first.status_code, 200)
+        self.assertTrue(first.json()["created"])
+        self.assertFalse(second.json()["created"])
+        self.assertEqual(StoryRead.objects.filter(user=student, level="books").count(), 1)
+        self.assertEqual(point_balance(student)["story_points"], 1)
+
+    def test_unknown_book_cannot_create_a_point(self):
+        student = get_user_model().objects.create_user("invalid-book-reader", password="x")
+        self.client.force_login(student)
+
+        response = self.client.post(
+            reverse("mark_story_read"),
+            data='{"level":"books","sid":"invented-book"}',
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(StoryRead.objects.filter(user=student).exists())
+
+    def test_drive_pdf_proxy_requires_login(self):
+        response = self.client.get(reverse("library_book_pdf", args=["rashidi_part"]))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse("login"), response.url)
+
     def test_library_uses_content_specific_german_titles(self):
         beginner = self.client.get(reverse("library"), {"level": "beginner"})
         intermediate = self.client.get(reverse("library"), {"level": "intermediate"})

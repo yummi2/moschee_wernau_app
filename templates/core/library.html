@@ -8,7 +8,7 @@
     {% if not level %}
     <div class="library-levels-shell mx-auto max-w-5xl p-6" data-app-language-surface>
         <h3 class="library-section-title text-xl font-semibold mb-4 text-right" data-app-ar="اختر مستوى" data-app-de="Wähle ein Level">اختر مستوى</h3>
-        <div class="library-levels-grid grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="library-levels-grid grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
             <a href="{% url 'library' %}?level=beginner"
                 class="library-level-card group block rounded-2xl bg-white shadow transition p-3 h-full">
                 <div class="flex flex-col h-full text-right">
@@ -27,17 +27,85 @@
                     <h4 class="library-level-title text-lg font-bold text-blue-600 mb-1" data-app-ar="المتقدم" data-app-de="Fortgeschritten">المتقدم</h4>
                 </div>
             </a>
+            <a href="{% url 'library' %}?level=books"
+                class="library-level-card library-level-card--books group block rounded-2xl bg-white shadow transition p-3 h-full">
+                <div class="flex flex-col h-full text-right">
+                    <h4 class="library-level-title text-lg font-bold text-blue-600 mb-1" data-app-ar="الكتب" data-app-de="Bücher">الكتب</h4>
+                </div>
+            </a>
         </div>
     </div>
 
     {# === 1) Satzliste (für beliebiges Level) === #}
     {% elif level and not story %}
-    <div class="library-list-shell mx-auto max-w-5xl px-4" data-app-language-surface>
-        <div class="library-list-content p-6">
+    <div class="library-list-shell {% if level == 'books' %}library-list-shell--books{% endif %} mx-auto max-w-5xl px-4" data-app-language-surface>
+        <div class="library-list-content {% if level == 'books' %}library-list-content--books{% endif %} p-6">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-2xl font-semibold text-blue-800" data-app-ar="{{ level_title }}" data-app-de="{{ level_title_de }}">{{ level_title }}</h2>
             </div>
 
+            {% if level == "books" %}
+            <div class="library-books-grid" data-library-books-list>
+                {% for book in library_books %}
+                {% if book.external_only %}
+                <a class="library-book-card" href="{{ book.external_url|default:book.url }}" target="_blank" rel="noopener noreferrer">
+                {% else %}
+                <button type="button" class="library-book-card" data-library-pdf="{{ book.url }}"
+                    data-book-id="{{ book.id }}" data-already-read="{{ book.already_read|yesno:'true,false' }}"
+                    data-library-external="{{ book.external_url|default:book.url }}"
+                    data-title-ar="{{ book.title_ar }}" data-title-de="{{ book.title_de }}">
+                {% endif %}
+                    <span class="library-book-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11v17H6.5A2.5 2.5 0 0 0 4 22V5.5ZM20 5.5A2.5 2.5 0 0 0 17.5 3H13v17h4.5A2.5 2.5 0 0 1 20 22V5.5Z"/></svg>
+                    </span>
+                    <span class="library-book-title" data-app-ar="{{ book.title_ar }}" data-app-de="{{ book.title_de }}">{{ book.title_ar }}</span>
+                    {% if book.external_only %}
+                    <span class="library-book-open" data-app-ar="فتح ملف PDF" data-app-de="PDF öffnen">فتح ملف PDF</span>
+                    {% else %}
+                    <span class="library-book-open" data-app-ar="قراءة الكتاب" data-app-de="Buch lesen">قراءة الكتاب</span>
+                    {% endif %}
+                {% if book.external_only %}
+                </a>
+                {% else %}
+                </button>
+                {% endif %}
+                {% endfor %}
+            </div>
+
+            <section class="library-pdf-reader" data-library-pdf-reader data-app-language-surface hidden aria-labelledby="libraryPdfTitle">
+                <header class="library-pdf-reader-header">
+                    <h3 id="libraryPdfTitle" data-library-pdf-title></h3>
+                </header>
+
+                <div class="library-pdf-stage" data-library-pdf-stage aria-live="polite">
+                    <p class="library-pdf-status" data-library-pdf-status></p>
+                    <canvas data-library-pdf-canvas aria-label="PDF-Seite"></canvas>
+                </div>
+
+                <nav class="library-pdf-navigation" aria-label="PDF-Seiten">
+                    <button type="button" data-library-pdf-previous aria-label="Vorherige Seite">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+                    </button>
+                    <bdi dir="ltr" data-library-pdf-page>1 / 1</bdi>
+                    <button type="button" data-library-pdf-next aria-label="Nächste Seite">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+                    </button>
+                </nav>
+
+                {% if request.user.is_authenticated %}
+                <div class="library-pdf-complete" data-library-pdf-complete hidden>
+                    <button type="button" data-library-pdf-done data-app-ar="تم" data-app-de="Erledigt">تم</button>
+                </div>
+                {% endif %}
+
+                <div class="library-pdf-actions">
+                    <button type="button" class="library-pdf-save" data-library-pdf-save data-app-ar="حفظ موضع القراءة" data-app-de="Leseposition speichern">حفظ موضع القراءة</button>
+                    <a href="#" target="_blank" rel="noopener noreferrer" data-library-pdf-external
+                       data-app-ar="فتح ملف PDF" data-app-de="PDF öffnen">فتح ملف PDF</a>
+                </div>
+                <p class="library-pdf-feedback" data-library-pdf-feedback aria-live="polite"></p>
+            </section>
+            {% else %}
             <div class="library-sentence-grid grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                 {% for s in sentences %}
                 <a href="{{ s.href }}"
@@ -48,6 +116,7 @@
                 <p class="text-gray-600 text-right" data-app-ar="لا توجد جمل بعد." data-app-de="Noch keine Geschichten vorhanden.">لا توجد جمل بعد.</p>
                 {% endfor %}
             </div>
+            {% endif %}
 
         </div>
     </div>
@@ -125,6 +194,186 @@
 
     {# CSRF + Ajax Skript #}
     <script>
+        (() => {
+            const booksList = document.querySelector("[data-library-books-list]");
+            const reader = document.querySelector("[data-library-pdf-reader]");
+            if (!booksList || !reader) return;
+            const booksShell = reader.closest(".library-list-shell--books");
+            const canvas = reader.querySelector("[data-library-pdf-canvas]");
+            const stage = reader.querySelector("[data-library-pdf-stage]");
+            const status = reader.querySelector("[data-library-pdf-status]");
+            const title = reader.querySelector("[data-library-pdf-title]");
+            const pageLabel = reader.querySelector("[data-library-pdf-page]");
+            const previousButton = reader.querySelector("[data-library-pdf-previous]");
+            const nextButton = reader.querySelector("[data-library-pdf-next]");
+            const saveButton = reader.querySelector("[data-library-pdf-save]");
+            const feedback = reader.querySelector("[data-library-pdf-feedback]");
+            const externalLink = reader.querySelector("[data-library-pdf-external]");
+            const completeArea = reader.querySelector("[data-library-pdf-complete]");
+            const doneButton = reader.querySelector("[data-library-pdf-done]");
+            const selectedLanguage = () => localStorage.getItem("registrationLanguage") === "de" ? "de" : "ar";
+            const pdfJsUrl = "https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.624/build/pdf.min.mjs";
+            const pdfWorkerUrl = "https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.624/build/pdf.worker.min.mjs";
+            let pdfJsPromise = null;
+            let documentPdf = null;
+            let currentPage = 1;
+            let currentUrl = "";
+            let currentBookId = "";
+            let currentBookRead = false;
+            let renderTask = null;
+            let resizeTimer = null;
+
+            const progressKey = () => `darAlFarahPdfPage:${currentUrl}`;
+            const translated = (arabic, german) => selectedLanguage() === "de" ? german : arabic;
+            const getCookie = (name) => {
+                const value = document.cookie.match(`(^|;)\\s*${name}\\s*=\\s*([^;]+)`);
+                return value ? value.pop() : "";
+            };
+            const showCompletedState = () => {
+                if (!doneButton) return;
+                doneButton.replaceChildren();
+                const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                icon.setAttribute("viewBox", "0 0 24 24");
+                icon.setAttribute("aria-hidden", "true");
+                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                path.setAttribute("d", "m5 12 4 4L19 6");
+                icon.appendChild(path);
+                doneButton.appendChild(icon);
+                doneButton.disabled = true;
+                doneButton.classList.add("is-complete");
+            };
+            const loadPdfJs = async () => {
+                if (!pdfJsPromise) {
+                    pdfJsPromise = import(pdfJsUrl).then((pdfjsLib) => {
+                        pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
+                        return pdfjsLib;
+                    });
+                }
+                return pdfJsPromise;
+            };
+
+            const updateControls = () => {
+                const total = documentPdf?.numPages || 1;
+                pageLabel.textContent = `${currentPage} / ${total}`;
+                previousButton.disabled = !documentPdf || currentPage <= 1;
+                nextButton.disabled = !documentPdf || currentPage >= total;
+                if (completeArea) completeArea.hidden = !documentPdf || currentPage !== total;
+            };
+
+            const renderPage = async () => {
+                if (!documentPdf) return;
+                status.textContent = translated("جارٍ تحميل الصفحة…", "Seite wird geladen …");
+                renderTask?.cancel();
+                const page = await documentPdf.getPage(currentPage);
+                const baseViewport = page.getViewport({ scale: 1 });
+                const isMobile = window.matchMedia("(max-width: 39.999rem)").matches;
+                const isLaptop = window.matchMedia("(min-width: 64rem)").matches;
+                const maximumWidth = isLaptop ? 680 : 900;
+                const availableWidth = Math.max(220, Math.min(maximumWidth, stage.clientWidth - 12));
+                const widthScale = availableWidth / baseViewport.width;
+                const availableHeight = Math.max(80, stage.clientHeight - 12);
+                const scale = isMobile
+                    ? Math.min(widthScale, availableHeight / baseViewport.height)
+                    : widthScale;
+                const viewport = page.getViewport({ scale });
+                const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+                const context = canvas.getContext("2d", { alpha: false });
+                canvas.width = Math.floor(viewport.width * pixelRatio);
+                canvas.height = Math.floor(viewport.height * pixelRatio);
+                canvas.style.width = `${Math.floor(viewport.width)}px`;
+                canvas.style.height = `${Math.floor(viewport.height)}px`;
+                renderTask = page.render({
+                    canvasContext: context,
+                    viewport,
+                    transform: pixelRatio === 1 ? null : [pixelRatio, 0, 0, pixelRatio, 0, 0],
+                });
+                try {
+                    await renderTask.promise;
+                    status.textContent = "";
+                } catch (error) {
+                    if (error?.name !== "RenderingCancelledException") throw error;
+                }
+                updateControls();
+            };
+
+            const openBook = async (button) => {
+                currentUrl = button.dataset.libraryPdf;
+                currentBookId = button.dataset.bookId;
+                currentBookRead = button.dataset.alreadyRead === "true";
+                currentPage = Math.max(1, Number.parseInt(localStorage.getItem(progressKey()) || "1", 10) || 1);
+                title.textContent = button.dataset.titleAr;
+                externalLink.href = button.dataset.libraryExternal || currentUrl;
+                feedback.textContent = "";
+                if (doneButton) {
+                    doneButton.disabled = false;
+                    doneButton.classList.remove("is-complete");
+                    doneButton.textContent = translated("تم", "Erledigt");
+                    if (currentBookRead) showCompletedState();
+                }
+                booksList.hidden = true;
+                booksShell?.classList.add("is-reading");
+                reader.hidden = false;
+                reader.scrollIntoView({ block: "start", behavior: "smooth" });
+                status.textContent = translated("جارٍ تحميل الكتاب…", "Buch wird geladen …");
+                try {
+                    const pdfjsLib = await loadPdfJs();
+                    documentPdf = await pdfjsLib.getDocument({ url: currentUrl }).promise;
+                    currentPage = Math.min(currentPage, documentPdf.numPages);
+                    await renderPage();
+                } catch (error) {
+                    console.error(error);
+                    status.textContent = translated("تعذر عرض الكتاب. يمكنك فتح ملف PDF مباشرة.", "Das Buch konnte nicht angezeigt werden. Du kannst die PDF direkt öffnen.");
+                }
+            };
+
+            document.querySelectorAll("[data-library-pdf]").forEach((button) => {
+                button.addEventListener("click", () => openBook(button));
+            });
+
+            previousButton.addEventListener("click", async () => {
+                if (!documentPdf || currentPage <= 1) return;
+                currentPage -= 1;
+                await renderPage();
+            });
+            nextButton.addEventListener("click", async () => {
+                if (!documentPdf || currentPage >= documentPdf.numPages) return;
+                currentPage += 1;
+                await renderPage();
+            });
+            saveButton.addEventListener("click", () => {
+                if (!documentPdf) return;
+                localStorage.setItem(progressKey(), String(currentPage));
+                feedback.textContent = translated(`تم حفظ الصفحة ${currentPage}.`, `Seite ${currentPage} wurde gespeichert.`);
+            });
+            doneButton?.addEventListener("click", async () => {
+                if (!documentPdf || currentPage !== documentPdf.numPages || !currentBookId || doneButton.disabled) return;
+                doneButton.disabled = true;
+                try {
+                    const response = await fetch("{% url 'mark_story_read' %}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": getCookie("csrftoken"),
+                        },
+                        body: JSON.stringify({ level: "books", sid: currentBookId }),
+                    });
+                    const result = await response.json();
+                    if (!response.ok || !result.ok) throw new Error("Request failed");
+                    currentBookRead = true;
+                    showCompletedState();
+                    feedback.textContent = translated("تم تسجيل قراءة الكتاب وإضافة نقطة.", "Das Buch wurde als gelesen markiert und der Punkt gespeichert.");
+                } catch (error) {
+                    doneButton.disabled = false;
+                    feedback.textContent = translated("تعذر حفظ القراءة. حاول مرة أخرى.", "Das Speichern ist fehlgeschlagen. Bitte versuche es erneut.");
+                }
+            });
+            window.addEventListener("resize", () => {
+                if (!documentPdf || reader.hidden) return;
+                window.clearTimeout(resizeTimer);
+                resizeTimer = window.setTimeout(renderPage, 160);
+            });
+        })();
+
         (function () {
             const btn = document.getElementById('mark-read-btn');
             if (!btn) return;

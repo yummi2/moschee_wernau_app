@@ -7,7 +7,7 @@ from django.contrib import messages
 import calendar
 import datetime as dt
 from zoneinfo import ZoneInfo
-from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseForbidden
+from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseForbidden, Http404, StreamingHttpResponse
 from django.utils import timezone 
 import json
 from django.conf import settings
@@ -29,12 +29,27 @@ from .drawing_links import DRAWING_LINKS_VIEW, DRAWING_LINKS_DOWNLOAD
 from django.db.models import Count
 from django.core.mail import EmailMessage
 import logging
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 
 logger = logging.getLogger(__name__)
+
+DRIVE_LIBRARY_FILES = {
+    "rashidi_part": "1MwkfiHsx1qEkTztTb1g66wQ_ECUZ1ZYW",
+    "first_quran_reflection": "1-2pyb5N_HX4MAlmNk_76KqsVZxKvREPk",
+}
+
+LIBRARY_BOOK_IDS = {
+    "missed_prayer",
+    "forty_nawawi",
+    "charity_types",
+    "rashidi_part",
+    "first_quran_reflection",
+}
 
 REGISTRATION_COLUMNS = [
     ("submitted_at", "تاريخ الإرسال"),
@@ -1558,8 +1573,44 @@ def library(request):
     level = request.GET.get("level")
     sid = request.GET.get("sid") 
     p_str = request.GET.get("p", "1")  
-    valid_levels = {"beginner": "المبتدئ", "intermediate": "المتوسط", "advanced": "المتقدم"}
-    valid_levels_de = {"beginner": "Anfänger", "intermediate": "Mittelstufe", "advanced": "Fortgeschritten"}
+    valid_levels = {"beginner": "المبتدئ", "intermediate": "المتوسط", "advanced": "المتقدم", "books": "الكتب"}
+    valid_levels_de = {"beginner": "Anfänger", "intermediate": "Mittelstufe", "advanced": "Fortgeschritten", "books": "Bücher"}
+    library_books = [
+        {
+            "id": "first_quran_reflection",
+            "external_only": True,
+            "title_ar": "أول مرة أتدبر القرآن",
+            "title_de": "Zum ersten Mal denke ich über den Koran nach",
+            "url": reverse("library_book_pdf", args=["first_quran_reflection"]),
+            "external_url": "https://drive.google.com/file/d/1-2pyb5N_HX4MAlmNk_76KqsVZxKvREPk/view",
+        },
+        {
+            "id": "missed_prayer",
+            "external_only": True,
+            "title_ar": "فاتتني صلاة",
+            "title_de": "Mir ist ein Gebet entgangen",
+            "url": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1788892606/%D9%85%D9%83%D8%AA%D8%A8%D8%A9_%D9%83%D8%AA%D9%88%D8%A8%D8%A7%D8%AA%D9%8A_-_%D9%83%D8%AA%D8%A7%D8%A8-%D9%81%D8%A7%D8%AA%D8%AA%D9%86%D9%8A-%D8%B5%D9%84%D8%A7%D8%A9_zqe1km.pdf",
+        },
+        {
+            "id": "forty_nawawi",
+            "title_ar": "الأربعون النووية",
+            "title_de": "Die vierzig Nawawi-Hadithe",
+            "url": "https://res.cloudinary.com/drlpkuf9q/image/upload/%D8%A7%D9%84%D8%A7%D9%94%D8%B1%D8%A8%D8%B9%D9%88%D9%86_%D8%A7%D9%84%D9%86%D9%88%D9%88%D9%8A%D8%A9_ngzepk.pdf",
+        },
+        {
+            "id": "charity_types",
+            "title_ar": "أنواع الصدقات",
+            "title_de": "Arten der Almosen",
+            "url": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1788892605/%D8%A7%D9%94%D9%86%D9%88%D8%A7%D8%B9_%D8%A7%D9%84%D8%B5%D8%AF%D9%82%D8%A7%D8%AA_irtgsa.pdf",
+        },
+        {
+            "id": "rashidi_part",
+            "title_ar": "الجزء الرشيدي",
+            "title_de": "Der Raschidi-Teil",
+            "url": reverse("library_book_pdf", args=["rashidi_part"]),
+            "external_url": "https://drive.google.com/file/d/1MwkfiHsx1qEkTztTb1g66wQ_ECUZ1ZYW/view",
+        },
+    ]
     story_titles_de = {
         "beginner": {
             "1": "Satz 1", "2": "Satz 2", "3": "Satz 3", "4": "Satz 4",
@@ -1592,6 +1643,23 @@ def library(request):
 
     if level not in valid_levels:
         return redirect(reverse("library"))
+
+    if level == "books":
+        read_book_ids = set()
+        if request.user.is_authenticated:
+            read_book_ids = set(
+                StoryRead.objects.filter(user=request.user, level="books")
+                .values_list("sid", flat=True)
+            )
+        for book in library_books:
+            book["already_read"] = book["id"] in read_book_ids
+        return render(request, "core/library.html", {
+            "level": level,
+            "level_title": valid_levels[level],
+            "level_title_de": valid_levels_de[level],
+            "library_books": library_books,
+            "ramadan_open": ramadan_is_open(),
+        })
 
     context = {"level": level}
     if sid:
@@ -1663,6 +1731,44 @@ def library(request):
         "ramadan_open": ramadan_is_open()
     })
 
+
+@login_required
+def library_book_pdf(request, book_id):
+    """Stream an allow-listed Drive PDF through our own origin for PDF.js."""
+    drive_file_id = DRIVE_LIBRARY_FILES.get(book_id)
+    if not drive_file_id:
+        raise Http404("Unknown library book")
+
+    download_url = f"https://drive.usercontent.google.com/download?id={drive_file_id}&export=download"
+    headers = {"User-Agent": "DarAlFarahLibrary/1.0"}
+    if request.headers.get("Range"):
+        headers["Range"] = request.headers["Range"]
+
+    try:
+        remote = urlopen(Request(download_url, headers=headers), timeout=45)
+    except (HTTPError, URLError, TimeoutError):
+        return JsonResponse({"detail": "The PDF is temporarily unavailable."}, status=502)
+
+    def chunks():
+        try:
+            while chunk := remote.read(64 * 1024):
+                yield chunk
+        finally:
+            remote.close()
+
+    response = StreamingHttpResponse(
+        chunks(),
+        status=getattr(remote, "status", 200),
+        content_type="application/pdf",
+    )
+    for header in ("Content-Length", "Content-Range", "Accept-Ranges", "Last-Modified"):
+        value = remote.headers.get(header)
+        if value:
+            response[header] = value
+    response["Content-Disposition"] = f'inline; filename="{book_id}.pdf"'
+    response["Cache-Control"] = "private, max-age=3600"
+    return response
+
 @login_required
 @require_POST
 def mark_story_read(request):
@@ -1672,6 +1778,12 @@ def mark_story_read(request):
         sid   = str(data["sid"])
     except Exception:
         return HttpResponseBadRequest("Bad payload")
+
+    valid_story_ids = set(STORIES.get(level, {}))
+    if level == "books":
+        valid_story_ids = LIBRARY_BOOK_IDS
+    if sid not in valid_story_ids:
+        return HttpResponseBadRequest("Unknown library item")
 
     obj, created = StoryRead.objects.get_or_create(user=request.user, level=level, sid=sid)
     return JsonResponse({"ok": True, "created": created})

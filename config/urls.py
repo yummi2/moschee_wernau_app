@@ -38,6 +38,7 @@ urlpatterns = [
     path("checklist/toggle/", views.toggle_check, name="toggle_check"),
     path("admin/banner/", views.set_banner, name="set_banner"),
     path('library/', views.library, name='library'),
+    path('library/books/<slug:book_id>/pdf/', views.library_book_pdf, name='library_book_pdf'),
     path('calendar/', views.calendar_page, name='calendar'),
     path("ajax/mark-story-read/", views.mark_story_read, name="mark_story_read"),
     path("prayer/toggle/", views.toggle_prayer, name="toggle_prayer"),
