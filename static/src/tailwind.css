@@ -6566,13 +6566,18 @@ html.app-language-german .about-page { direction: ltr; }
   position: absolute;
   z-index: 120;
   inset-block-start: calc(100% + .45rem);
-  inset-inline: 0;
+  inset-inline-start: 0;
+  inset-inline-end: auto;
+  width: max-content;
+  min-width: 100%;
+  max-width: calc(100vw - 2rem);
   max-height: 15rem;
   padding: .4rem;
   overscroll-behavior: contain;
   scrollbar-color: #17805e #efe5d2;
   scrollbar-width: thin;
   touch-action: pan-y;
+  overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   border: 1px solid rgb(23 128 94 / 22%);
@@ -6610,6 +6615,11 @@ html.app-language-german .about-page { direction: ltr; }
   background: transparent;
   font-weight: 750;
   text-align: start;
+}
+.points-select-menu [data-points-option] > span:nth-child(2) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 .points-select-menu [data-points-option]:hover,
 .points-select-menu [data-points-option]:focus-visible { color: #0b4938; background: #e7f3ec; outline: none; }
