@@ -85,6 +85,49 @@
                 {% endif %}
                 {% endif %}
 
+                {% if active_tab == "home" and show_points_bank and point_balance %}
+                <section class="student-points-bank" data-home-overview-only aria-label="بنك النقاط">
+                    <div class="student-points-total">
+                        <span aria-hidden="true">★</span>
+                        <div>
+                            <small data-app-ar="رصيد نقاطك" data-app-de="Dein Punktestand">رصيد نقاطك</small>
+                            <strong><bdi dir="ltr">{{ point_balance.total_points }}</bdi></strong>
+                        </div>
+                    </div>
+                    {% if student_point_rank %}
+                    <div class="student-points-rank">
+                        <small data-app-ar="ترتيبك في بنك النقاط" data-app-de="Dein Platz in der Punktebank">ترتيبك في بنك النقاط</small>
+                        <strong><span data-app-ar="المركز" data-app-de="Platz">المركز</span> <bdi dir="ltr">{{ student_point_rank }}</bdi></strong>
+                        <span><span data-app-ar="من" data-app-de="von">من</span> <bdi dir="ltr">{{ student_point_count }}</bdi></span>
+                    </div>
+                    {% endif %}
+                    <div class="student-points-breakdown">
+                        <span><bdi dir="ltr">{{ point_balance.assignment_points }}</bdi> <small data-app-ar="واجبات" data-app-de="Hausaufgaben">واجبات</small></span>
+                        <span><bdi dir="ltr">{{ point_balance.prayer_points }}</bdi> <small data-app-ar="أيام صلاة" data-app-de="Gebetstage">أيام صلاة</small></span>
+                        <span><bdi dir="ltr">{{ point_balance.ramadan_points }}</bdi> <small data-app-ar="أيام رمضان" data-app-de="Ramadan-Tage">أيام رمضان</small></span>
+                        <span><bdi dir="ltr">{{ point_balance.story_points }}</bdi> <small data-app-ar="قراءة" data-app-de="Gelesen">قراءة</small></span>
+                        <span><bdi dir="ltr">{{ point_balance.teacher_points }}</bdi> <small data-app-ar="من المعلم" data-app-de="von Lehrkräften">من المعلم</small></span>
+                    </div>
+                    {% if point_awards %}
+                    <div class="student-point-awards">
+                        <strong data-app-ar="نقاط المعلمين" data-app-de="Lehrerpunkte">نقاط المعلمين</strong>
+                        <ul>
+                            {% for award in point_awards %}
+                            <li>
+                                <span class="student-point-award-value">+<bdi dir="ltr">{{ award.points }}</bdi></span>
+                                <span>
+                                    <b>{{ award.teacher.get_full_name|default:award.teacher.username|default:"إدارة المدرسة" }}</b>
+                                    <small>{% if award.reason %}{{ award.reason }}{% else %}<span data-app-ar="بدون سبب مسجل" data-app-de="Kein Grund angegeben">بدون سبب مسجل</span>{% endif %}</small>
+                                </span>
+                                <time datetime="{{ award.created_at|date:'c' }}"><bdi dir="ltr">{{ award.created_at|date:"d.m.Y" }}</bdi></time>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </section>
+                {% endif %}
+
                 {% if active_tab == "home" and ramadan_top10_rank or active_tab == "home" and prayer_top10_months %}
                 <section class="student-achievements" data-home-overview-only aria-label="الإنجازات">
                     {% if ramadan_top10_rank %}

@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Profile, Assignment, AssignmentCompletion, Absence, ClassRoom, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStatus, RamadanItemDone,  QuizScore
+from .models import Profile, Assignment, AssignmentCompletion, Absence, ClassRoom, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStatus, RamadanItemDone, QuizScore, TeacherPointAward
+from .points import point_balances, student_users
 from .forms import ProfileForm
 from django.contrib import messages
 import calendar
@@ -845,8 +846,30 @@ def home(request):
         Profile.objects.filter(user=request.user).first()
         if request.user.is_authenticated else None
     )
+    show_points_bank = school_year_ranges["year"] == "2027"
+    ctx["show_points_bank"] = show_points_bank
     if not has_teacher_role and not has_admin_role:
         ctx.update(student_top10_achievements(request.user, school_year_ranges))
+        if show_points_bank:
+            all_balances = point_balances(student_users().select_related("profile"))
+            point_ranking = sorted(
+                all_balances.values(),
+                key=lambda row: (
+                    -row["total_points"],
+                    (row["user"].get_full_name().strip() or row["user"].username).casefold(),
+                ),
+            )
+            ctx["point_balance"] = all_balances.get(request.user.id)
+            ctx["student_point_rank"] = next(
+                (position for position, row in enumerate(point_ranking, start=1) if row["user"].id == request.user.id),
+                None,
+            )
+            ctx["student_point_count"] = len(point_ranking)
+            ctx["point_awards"] = (
+                TeacherPointAward.objects.filter(student=request.user)
+                .select_related("teacher")
+                .order_by("-created_at", "-id")
+            )
     return render(request, "core/home.html", ctx)
 
 
@@ -1072,6 +1095,7 @@ def admin_statistics(request):
         return HttpResponseForbidden("Diese Seite ist nur für die Verwaltung und Lehrkräfte verfügbar.")
 
     school_year_ranges = selected_school_year_ranges(request)
+    show_points_bank = school_year_ranges["year"] == "2027"
     ramadan_year = school_year_ranges["year"]
     prayer_period = request.GET.get("prayer_period", "week")
     if prayer_period not in {"week", "month"}:
@@ -1136,8 +1160,16 @@ def admin_statistics(request):
             .annotate(completed_prayers=Count("id"))
         )
 
+    library_totals = list(
+        StoryRead.objects
+        .filter(user_id__in=student_users().values("id"))
+        .values("user_id")
+        .annotate(read_items=Count("id"))
+    )
+
     ranked_user_ids = set(ramadan_totals)
     ranked_user_ids.update(entry["user_id"] for entry in prayer_totals)
+    ranked_user_ids.update(entry["user_id"] for entry in library_totals)
     ranked_users = User.objects.filter(id__in=ranked_user_ids).select_related("profile").in_bulk()
 
     def student_name(user):
@@ -1168,6 +1200,19 @@ def admin_statistics(request):
             if entry["user_id"] in ranked_users
         ),
         key=lambda row: (-row["completed_prayers"], row["name"].casefold()),
+    )[:10]
+
+    library_ranking = sorted(
+        (
+            {
+                "user": ranked_users[entry["user_id"]],
+                "name": student_name(ranked_users[entry["user_id"]]),
+                "read_items": entry["read_items"],
+            }
+            for entry in library_totals
+            if entry["user_id"] in ranked_users
+        ),
+        key=lambda row: (-row["read_items"], row["name"].casefold()),
     )[:10]
 
     show_assignment_tracking = school_year_ranges["year"] == "2027"
@@ -1208,19 +1253,81 @@ def admin_statistics(request):
             "student_count": len(students),
         })
 
+    point_ranking = []
+    if show_points_bank:
+        all_point_balances = point_balances(student_users().select_related("profile"))
+        point_ranking = sorted(
+            all_point_balances.values(),
+            key=lambda row: (
+                -row["total_points"],
+                student_name(row["user"]).casefold(),
+            ),
+        )
+        for row in point_ranking:
+            row["name"] = student_name(row["user"])
+
+    teacher_students = User.objects.none()
+    if is_teacher and show_points_bank:
+        teacher_students = student_users().select_related("profile")
+        teacher_students = sorted(teacher_students, key=lambda user: student_name(user).casefold())
+
+    point_awards = TeacherPointAward.objects.select_related("student", "teacher")
+    if is_teacher and not is_admin:
+        point_awards = point_awards.filter(teacher=request.user)
+
     return render(request, "core/admin_statistics.html", {
         "is_admin_statistics": is_admin,
         "ramadan_ranking": ramadan_ranking,
         "ramadan_year": ramadan_year,
         "prayer_ranking": prayer_ranking,
+        "library_ranking": library_ranking,
         "prayer_period": prayer_period,
         "prayer_period_start": prayer_period_start,
         "prayer_period_end": prayer_period_end,
         "assignment_rows": assignment_rows,
         "assignment_school_year": school_year_ranges["year"],
         "show_assignment_tracking": show_assignment_tracking,
+        "show_points_bank": show_points_bank,
+        "point_ranking": point_ranking,
+        "teacher_students": teacher_students,
+        "can_award_points": is_teacher,
+        "point_awards": point_awards,
         "profile": profile,
     })
+
+
+@login_required
+@require_POST
+def award_student_points(request):
+    profile = getattr(request.user, "profile", None)
+    is_teacher = bool(profile and profile.is_teacher) or request.user.classes_as_teacher.exists()
+    if not is_teacher:
+        return HttpResponseForbidden("Nur Lehrkräfte dürfen Punkte vergeben.")
+
+    try:
+        student_id = int(request.POST.get("student_id", ""))
+        points = int(request.POST.get("points", ""))
+    except (TypeError, ValueError):
+        messages.error(request, "Bitte Schüler und Punktzahl korrekt auswählen.")
+        return redirect("admin_statistics")
+
+    if points < 1 or points > 100:
+        messages.error(request, "Die Punktzahl muss zwischen 1 und 100 liegen.")
+        return redirect("admin_statistics")
+
+    student = get_object_or_404(
+        student_users(),
+        pk=student_id,
+    )
+    reason = request.POST.get("reason", "").strip()[:240]
+    TeacherPointAward.objects.create(
+        student=student,
+        teacher=request.user,
+        points=points,
+        reason=reason,
+    )
+    messages.success(request, f"{points} Punkte wurden an {student.get_full_name() or student.username} vergeben.")
+    return redirect("admin_statistics")
 
 
 @login_required

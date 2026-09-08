@@ -67,6 +67,33 @@ class AssignmentReminderDelivery(models.Model):
         return f"{self.recipient_email}: {self.assignment}"
 
 
+class TeacherPointAward(models.Model):
+    student = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="teacher_point_awards",
+    )
+    teacher = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="points_awarded",
+    )
+    points = models.PositiveSmallIntegerField()
+    reason = models.CharField(max_length=240, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("-created_at", "-id")
+
+    def clean(self):
+        if self.points < 1:
+            raise ValidationError({"points": "Die Punktzahl muss mindestens 1 sein."})
+
+    def __str__(self):
+        return f"{self.student}: +{self.points} ({self.teacher})"
+
+
 class Profile(models.Model):
     user   = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     avatar = models.ImageField(upload_to="avatars/", blank=True, null=True)

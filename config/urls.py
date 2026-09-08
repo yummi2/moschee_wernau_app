@@ -31,6 +31,7 @@ urlpatterns = [
     path('profile/', profile_view, name='profile'),
     path('about/', views.about, name='about'),
     path('admin-statistics/', views.admin_statistics, name='admin_statistics'),
+    path('points/award/', views.award_student_points, name='award_student_points'),
     path("absences/mark/", views.mark_absence, name="mark_absence"),
     path("assignments/mark-done/", views.mark_assignment_done, name="mark_assignment_done"),
     path("assignments/<int:pk>/", views.assignment_detail, name="assignment_detail"),

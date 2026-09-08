@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ClassRoom, Assignment, Absence, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStatus, RamadanItemDone, QuizScore, Profile
+from .models import ClassRoom, Assignment, Absence, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStatus, RamadanItemDone, QuizScore, Profile, TeacherPointAward
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from .views import STORIES
@@ -180,3 +180,11 @@ class QuizScoreAdmin(admin.ModelAdmin):
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ("user", "zeugnis_link")
+
+
+@admin.register(TeacherPointAward)
+class TeacherPointAwardAdmin(admin.ModelAdmin):
+    list_display = ("student", "points", "teacher", "reason", "created_at")
+    list_filter = ("teacher", "created_at")
+    search_fields = ("student__username", "student__first_name", "student__last_name", "reason")
+    readonly_fields = ("created_at",)

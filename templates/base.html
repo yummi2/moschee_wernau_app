@@ -50,7 +50,7 @@
       }
     } catch (_) {}
   </script>
-  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260902-220">  <style>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260908-230">  <style>
   .act-grid{
     display: grid;
     gap: 12px;
@@ -485,6 +485,111 @@
         setIndicatorPosition(activeIndex);
         requestAnimationFrame(() => indicator.style.removeProperty("transition"));
       });
+    })();
+  </script>
+
+  <script>
+    (() => {
+      const bottomNav = document.querySelector(".app-bottom-nav");
+      const page = document.querySelector(".app-main");
+      const mobileViewport = window.matchMedia("(max-width: 39.999rem)");
+      if (!bottomNav || !page || !mobileViewport.matches) return;
+
+      const blockedStart = [
+        "input", "textarea", "select", "dialog", "[contenteditable='true']"
+      ].join(",");
+      let startX = 0;
+      let startY = 0;
+      let tracking = false;
+
+      const resetPage = () => {
+        page.getAnimations().forEach((animation) => {
+          if (animation.id === "mobile-page-swipe") animation.cancel();
+        });
+        page.style.removeProperty("transform");
+        page.style.removeProperty("opacity");
+      };
+
+      const visibleNavigation = () => Array.from(
+        bottomNav.querySelectorAll("a.app-bottom-nav-link:not(.is-disabled)")
+      ).sort((first, second) => first.getBoundingClientRect().left - second.getBoundingClientRect().left);
+
+      page.addEventListener("touchstart", (event) => {
+        if (event.touches.length !== 1 || event.target.closest(blockedStart)) return;
+        if (document.querySelector("dialog[open]")) return;
+        startX = event.touches[0].clientX;
+        startY = event.touches[0].clientY;
+        tracking = true;
+      }, { passive: true });
+
+      page.addEventListener("touchmove", (event) => {
+        if (!tracking || event.touches.length !== 1) return;
+        const deltaX = event.touches[0].clientX - startX;
+        const deltaY = event.touches[0].clientY - startY;
+        if (Math.abs(deltaY) > Math.abs(deltaX)) {
+          tracking = false;
+          resetPage();
+          return;
+        }
+        if (Math.abs(deltaX) < 12) return;
+        const restrainedX = Math.max(-38, Math.min(38, deltaX * 0.22));
+        page.style.transform = `translate3d(${restrainedX}px, 0, 0)`;
+        page.style.opacity = String(1 - Math.min(Math.abs(deltaX) / 900, 0.08));
+      }, { passive: true });
+
+      page.addEventListener("touchend", (event) => {
+        if (!tracking) return;
+        tracking = false;
+        const touch = event.changedTouches[0];
+        const deltaX = touch.clientX - startX;
+        const deltaY = touch.clientY - startY;
+        const isSwipe = Math.abs(deltaX) >= 64 && Math.abs(deltaX) > Math.abs(deltaY) * 1.35;
+        const links = visibleNavigation();
+        const activeIndex = links.findIndex((link) => link.classList.contains("is-active"));
+
+        if (!isSwipe || activeIndex < 0) {
+          resetPage();
+          return;
+        }
+
+        event.preventDefault();
+
+        const isGerman = localStorage.getItem("registrationLanguage") === "de";
+        const visualStep = deltaX < 0 ? 1 : -1;
+        const step = isGerman ? visualStep : -visualStep;
+        const target = links[activeIndex + step];
+        if (!target) {
+          resetPage();
+          return;
+        }
+
+        sessionStorage.setItem("bottomNavPreviousIndex", String(
+          Array.from(bottomNav.querySelectorAll(".app-bottom-nav-link")).indexOf(
+            Array.from(bottomNav.querySelectorAll(".app-bottom-nav-link")).find((link) => link.classList.contains("is-active"))
+          )
+        ));
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          target.click();
+          return;
+        }
+
+        const exitX = deltaX < 0 ? -52 : 52;
+        const animation = page.animate([
+          { transform: page.style.transform || "translate3d(0, 0, 0)", opacity: page.style.opacity || "1" },
+          { transform: `translate3d(${exitX}px, 0, 0)`, opacity: 0.72 }
+        ], { duration: 150, easing: "cubic-bezier(.4, 0, 1, 1)", fill: "forwards" });
+        animation.id = "mobile-page-swipe";
+        animation.finished.then(() => {
+          target.click();
+          window.setTimeout(resetPage, 80);
+        }).catch(resetPage);
+      }, { passive: false });
+
+      page.addEventListener("touchcancel", () => {
+        tracking = false;
+        resetPage();
+      }, { passive: true });
     })();
   </script>
 

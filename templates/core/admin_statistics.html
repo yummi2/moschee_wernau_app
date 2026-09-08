@@ -28,6 +28,128 @@
     </p>
   </header>
 
+  {% if show_points_bank and can_award_points %}
+  <section class="points-award-panel" aria-labelledby="points-award-title">
+    <div class="points-panel-heading">
+      <span class="points-bank-icon" aria-hidden="true">+</span>
+      <div>
+        <h2 id="points-award-title" data-app-ar="منح نقاط للطلاب" data-app-de="Punkte vergeben">منح نقاط للطلاب</h2>
+        <p data-app-ar="اختر طالباً وحدد عدد النقاط وسبب منحها." data-app-de="Wähle einen Schüler, die Punktzahl und optional einen Grund aus.">اختر طالباً وحدد عدد النقاط وسبب منحها.</p>
+      </div>
+    </div>
+    <form method="post" action="{% url 'award_student_points' %}" class="points-award-form">
+      {% csrf_token %}
+      <label>
+        <span data-app-ar="الطالب" data-app-de="Schüler">الطالب</span>
+        <span class="points-student-select" data-points-select>
+          <select name="student_id" required aria-label="الطالب / Schüler" class="points-native-select" data-points-native-select>
+            <option value="" data-app-ar="اختر طالباً" data-app-de="Schüler auswählen">اختر طالباً</option>
+            {% for student in teacher_students %}
+            <option value="{{ student.id }}">{{ student.get_full_name|default:student.username }}</option>
+            {% endfor %}
+          </select>
+          <button type="button" class="points-select-trigger" data-points-select-trigger aria-haspopup="listbox" aria-expanded="false">
+            <span data-points-select-label data-app-ar="اختر طالباً" data-app-de="Schüler auswählen">اختر طالباً</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>
+          </button>
+          <span class="points-select-menu" role="listbox" data-points-select-menu hidden>
+            {% for student in teacher_students %}
+            <button type="button" role="option" aria-selected="false" data-points-option value="{{ student.id }}">
+              <span class="points-option-avatar" aria-hidden="true">{{ student.username|first|upper }}</span>
+              <span>{{ student.get_full_name|default:student.username }}</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>
+            </button>
+            {% endfor %}
+          </span>
+        </span>
+      </label>
+      <label>
+        <span data-app-ar="عدد النقاط" data-app-de="Punkte">عدد النقاط</span>
+        <input type="number" name="points" min="1" max="100" value="1" required inputmode="numeric">
+      </label>
+      <label class="points-reason-field">
+        <span data-app-ar="السبب (اختياري)" data-app-de="Grund (optional)">السبب (اختياري)</span>
+        <input type="text" name="reason" maxlength="240" placeholder="" autocomplete="off">
+      </label>
+      <button type="submit" data-app-ar="إضافة النقاط" data-app-de="Punkte hinzufügen">إضافة النقاط</button>
+    </form>
+  </section>
+  {% endif %}
+
+  {% if show_points_bank and is_admin_statistics %}
+  <section class="points-table-panel" aria-labelledby="points-table-title">
+    <div class="points-panel-heading">
+      <span class="points-bank-icon" aria-hidden="true">★</span>
+      <div>
+        <h2 id="points-table-title" data-app-ar="بنك نقاط الطلاب" data-app-de="Punktebank der Schüler">بنك نقاط الطلاب</h2>
+        <p data-app-ar="الترتيب حسب مجموع النقاط من الأعلى إلى الأقل." data-app-de="Nach Gesamtpunktzahl absteigend sortiert.">الترتيب حسب مجموع النقاط من الأعلى إلى الأقل.</p>
+      </div>
+    </div>
+    <div class="points-table-scroll">
+      <table class="points-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th data-app-ar="الطالب" data-app-de="Schüler">الطالب</th>
+            <th data-app-ar="الواجبات" data-app-de="Hausaufgaben">الواجبات</th>
+            <th data-app-ar="الصلاة" data-app-de="Gebet">الصلاة</th>
+            <th data-app-ar="رمضان 2027" data-app-de="Ramadan 2027">رمضان 2027</th>
+            <th data-app-ar="القراءة" data-app-de="Lesen">القراءة</th>
+            <th data-app-ar="نقاط المعلم" data-app-de="Lehrerpunkte">نقاط المعلم</th>
+            <th data-app-ar="المجموع" data-app-de="Gesamt">المجموع</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for entry in point_ranking %}
+          <tr>
+            <td><bdi dir="ltr">{{ forloop.counter }}</bdi></td>
+            <td><strong>{{ entry.name }}</strong></td>
+            <td><bdi dir="ltr">{{ entry.assignment_points }}</bdi></td>
+            <td><bdi dir="ltr">{{ entry.prayer_points }}</bdi></td>
+            <td><bdi dir="ltr">{{ entry.ramadan_points }}</bdi></td>
+            <td><bdi dir="ltr">{{ entry.story_points }}</bdi></td>
+            <td><bdi dir="ltr">{{ entry.teacher_points }}</bdi></td>
+            <td><strong class="points-total"><bdi dir="ltr">{{ entry.total_points }}</bdi></strong></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="8" class="points-table-empty" data-app-ar="لا يوجد طلاب بعد." data-app-de="Noch keine Schüler vorhanden.">لا يوجد طلاب بعد.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+  {% endif %}
+
+  {% if show_points_bank %}
+  <section class="points-history-panel" aria-labelledby="points-history-title">
+    <div class="points-panel-heading">
+      <span class="points-bank-icon" aria-hidden="true">↺</span>
+      <div>
+        <h2 id="points-history-title" data-app-ar="سجل منح النقاط" data-app-de="Vergabeverlauf">سجل منح النقاط</h2>
+        <p data-app-ar="تفاصيل النقاط التي منحها المعلمون للطلاب." data-app-de="Lehrkraft, Schüler, Grund und Zeitpunkt jeder Vergabe.">تفاصيل النقاط التي منحها المعلمون للطلاب.</p>
+      </div>
+    </div>
+    <div class="points-history-list">
+      {% for award in point_awards %}
+      <article>
+        <span class="points-history-value">+<bdi dir="ltr">{{ award.points }}</bdi></span>
+        <div>
+          <strong>{{ award.student.get_full_name|default:award.student.username }}</strong>
+          <p>{% if award.reason %}{{ award.reason }}{% else %}<span data-app-ar="بدون سبب مسجل" data-app-de="Kein Grund angegeben">بدون سبب مسجل</span>{% endif %}</p>
+        </div>
+        <div class="points-history-meta">
+          <span data-app-ar="المعلم" data-app-de="Lehrkraft">المعلم</span>
+          <b>{{ award.teacher.get_full_name|default:award.teacher.username|default:"إدارة المدرسة" }}</b>
+          <time datetime="{{ award.created_at|date:'c' }}"><bdi dir="ltr">{{ award.created_at|date:"d.m.Y, H:i" }}</bdi></time>
+        </div>
+      </article>
+      {% empty %}
+      <p class="points-history-empty" data-app-ar="لم يتم منح نقاط إضافية بعد." data-app-de="Noch keine zusätzlichen Punkte vergeben.">لم يتم منح نقاط إضافية بعد.</p>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
   <div class="admin-stats-grid">
     <article class="admin-ranking admin-ranking--ramadan">
       <div class="admin-ranking-heading">
@@ -104,6 +226,33 @@
         </li>
         {% empty %}
         <li class="admin-ranking-empty" data-app-ar="لا توجد صلوات مسجلة في هذه الفترة." data-app-de="Für diesen Zeitraum wurden noch keine Gebete gespeichert.">لا توجد صلوات مسجلة في هذه الفترة.</li>
+        {% endfor %}
+      </ol>
+    </article>
+
+    <article class="admin-ranking admin-ranking--library">
+      <div class="admin-ranking-heading">
+        <span class="admin-ranking-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11v17H6.5A2.5 2.5 0 0 0 4 22V5.5ZM20 5.5A2.5 2.5 0 0 0 17.5 3H13v17h4.5A2.5 2.5 0 0 1 20 22V5.5Z"/></svg>
+        </span>
+        <div>
+          <h2 data-app-ar="أفضل 10 في المكتبة" data-app-de="Top 10 in der Bibliothek">أفضل 10 في المكتبة</h2>
+          <p data-app-ar="الترتيب حسب عدد القصص والجمل المقروءة." data-app-de="Sortiert nach gelesenen Geschichten und Sätzen.">الترتيب حسب عدد القصص والجمل المقروءة.</p>
+        </div>
+      </div>
+
+      <ol class="admin-ranking-list">
+        {% for entry in library_ranking %}
+        <li>
+          <span class="admin-rank-number">{{ forloop.counter }}</span>
+          <span class="admin-rank-student"><strong>{{ entry.name }}</strong></span>
+          <span class="admin-rank-score">
+            <bdi dir="ltr">{{ entry.read_items }}</bdi>
+            <small data-app-ar="مقروء" data-app-de="gelesen">مقروء</small>
+          </span>
+        </li>
+        {% empty %}
+        <li class="admin-ranking-empty" data-app-ar="لم تتم قراءة أي قصة أو جملة بعد." data-app-de="Noch keine Geschichte oder kein Satz wurde gelesen.">لم تتم قراءة أي قصة أو جملة بعد.</li>
         {% endfor %}
       </ol>
     </article>
@@ -188,6 +337,53 @@
   (() => {
     const page = document.querySelector(".admin-stats-page");
     if (!page) return;
+
+    page.querySelectorAll("[data-points-select]").forEach((customSelect) => {
+      const nativeSelect = customSelect.querySelector("[data-points-native-select]");
+      const trigger = customSelect.querySelector("[data-points-select-trigger]");
+      const label = customSelect.querySelector("[data-points-select-label]");
+      const menu = customSelect.querySelector("[data-points-select-menu]");
+      const options = Array.from(customSelect.querySelectorAll("[data-points-option]"));
+      const closeMenu = () => {
+        menu.hidden = true;
+        trigger.setAttribute("aria-expanded", "false");
+        customSelect.classList.remove("is-open");
+      };
+      const openMenu = () => {
+        menu.hidden = false;
+        trigger.setAttribute("aria-expanded", "true");
+        customSelect.classList.add("is-open");
+        (options.find((option) => option.getAttribute("aria-selected") === "true") || options[0])?.focus();
+      };
+
+      trigger.addEventListener("click", () => menu.hidden ? openMenu() : closeMenu());
+      nativeSelect.addEventListener("invalid", (event) => {
+        event.preventDefault();
+        openMenu();
+        customSelect.classList.add("has-error");
+      });
+      options.forEach((option) => {
+        option.addEventListener("click", () => {
+          nativeSelect.value = option.value;
+          customSelect.classList.remove("has-error");
+          label.textContent = option.querySelector("span:nth-child(2)").textContent;
+          label.removeAttribute("data-app-ar");
+          label.removeAttribute("data-app-de");
+          options.forEach((item) => item.setAttribute("aria-selected", String(item === option)));
+          closeMenu();
+          trigger.focus();
+        });
+      });
+      customSelect.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          closeMenu();
+          trigger.focus();
+        }
+      });
+      document.addEventListener("click", (event) => {
+        if (!customSelect.contains(event.target)) closeMenu();
+      });
+    });
 
     page.addEventListener("click", async (event) => {
       const link = event.target.closest("[data-prayer-period-link]");

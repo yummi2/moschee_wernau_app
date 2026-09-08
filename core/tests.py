@@ -16,7 +16,152 @@ from .models import (
     ClassRoom,
     PrayerStatus,
     RamadanItemDone,
+    StoryRead,
+    TeacherPointAward,
 )
+from .points import point_balance
+from .ramadan_data import RAMADAN_ITEMS_ORDER
+
+
+class StudentPointsTests(TestCase):
+    def setUp(self):
+        self.student = get_user_model().objects.create_user("points-student", password="x")
+        self.teacher = get_user_model().objects.create_user("points-teacher", password="x")
+        self.other_teacher = get_user_model().objects.create_user("other-teacher", password="x")
+        self.classroom = ClassRoom.objects.create(name="Punkteklasse")
+        self.classroom.teachers.add(self.teacher)
+        self.classroom.students.add(self.student)
+        self.assignment = Assignment.objects.create(
+            classroom=self.classroom,
+            title="Testaufgabe",
+            created_by=self.teacher,
+        )
+
+    def test_balance_combines_each_automatic_source_and_teacher_awards(self):
+        AssignmentCompletion.objects.create(user=self.student, assignment=self.assignment)
+        for prayer in range(1, 6):
+            PrayerStatus.objects.create(
+                user=self.student,
+                date=dt.date(2026, 9, 8),
+                prayer=prayer,
+                prayed=True,
+            )
+        for item_key in RAMADAN_ITEMS_ORDER:
+            RamadanItemDone.objects.create(
+                user=self.student,
+                day=1,
+                item_key=item_key,
+                school_year="2026",
+                done=True,
+            )
+        TeacherPointAward.objects.create(
+            student=self.student,
+            teacher=self.teacher,
+            points=4,
+            reason="Gute Mitarbeit",
+        )
+        StoryRead.objects.create(user=self.student, level="beginner", sid="1")
+
+        balance = point_balance(self.student)
+
+        self.assertEqual(balance["assignment_points"], 1)
+        self.assertEqual(balance["prayer_points"], 1)
+        self.assertEqual(balance["ramadan_points"], 1)
+        self.assertEqual(balance["story_points"], 1)
+        self.assertEqual(balance["teacher_points"], 4)
+        self.assertEqual(balance["total_points"], 8)
+
+    def test_incomplete_prayer_or_ramadan_day_gives_no_point(self):
+        for prayer in range(1, 5):
+            PrayerStatus.objects.create(
+                user=self.student,
+                date=dt.date(2026, 9, 9),
+                prayer=prayer,
+                prayed=True,
+            )
+        for item_key in RAMADAN_ITEMS_ORDER[:-1]:
+            RamadanItemDone.objects.create(
+                user=self.student,
+                day=2,
+                item_key=item_key,
+                school_year="2026",
+                done=True,
+            )
+
+        balance = point_balance(self.student)
+
+        self.assertEqual(balance["prayer_points"], 0)
+        self.assertEqual(balance["ramadan_points"], 0)
+
+    def test_teacher_can_award_any_student(self):
+        outsider = get_user_model().objects.create_user("outsider", password="x")
+        self.client.force_login(self.teacher)
+
+        allowed = self.client.post(reverse("award_student_points"), {
+            "student_id": self.student.id,
+            "points": 3,
+            "reason": "Hilfsbereit",
+        })
+        second_award = self.client.post(reverse("award_student_points"), {
+            "student_id": outsider.id,
+            "points": 3,
+        })
+
+        self.assertEqual(allowed.status_code, 302)
+        self.assertEqual(second_award.status_code, 302)
+        self.assertEqual(TeacherPointAward.objects.filter(student=self.student).count(), 1)
+        self.assertTrue(TeacherPointAward.objects.filter(student=outsider).exists())
+
+    def test_non_teacher_cannot_award_points(self):
+        self.client.force_login(self.student)
+        response = self.client.post(reverse("award_student_points"), {
+            "student_id": self.student.id,
+            "points": 2,
+        })
+        self.assertEqual(response.status_code, 403)
+
+    def test_teacher_student_picker_contains_students_from_other_classes(self):
+        other_student = get_user_model().objects.create_user("other-student", password="x")
+        self.client.force_login(self.teacher)
+
+        response = self.client.get(reverse("admin_statistics"))
+
+        visible_ids = {student.id for student in response.context["teacher_students"]}
+        self.assertIn(self.student.id, visible_ids)
+        self.assertIn(other_student.id, visible_ids)
+
+    def test_library_top10_is_sorted_by_read_items(self):
+        other_student = get_user_model().objects.create_user("library-student", password="x")
+        StoryRead.objects.create(user=self.student, level="beginner", sid="1")
+        StoryRead.objects.create(user=other_student, level="beginner", sid="1")
+        StoryRead.objects.create(user=other_student, level="beginner", sid="2")
+        self.client.force_login(self.teacher)
+
+        response = self.client.get(reverse("admin_statistics"))
+
+        self.assertEqual(response.context["library_ranking"][0]["user"], other_student)
+        self.assertEqual(response.context["library_ranking"][0]["read_items"], 2)
+
+    def test_student_home_shows_position_in_points_bank(self):
+        other_student = get_user_model().objects.create_user("higher-points", password="x")
+        other_teacher_class = ClassRoom.objects.create(name="Andere Lehrerklasse")
+        other_teacher_class.teachers.add(self.other_teacher)
+        TeacherPointAward.objects.create(
+            student=other_student,
+            teacher=self.teacher,
+            points=5,
+        )
+        TeacherPointAward.objects.create(
+            student=self.student,
+            teacher=self.teacher,
+            points=2,
+        )
+        self.client.force_login(self.student)
+
+        response = self.client.get(reverse("home"))
+
+        self.assertEqual(response.context["student_point_rank"], 2)
+        self.assertEqual(response.context["student_point_count"], 2)
 
 
 class SchoolYearAccessTests(TestCase):
@@ -75,6 +220,18 @@ class AdminStatisticsTests(TestCase):
         self.client.force_login(self.first_student)
         response = self.client.get(reverse("admin_statistics"))
         self.assertEqual(response.status_code, 403)
+
+    def test_points_bank_is_hidden_in_2026_view(self):
+        self.client.force_login(self.admin)
+        session = self.client.session
+        session["school_year"] = "2026"
+        session.save()
+
+        response = self.client.get(reverse("admin_statistics"))
+
+        self.assertFalse(response.context["show_points_bank"])
+        self.assertNotContains(response, "points-table-panel")
+        self.assertNotContains(response, "points-history-panel")
 
     def test_student_home_keeps_ramadan_and_monthly_prayer_top10_achievements(self):
         RamadanItemDone.objects.create(
