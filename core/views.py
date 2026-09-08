@@ -455,7 +455,7 @@ SPECIAL_DATES = {
         dt.date(2027, 4, 24): COLOR_TEACHING,
 
         dt.date(2027, 5, 1): COLOR_HOLIDAY,
-        dt.date(2027, 5, 8): COLOR_HOLIDAY,
+        dt.date(2027, 5, 8): COLOR_TEACHING,
 
         dt.date(2027, 5, 15): COLOR_TEACHING,
 
