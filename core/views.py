@@ -658,14 +658,10 @@ def home(request):
         teacher_classes = request.user.classes_as_teacher.all()
         student_classes = request.user.classes_as_student.all()
 
-        if teacher_classes.exists():
+        if teacher_classes.exists() or student_classes.exists():
             assignments = Assignment.objects.filter(
-                classroom__in=teacher_classes
-            ).select_related("classroom", "created_by").order_by("-created_at")
-        elif student_classes.exists():
-            assignments = Assignment.objects.filter(
-                classroom__in=student_classes
-            ).select_related("classroom", "created_by").order_by("-created_at")
+                Q(classroom__in=teacher_classes) | Q(classroom__in=student_classes)
+            ).select_related("classroom", "created_by").distinct().order_by("-created_at")
         else:
             assignments = (Assignment.objects
                            .select_related("classroom", "created_by")

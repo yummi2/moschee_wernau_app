@@ -150,8 +150,10 @@ class AdminStatisticsTests(TestCase):
         other_teacher = get_user_model().objects.create_user("other-teacher", password="x")
         own_class = ClassRoom.objects.create(name="Eigene Klasse")
         other_class = ClassRoom.objects.create(name="Andere Klasse")
+        test_student_class = ClassRoom.objects.create(name="Test als Schüler")
         own_class.teachers.add(teacher)
         other_class.teachers.add(other_teacher)
+        test_student_class.students.add(teacher)
         own_class.students.add(self.first_student)
         other_class.students.add(self.second_student)
         own_assignment = Assignment.objects.create(
@@ -169,6 +171,12 @@ class AdminStatisticsTests(TestCase):
         Assignment.objects.create(
             classroom=other_class,
             title="Fremde Aufgabe",
+            due_at=timezone.now() + dt.timedelta(days=1),
+            created_by=other_teacher,
+        )
+        Assignment.objects.create(
+            classroom=test_student_class,
+            title="Testaufgabe für Lehrerkonto als Schüler",
             due_at=timezone.now() + dt.timedelta(days=1),
             created_by=other_teacher,
         )
@@ -192,6 +200,7 @@ class AdminStatisticsTests(TestCase):
         self.assertEqual(assignments_response.status_code, 200)
         self.assertTemplateUsed(assignments_response, "core/home.html")
         self.assertContains(assignments_response, "Eigene Aufgabe")
+        self.assertContains(assignments_response, "Testaufgabe für Lehrerkonto als Schüler")
         self.assertNotContains(assignments_response, 'data-home-tab="checklist"')
         self.assertNotContains(assignments_response, 'data-home-tab="prayer"')
 
