@@ -354,6 +354,15 @@ class AdminStatisticsTests(TestCase):
         self.assertNotContains(response, "points-table-panel")
         self.assertNotContains(response, "points-history-panel")
 
+    def test_mosque_top10_card_is_visible_in_2027_even_when_empty(self):
+        self.client.force_login(self.admin)
+
+        response = self.client.get(reverse("admin_statistics"))
+
+        self.assertTrue(response.context["show_points_bank"])
+        self.assertContains(response, "Top 10 der Moschee")
+        self.assertContains(response, "Noch kein Schüler ist in den Top 10 der Moschee")
+
     def test_student_home_keeps_ramadan_and_monthly_prayer_top10_achievements(self):
         RamadanItemDone.objects.create(
             user=self.first_student, day=1, item_key="quran", school_year="2027", done=True,

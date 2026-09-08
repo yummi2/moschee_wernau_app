@@ -151,7 +151,7 @@
   {% endif %}
 
   <div class="admin-stats-grid">
-    {% if mosque_ranking %}
+    {% if show_points_bank %}
     <article class="admin-ranking admin-ranking--mosque">
       <div class="admin-ranking-heading">
         <span class="admin-ranking-icon" aria-hidden="true">
@@ -172,6 +172,12 @@
             <bdi dir="ltr">{{ entry.total_points }}</bdi>
             <small data-app-ar="نقطة" data-app-de="Punkte">نقطة</small>
           </span>
+        </li>
+        {% empty %}
+        <li class="admin-ranking-empty"
+            data-app-ar="لا يوجد طالب ضمن أفضل 10 في المسجد بعد. يجب أن يكون الطالب ضمن أفضل 10 في رمضان والصلاة والمكتبة."
+            data-app-de="Noch kein Schüler ist in den Top 10 der Moschee. Dafür muss er in Ramadan, Gebet und Bibliothek jeweils zu den Top 10 gehören.">
+          لا يوجد طالب ضمن أفضل 10 في المسجد بعد. يجب أن يكون الطالب ضمن أفضل 10 في رمضان والصلاة والمكتبة.
         </li>
         {% endfor %}
       </ol>
