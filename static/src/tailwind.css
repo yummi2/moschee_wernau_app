@@ -6588,9 +6588,12 @@ html.app-language-german .about-page { direction: ltr; }
 .admin-stats-header,
 .admin-stats-grid,
 .admin-welcome,
+.admin-dashboard-tabs,
 .points-award-panel,
 .points-table-panel,
 .points-history-panel { width: min(100%, 70rem); margin-inline: auto; }
+.admin-page-end { display: block; width: 100%; height: 1px; flex: 0 0 1px; }
+.admin-scroll-top { display: none; }
 .admin-welcome {
   display: flex;
   align-items: center;
@@ -7205,6 +7208,29 @@ html.app-language-german .admin-stats-page { direction: ltr; }
   .admin-stats-page { height: 100%; max-height: 100%; padding: .75rem 0 2rem; }
   .admin-dashboard-tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .3rem; padding: .3rem; }
   .admin-dashboard-tabs button { min-height: 2.75rem; padding: .45rem .25rem; font-size: .72rem; }
+  .admin-scroll-top {
+    position: fixed;
+    z-index: 48;
+    inset-inline-end: 1rem;
+    inset-block-end: calc(5.2rem + env(safe-area-inset-bottom));
+    display: grid;
+    width: 3rem;
+    height: 3rem;
+    place-items: center;
+    border: 1px solid rgb(255 255 255 / 55%);
+    border-radius: 999px;
+    color: #fff;
+    background: linear-gradient(135deg, #0b4938, #17805e);
+    box-shadow: 0 10px 24px rgb(11 73 56 / 25%);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(.65rem) scale(.9);
+    transition: opacity 180ms ease, visibility 180ms ease, transform 220ms cubic-bezier(.22, 1, .36, 1);
+  }
+  .admin-scroll-top.is-visible { opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(0) scale(1); }
+  .admin-scroll-top svg { width: 1.45rem; height: 1.45rem; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+  .admin-scroll-top:active { transform: scale(.92); }
   .admin-welcome { flex-direction: column; margin-block-end: 1rem; text-align: center; }
   .admin-welcome h1 { justify-content: center; }
   .admin-welcome-avatar { width: 6rem; height: 6rem; flex-basis: 6rem; }

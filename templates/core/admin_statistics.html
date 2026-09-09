@@ -380,6 +380,10 @@
     </div>
   </section>
   {% endif %}
+  <span class="admin-page-end" aria-hidden="true" data-admin-page-end></span>
+  <button type="button" class="admin-scroll-top" data-admin-scroll-top aria-label="Nach oben / العودة إلى الأعلى">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 14 6-6 6 6"/></svg>
+  </button>
 </section>
 
 <script>
@@ -474,6 +478,18 @@
     window.addEventListener("resize", () => {
       positionDashboardIndicator(dashboardTabs.find((button) => button.classList.contains("is-active")), false);
     });
+
+    const pageEnd = page.querySelector("[data-admin-page-end]");
+    const scrollTopButton = page.querySelector("[data-admin-scroll-top]");
+    if (pageEnd && scrollTopButton) {
+      const pageEndObserver = new IntersectionObserver(([entry]) => {
+        scrollTopButton.classList.toggle("is-visible", entry.isIntersecting && page.scrollHeight > page.clientHeight);
+      }, { root: page, threshold: 0.75 });
+      pageEndObserver.observe(pageEnd);
+      scrollTopButton.addEventListener("click", () => {
+        page.scrollTo({ top: 0, behavior: dashboardReducedMotion.matches ? "auto" : "smooth" });
+      });
+    }
 
     page.querySelectorAll("[data-points-select]").forEach((customSelect) => {
       const nativeSelect = customSelect.querySelector("[data-points-native-select]");
