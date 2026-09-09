@@ -264,12 +264,12 @@ class LibraryTranslationTests(TestCase):
         self.assertContains(response, "data-library-pdf-reader")
         self.assertContains(response, "data-library-pdf-save")
         self.assertContains(response, "Mir ist ein Gebet entgangen")
-        self.assertContains(response, 'data-book-id="rashidi_part"')
+        self.assertContains(response, "Der Raschidi-Teil")
         self.assertContains(response, "Zum ersten Mal denke ich über den Koran nach")
         self.assertNotContains(response, "Sterne im Firmament des Prophetentums")
-        self.assertContains(response, "data-library-pdf=", count=3)
+        self.assertNotContains(response, "data-library-pdf=")
         self.assertContains(response, "PDF öffnen")
-        self.assertContains(response, "res.cloudinary.com", count=5)
+        self.assertContains(response, "res.cloudinary.com", count=3)
         content = response.content.decode()
         self.assertLess(
             content.index("Zum ersten Mal denke ich über den Koran nach"),

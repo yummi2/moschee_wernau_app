@@ -1593,18 +1593,21 @@ def library(request):
         },
         {
             "id": "forty_nawawi",
+            "external_only": True,
             "title_ar": "الأربعون النووية",
             "title_de": "Die vierzig Nawawi-Hadithe",
             "url": "https://res.cloudinary.com/drlpkuf9q/image/upload/%D8%A7%D9%84%D8%A7%D9%94%D8%B1%D8%A8%D8%B9%D9%88%D9%86_%D8%A7%D9%84%D9%86%D9%88%D9%88%D9%8A%D8%A9_ngzepk.pdf",
         },
         {
             "id": "charity_types",
+            "external_only": True,
             "title_ar": "أنواع الصدقات",
             "title_de": "Arten der Almosen",
             "url": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1788892605/%D8%A7%D9%94%D9%86%D9%88%D8%A7%D8%B9_%D8%A7%D9%84%D8%B5%D8%AF%D9%82%D8%A7%D8%AA_irtgsa.pdf",
         },
         {
             "id": "rashidi_part",
+            "external_only": True,
             "title_ar": "الجزء الرشيدي",
             "title_de": "Der Raschidi-Teil",
             "url": reverse("library_book_pdf", args=["rashidi_part"]),
