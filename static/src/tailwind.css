@@ -5206,7 +5206,7 @@ body.auth-page {
   position: absolute;
   z-index: 20;
   inset-block-start: calc(100% + 0.55rem);
-  inset-inline-start: 0;
+  left: 0;
   display: block;
   width: min(20rem, calc(100vw - 3.5rem));
   border: 1px solid #ddcfb4;
@@ -6628,6 +6628,53 @@ html.app-language-german .about-page { direction: ltr; }
   line-height: 1.35;
 }
 .admin-stats-header p { margin-block-start: .35rem; color: #64748b; line-height: 1.8; }
+.admin-dashboard-tabs {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+  gap: .35rem;
+  padding: .35rem;
+  border: 1px solid rgb(23 128 94 / 16%);
+  border-radius: 1rem;
+  background: rgb(255 253 248 / 72%);
+  box-shadow: 0 8px 24px rgb(11 73 56 / 7%);
+}
+.admin-dashboard-tab-indicator {
+  position: absolute;
+  z-index: 0;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  width: var(--dashboard-tab-width, 0);
+  height: var(--dashboard-tab-height, 0);
+  border-radius: .75rem;
+  background: linear-gradient(135deg, #0b4938, #17805e);
+  box-shadow: 0 7px 16px rgb(11 73 56 / 20%);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(var(--dashboard-tab-x, 0), var(--dashboard-tab-y, 0));
+}
+.admin-dashboard-tabs.has-indicator .admin-dashboard-tab-indicator { opacity: 1; }
+.admin-dashboard-tabs.is-indicator-ready .admin-dashboard-tab-indicator {
+  transition: width 260ms cubic-bezier(.22, 1, .36, 1), height 260ms cubic-bezier(.22, 1, .36, 1), transform 260ms cubic-bezier(.22, 1, .36, 1), opacity 160ms ease;
+}
+.admin-dashboard-tabs button {
+  position: relative;
+  z-index: 1;
+  min-height: 2.85rem;
+  padding: .55rem .65rem;
+  border-radius: .75rem;
+  color: #52645f;
+  font-weight: 850;
+  line-height: 1.35;
+  letter-spacing: normal;
+  transition: color 180ms ease, background-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+.admin-dashboard-tabs button:hover { color: #0b4938; background: #edf6f1; }
+.admin-dashboard-tabs button.is-active { color: #fff; background: transparent; box-shadow: none; }
+.admin-dashboard-tabs button:active { transform: scale(.97); }
+.admin-dashboard-tabs button:focus-visible { outline: 3px solid rgb(210 155 63 / 42%); outline-offset: 2px; }
+[data-dashboard-panel][hidden] { display: none !important; }
+.admin-dashboard-tabs ~ .admin-stats-grid { grid-template-columns: minmax(0, 1fr); }
 
 .points-award-panel,
 .points-table-panel,
@@ -7129,6 +7176,7 @@ html.app-language-german .admin-stats-page { direction: ltr; }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .admin-dashboard-tab-indicator { transition: none !important; }
   .admin-ranking--prayer { transition: none; }
   .admin-ranking--prayer.is-entering { animation: none; }
 }
@@ -7147,6 +7195,8 @@ html.app-language-german .admin-stats-page { direction: ltr; }
 }
 @media (max-width: 39.999rem) {
   .admin-stats-page { height: 100%; max-height: 100%; padding: .75rem 0 2rem; }
+  .admin-dashboard-tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .3rem; padding: .3rem; }
+  .admin-dashboard-tabs button { min-height: 2.75rem; padding: .45rem .25rem; font-size: .72rem; }
   .admin-welcome { flex-direction: column; margin-block-end: 1rem; text-align: center; }
   .admin-welcome h1 { justify-content: center; }
   .admin-welcome-avatar { width: 6rem; height: 6rem; flex-basis: 6rem; }

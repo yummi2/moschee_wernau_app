@@ -28,8 +28,24 @@
     </p>
   </header>
 
+  <nav class="admin-dashboard-tabs" role="tablist" aria-label="Schülerübersicht" data-dashboard-tabs>
+    <span class="admin-dashboard-tab-indicator" aria-hidden="true"></span>
+    {% if show_assignment_tracking %}
+    <button type="button" role="tab" data-dashboard-tab="homework" aria-selected="true" class="is-active" data-app-ar="الواجبات" data-app-de="Hausaufgaben">الواجبات</button>
+    {% endif %}
+    {% if show_points_bank %}
+    <button type="button" role="tab" data-dashboard-tab="points" aria-selected="false" data-app-ar="النقاط" data-app-de="Punkte">النقاط</button>
+    {% endif %}
+    <button type="button" role="tab" data-dashboard-tab="prayer" aria-selected="false" data-app-ar="الصلاة" data-app-de="Gebet">الصلاة</button>
+    <button type="button" role="tab" data-dashboard-tab="ramadan" aria-selected="false" data-app-ar="رمضان" data-app-de="Ramadan">رمضان</button>
+    <button type="button" role="tab" data-dashboard-tab="library" aria-selected="false" data-app-ar="المكتبة" data-app-de="Bibliothek">المكتبة</button>
+    {% if show_points_bank %}
+    <button type="button" role="tab" data-dashboard-tab="mosque" aria-selected="false" data-app-ar="المسجد" data-app-de="Moschee">المسجد</button>
+    {% endif %}
+  </nav>
+
   {% if show_points_bank and can_award_points %}
-  <section class="points-award-panel" aria-labelledby="points-award-title">
+  <section class="points-award-panel" aria-labelledby="points-award-title" data-dashboard-panel="points" hidden>
     <div class="points-panel-heading">
       <span class="points-bank-icon" aria-hidden="true">+</span>
       <div>
@@ -77,7 +93,7 @@
   {% endif %}
 
   {% if show_points_bank and is_admin_statistics %}
-  <section class="points-table-panel" aria-labelledby="points-table-title">
+  <section class="points-table-panel" aria-labelledby="points-table-title" data-dashboard-panel="points" hidden>
     <div class="points-panel-heading">
       <span class="points-bank-icon" aria-hidden="true">★</span>
       <div>
@@ -121,7 +137,7 @@
   {% endif %}
 
   {% if show_points_bank %}
-  <section class="points-history-panel" aria-labelledby="points-history-title">
+  <section class="points-history-panel" aria-labelledby="points-history-title" data-dashboard-panel="points" hidden>
     <div class="points-panel-heading">
       <span class="points-bank-icon" aria-hidden="true">↺</span>
       <div>
@@ -152,7 +168,7 @@
 
   <div class="admin-stats-grid">
     {% if show_points_bank %}
-    <article class="admin-ranking admin-ranking--mosque">
+    <article class="admin-ranking admin-ranking--mosque" data-dashboard-panel="mosque" hidden>
       <div class="admin-ranking-heading">
         <span class="admin-ranking-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24"><path d="M12 3l2.2 4.5 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.5 5-.7L12 3Z"/></svg>
@@ -184,7 +200,7 @@
     </article>
     {% endif %}
 
-    <article class="admin-ranking admin-ranking--ramadan">
+    <article class="admin-ranking admin-ranking--ramadan" data-dashboard-panel="ramadan" hidden>
       <div class="admin-ranking-heading">
         <span class="admin-ranking-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24"><path d="M19 15.5A8 8 0 0 1 9 5a8 8 0 1 0 10 10.5ZM17.5 4v3M16 5.5h3"/></svg>
@@ -220,7 +236,7 @@
       </ol>
     </article>
 
-    <article class="admin-ranking admin-ranking--prayer">
+    <article class="admin-ranking admin-ranking--prayer" data-dashboard-panel="prayer" hidden>
       <div class="admin-ranking-heading">
         <span class="admin-ranking-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24"><path d="M5 20h14M7 20V9l5-5 5 5v11M10 20v-5h4v5M9 9h6"/></svg>
@@ -263,7 +279,7 @@
       </ol>
     </article>
 
-    <article class="admin-ranking admin-ranking--library">
+    <article class="admin-ranking admin-ranking--library" data-dashboard-panel="library" hidden>
       <div class="admin-ranking-heading">
         <span class="admin-ranking-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11v17H6.5A2.5 2.5 0 0 0 4 22V5.5ZM20 5.5A2.5 2.5 0 0 0 17.5 3H13v17h4.5A2.5 2.5 0 0 1 20 22V5.5Z"/></svg>
@@ -292,7 +308,7 @@
   </div>
 
   {% if show_assignment_tracking %}
-  <section class="assignment-tracking">
+  <section class="assignment-tracking" data-dashboard-panel="homework">
     <header class="assignment-tracking-header">
       <div class="assignment-tracking-heading">
         <span class="admin-ranking-icon assignment-tracking-icon" aria-hidden="true">
@@ -370,6 +386,94 @@
   (() => {
     const page = document.querySelector(".admin-stats-page");
     if (!page) return;
+
+    const dashboardTabs = Array.from(page.querySelectorAll("[data-dashboard-tab]"));
+    const dashboardPanels = Array.from(page.querySelectorAll("[data-dashboard-panel]"));
+    const dashboardTabList = page.querySelector("[data-dashboard-tabs]");
+    const dashboardTabIndicator = dashboardTabList?.querySelector(".admin-dashboard-tab-indicator");
+    const dashboardStorageKey = "darAlFarahTeacherDashboardTab";
+    const dashboardReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let dashboardSwitchToken = 0;
+    const waitForDashboardAnimations = (animations) => Promise.all(
+      animations.map((animation) => animation.finished.catch(() => undefined))
+    );
+    const positionDashboardIndicator = (button, animate = true) => {
+      if (!dashboardTabList || !dashboardTabIndicator || !button) return;
+      if (!animate) dashboardTabList.classList.remove("is-indicator-ready");
+      dashboardTabList.style.setProperty("--dashboard-tab-x", `${button.offsetLeft}px`);
+      dashboardTabList.style.setProperty("--dashboard-tab-y", `${button.offsetTop}px`);
+      dashboardTabList.style.setProperty("--dashboard-tab-width", `${button.offsetWidth}px`);
+      dashboardTabList.style.setProperty("--dashboard-tab-height", `${button.offsetHeight}px`);
+      dashboardTabList.classList.add("has-indicator");
+      if (!animate) requestAnimationFrame(() => dashboardTabList.classList.add("is-indicator-ready"));
+    };
+    const activateDashboardTab = async (name, save = true, animate = true) => {
+      const activeButton = dashboardTabs.find((button) => button.dataset.dashboardTab === name) || dashboardTabs[0];
+      if (!activeButton) return;
+      const activeName = activeButton.dataset.dashboardTab;
+      const visiblePanels = dashboardPanels.filter((panel) => !panel.hidden);
+      const nextPanels = dashboardPanels.filter((panel) => panel.dataset.dashboardPanel === activeName);
+      const alreadyActive = visiblePanels.length === nextPanels.length
+        && visiblePanels.every((panel) => nextPanels.includes(panel));
+
+      dashboardTabs.forEach((button) => {
+        const active = button === activeButton;
+        button.classList.toggle("is-active", active);
+        button.setAttribute("aria-selected", String(active));
+        button.tabIndex = active ? 0 : -1;
+      });
+      positionDashboardIndicator(activeButton, animate);
+      if (save) localStorage.setItem(dashboardStorageKey, activeName);
+
+      if (alreadyActive) return;
+      const switchToken = ++dashboardSwitchToken;
+      dashboardPanels.forEach((panel) => {
+        panel.getAnimations().forEach((animation) => animation.cancel());
+      });
+
+      const shouldAnimate = animate && !dashboardReducedMotion.matches;
+      if (shouldAnimate && visiblePanels.length) {
+        await waitForDashboardAnimations(visiblePanels.map((panel) => panel.animate([
+          { opacity: 1, transform: "translateY(0)" },
+          { opacity: 0, transform: "translateY(-0.4rem)" },
+        ], {
+          duration: 110,
+          easing: "cubic-bezier(0.4, 0, 1, 1)",
+          fill: "forwards",
+        })));
+        if (switchToken !== dashboardSwitchToken) return;
+      }
+
+      dashboardPanels.forEach((panel) => {
+        panel.hidden = !nextPanels.includes(panel);
+      });
+
+      if (shouldAnimate) {
+        nextPanels.forEach((panel) => panel.animate([
+          { opacity: 0, transform: "translateY(0.65rem)" },
+          { opacity: 1, transform: "translateY(0)" },
+        ], {
+          duration: 240,
+          easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+        }));
+      }
+    };
+    const savedDashboardTab = localStorage.getItem(dashboardStorageKey);
+    activateDashboardTab(savedDashboardTab || dashboardTabs[0]?.dataset.dashboardTab, false, false);
+    dashboardTabs.forEach((button, index) => {
+      button.addEventListener("click", () => activateDashboardTab(button.dataset.dashboardTab));
+      button.addEventListener("keydown", (event) => {
+        if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+        event.preventDefault();
+        const step = event.key === "ArrowRight" ? 1 : -1;
+        const nextButton = dashboardTabs[(index + step + dashboardTabs.length) % dashboardTabs.length];
+        nextButton.focus();
+        activateDashboardTab(nextButton.dataset.dashboardTab);
+      });
+    });
+    window.addEventListener("resize", () => {
+      positionDashboardIndicator(dashboardTabs.find((button) => button.classList.contains("is-active")), false);
+    });
 
     page.querySelectorAll("[data-points-select]").forEach((customSelect) => {
       const nativeSelect = customSelect.querySelector("[data-points-native-select]");
@@ -467,6 +571,7 @@
         if (!nextCard) throw new Error("Gebetsrangliste fehlt in der Antwort.");
 
         nextCard.classList.add("is-entering");
+        nextCard.hidden = currentCard.hidden;
         currentCard.replaceWith(nextCard);
         window.history.pushState({}, "", link.href);
         window.applyAppLanguage?.();

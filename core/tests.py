@@ -362,6 +362,10 @@ class AdminStatisticsTests(TestCase):
         self.assertTrue(response.context["show_points_bank"])
         self.assertContains(response, "Top 10 der Moschee")
         self.assertContains(response, "Noch kein Schüler ist in den Top 10 der Moschee")
+        self.assertContains(response, 'data-dashboard-tab="homework"')
+        self.assertContains(response, 'data-dashboard-tab="points"')
+        self.assertContains(response, 'data-dashboard-tab="mosque"')
+        self.assertContains(response, 'data-dashboard-panel="mosque"')
 
     def test_student_home_keeps_ramadan_and_monthly_prayer_top10_achievements(self):
         RamadanItemDone.objects.create(
