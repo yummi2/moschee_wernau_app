@@ -6643,7 +6643,7 @@ html.app-language-german .about-page { direction: ltr; }
   position: absolute;
   z-index: 0;
   inset-block-start: 0;
-  inset-inline-start: 0;
+  left: 0;
   width: var(--dashboard-tab-width, 0);
   height: var(--dashboard-tab-height, 0);
   border-radius: .75rem;
@@ -6670,7 +6670,15 @@ html.app-language-german .about-page { direction: ltr; }
   transition: color 180ms ease, background-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
 }
 .admin-dashboard-tabs button:hover { color: #0b4938; background: #edf6f1; }
-.admin-dashboard-tabs button.is-active { color: #fff; background: transparent; box-shadow: none; }
+.admin-dashboard-tabs button.is-active {
+  color: #fff;
+  background: linear-gradient(135deg, #0b4938, #17805e);
+  box-shadow: 0 7px 16px rgb(11 73 56 / 20%);
+}
+.admin-dashboard-tabs.has-indicator button.is-active {
+  background: transparent;
+  box-shadow: none;
+}
 .admin-dashboard-tabs button:active { transform: scale(.97); }
 .admin-dashboard-tabs button:focus-visible { outline: 3px solid rgb(210 155 63 / 42%); outline-offset: 2px; }
 [data-dashboard-panel][hidden] { display: none !important; }
