@@ -13,20 +13,6 @@
     </p>
   </header>
 
-  {% if live_games %}
-  <section class="live-quiz-resume">
-    <h2 data-app-ar="مسابقات جارية" data-app-de="Laufende Spiele">Laufende Spiele</h2>
-    <div>
-      {% for game in live_games %}
-      <a href="{% url 'live_competition_game' game.id %}">
-        <strong>{{ game.competition.title }}</strong>
-        <span>{{ game.team_a_score }} : {{ game.team_b_score }}</span>
-      </a>
-      {% endfor %}
-    </div>
-  </section>
-  {% endif %}
-
   <form method="post" action="{% url 'live_competition_start' %}" class="live-quiz-setup-form" data-live-team-form>
     {% csrf_token %}
     <section class="live-quiz-competition-choice">

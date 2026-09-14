@@ -1643,7 +1643,18 @@ def live_competition_game(request, game_id):
             ).first()
 
             if action == "answer" and not existing_answer:
-                team = request.POST.get("team")
+                if question_index == 0:
+                    team = request.POST.get("team")
+                else:
+                    previous_answer = LiveCompetitionAnswer.objects.filter(
+                        game=locked_game,
+                        question=questions[question_index - 1],
+                    ).first()
+                    team = (
+                        "B" if previous_answer and previous_answer.team == "A" else
+                        "A" if previous_answer and previous_answer.team == "B" else
+                        None
+                    )
                 try:
                     selected_option = int(request.POST.get("selected_option", ""))
                 except (TypeError, ValueError):
@@ -1680,24 +1691,28 @@ def live_competition_game(request, game_id):
                     locked_game.winner = ""
 
                 if not locked_game.winner_points_awarded:
+                    point_recipients = LiveCompetitionParticipant.objects.filter(
+                        game=locked_game
+                    ).select_related("student")
                     if locked_game.winner:
-                        point_recipients = LiveCompetitionParticipant.objects.filter(
-                            game=locked_game, team=locked_game.winner
-                        ).select_related("student")
-                        awarded_points = 3
-                        award_reason = f"Live-Wettbewerb: {locked_game.competition.title} – Siegergruppe {locked_game.winner}"
+                        def awarded_points(participant):
+                            return 3 if participant.team == locked_game.winner else 1
+
+                        def award_reason(participant):
+                            result = "Siegergruppe" if participant.team == locked_game.winner else "Teilnahme"
+                            return f"Live-Wettbewerb: {locked_game.competition.title} – {result} {participant.team}"
                     else:
-                        point_recipients = LiveCompetitionParticipant.objects.filter(
-                            game=locked_game
-                        ).select_related("student")
-                        awarded_points = 1
-                        award_reason = f"Live-Wettbewerb: {locked_game.competition.title} – Unentschieden"
+                        def awarded_points(participant):
+                            return 2
+
+                        def award_reason(participant):
+                            return f"Live-Wettbewerb: {locked_game.competition.title} – Unentschieden"
                     TeacherPointAward.objects.bulk_create([
                         TeacherPointAward(
                             student=participant.student,
                             teacher=request.user,
-                            points=awarded_points,
-                            reason=award_reason,
+                            points=awarded_points(participant),
+                            reason=award_reason(participant),
                         )
                         for participant in point_recipients
                     ])
@@ -1713,6 +1728,16 @@ def live_competition_game(request, game_id):
     current_answer = LiveCompetitionAnswer.objects.filter(
         game=game, question=current_question
     ).first()
+    previous_answer = None
+    if current_index > 0:
+        previous_answer = LiveCompetitionAnswer.objects.filter(
+            game=game, question=questions[current_index - 1]
+        ).first()
+    answering_team = (
+        "B" if previous_answer and previous_answer.team == "A" else
+        "A" if previous_answer and previous_answer.team == "B" else
+        None
+    )
     option_rows = [
         {"number": number, "text": text, "is_correct": number == current_question.correct_option}
         for number, text in enumerate(current_question.options, start=1)
@@ -1726,7 +1751,7 @@ def live_competition_game(request, game_id):
         "question_number": current_index + 1,
         "question_total": len(questions),
         "is_last_question": current_index == len(questions) - 1,
-        "show_score_checkpoint": bool(current_answer and (current_index + 1) % 5 == 0),
+        "answering_team": answering_team,
         "team_a": [participant for participant in participants if participant.team == "A"],
         "team_b": [participant for participant in participants if participant.team == "B"],
     })

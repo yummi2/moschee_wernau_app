@@ -21,6 +21,7 @@ from .models import (
     LiveCompetition,
     LiveCompetitionQuestion,
     LiveCompetitionGame,
+    LiveCompetitionAnswer,
     DailyQuranReading,
 )
 from .points import point_balance
@@ -62,26 +63,31 @@ class LiveCompetitionTests(TestCase):
         })
         self.client.post(reverse("live_competition_game", args=[game.id]), {"action": "next"})
         self.client.post(reverse("live_competition_game", args=[game.id]), {
-            "action": "answer", "team": "A", "selected_option": "2",
+            "action": "answer", "team": "A", "selected_option": "1",
         })
         self.client.post(reverse("live_competition_game", args=[game.id]), {"action": "finish"})
 
         game.refresh_from_db()
         self.assertEqual(game.status, "finished")
         self.assertEqual(game.winner, "A")
-        self.assertEqual(game.team_a_score, 2)
-        self.assertEqual(TeacherPointAward.objects.count(), 2)
-        self.assertTrue(all(award.points == 3 for award in TeacherPointAward.objects.all()))
+        self.assertEqual(game.team_a_score, 1)
+        self.assertEqual(game.team_b_score, 0)
+        self.assertEqual(TeacherPointAward.objects.count(), 4)
+        awards = {award.student_id: award.points for award in TeacherPointAward.objects.all()}
+        self.assertEqual(awards[self.students[0].id], 3)
+        self.assertEqual(awards[self.students[1].id], 3)
+        self.assertEqual(awards[self.students[2].id], 1)
+        self.assertEqual(awards[self.students[3].id], 1)
 
         self.client.post(reverse("live_competition_game", args=[game.id]), {"action": "finish"})
-        self.assertEqual(TeacherPointAward.objects.count(), 2)
+        self.assertEqual(TeacherPointAward.objects.count(), 4)
 
     def test_student_cannot_open_live_control(self):
         self.client.force_login(self.students[0])
         response = self.client.get(reverse("live_competition_setup"))
         self.assertEqual(response.status_code, 403)
 
-    def test_tie_awards_every_participant_one_point_once(self):
+    def test_tie_awards_every_participant_two_points_once(self):
         self.client.force_login(self.admin)
         self.client.post(reverse("live_competition_start"), {
             "competition_id": self.competition.id,
@@ -104,24 +110,12 @@ class LiveCompetitionTests(TestCase):
         self.assertEqual(game.winner, "")
         self.assertEqual(game.team_a_score, game.team_b_score)
         self.assertEqual(TeacherPointAward.objects.count(), 4)
-        self.assertTrue(all(award.points == 1 for award in TeacherPointAward.objects.all()))
+        self.assertTrue(all(award.points == 2 for award in TeacherPointAward.objects.all()))
 
         self.client.post(reverse("live_competition_game", args=[game.id]), {"action": "finish"})
         self.assertEqual(TeacherPointAward.objects.count(), 4)
 
-    def test_score_checkpoint_is_shown_after_five_answered_questions(self):
-        for order in range(2, 6):
-            LiveCompetitionQuestion.objects.create(
-                competition=self.competition,
-                text=f"Frage {order + 1}",
-                option_1="A",
-                option_2="B",
-                option_3="C",
-                option_4="D",
-                correct_option=2,
-                order=order,
-            )
-
+    def test_answering_team_alternates_after_first_question(self):
         self.client.force_login(self.admin)
         self.client.post(reverse("live_competition_start"), {
             "competition_id": self.competition.id,
@@ -131,17 +125,22 @@ class LiveCompetitionTests(TestCase):
         game = LiveCompetitionGame.objects.get()
         game_url = reverse("live_competition_game", args=[game.id])
 
-        for question_number in range(1, 6):
-            self.client.post(game_url, {
-                "action": "answer", "team": "A", "selected_option": "2",
-            })
-            response = self.client.get(game_url)
-            self.assertEqual(
-                response.context["show_score_checkpoint"],
-                question_number == 5,
-            )
-            if question_number < 5:
-                self.client.post(game_url, {"action": "next"})
+        self.client.post(game_url, {
+            "action": "answer", "team": "A", "selected_option": "2",
+        })
+        self.client.post(game_url, {"action": "next"})
+        response = self.client.get(game_url)
+        self.assertEqual(response.context["answering_team"], "B")
+        self.assertNotContains(response, 'name="team"')
+
+        self.client.post(game_url, {
+            "action": "answer", "team": "A", "selected_option": "2",
+        })
+        second_question = self.competition.questions.order_by("order", "id")[1]
+        self.assertEqual(
+            LiveCompetitionAnswer.objects.get(game=game, question=second_question).team,
+            "B",
+        )
 
 
 class DailyQuranReadingTests(TestCase):

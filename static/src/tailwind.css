@@ -7491,19 +7491,13 @@ html.app-language-german body:not(.login-auth-page):not(.registration-auth-page)
 .live-quiz-kicker { display: inline-flex; padding: .3rem .7rem; border-radius: 999px; color: #fff; background: #e11d48; font-size: .7rem; font-weight: 900; letter-spacing: .14em; box-shadow: 0 6px 16px rgb(225 29 72 / 22%); }
 .live-quiz-hero h1 { margin-block-start: .6rem; font-size: clamp(2rem, 5vw, 3.4rem); font-weight: 900; line-height: 1.25; }
 .live-quiz-hero p { max-width: 48rem; margin: .45rem auto 0; color: #52645f; font-weight: 650; line-height: 1.8; }
-.live-quiz-resume,
 .live-quiz-competition-choice,
 .live-team-picker,
 .live-question-card,
 .live-team-details,
 .live-game-result { margin-block-start: 1.25rem; border: 1px solid rgb(23 128 94 / 18%); border-radius: 1.5rem; background: rgb(255 253 248 / 84%); box-shadow: 0 14px 34px rgb(11 73 56 / 9%); }
-.live-quiz-resume,
 .live-quiz-competition-choice { padding: 1.2rem; }
-.live-quiz-resume h2,
 .live-quiz-competition-choice h2 { font-size: 1.05rem; font-weight: 900; }
-.live-quiz-resume > div { display: grid; gap: .55rem; margin-block-start: .75rem; }
-.live-quiz-resume a { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .7rem .85rem; border-radius: .85rem; background: #edf6f1; }
-.live-quiz-resume a span { color: #0b4938; font-size: 1.1rem; font-weight: 900; }
 .live-quiz-competition-choice { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: .65rem 1rem; }
 .live-quiz-competition-choice h2 { grid-column: 1 / -1; }
 .live-quiz-competition-choice select { min-height: 3.2rem; padding-inline: .85rem; border: 1px solid rgb(23 128 94 / 35%); border-radius: .9rem; background: #fff; font-weight: 750; }
@@ -7566,15 +7560,10 @@ html.app-language-german body:not(.login-auth-page):not(.registration-auth-page)
 .live-answer-feedback { margin-block-start: 1rem; padding: .8rem; border-radius: .9rem; text-align: center; font-size: 1.05rem; font-weight: 850; }
 .live-answer-feedback.is-correct { color: #166534; background: #dcfce7; }
 .live-answer-feedback.is-wrong { color: #991b1b; background: #fee2e2; }
-.live-score-checkpoint { max-width: 42rem; margin: 0 auto 1.2rem; padding: 1rem; border: 1px solid rgb(23 128 94 / 24%); border-radius: 1.2rem; background: linear-gradient(135deg, #edf6f1, #fff9ec); text-align: center; box-shadow: 0 12px 28px rgb(11 73 56 / 10%); }
-.live-score-checkpoint > small { color: #52645f; font-weight: 800; }
-.live-score-checkpoint h3 { margin-block-start: .2rem; color: #0b4938; font-size: clamp(1.2rem, 3vw, 1.65rem); font-weight: 900; }
-.live-score-checkpoint-board { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: .7rem; margin-block-start: .75rem; }
-.live-score-checkpoint-board > b { color: #52645f; font-size: 1.5rem; }
-.live-score-checkpoint-team { display: flex; min-width: 0; align-items: center; justify-content: space-between; gap: .65rem; padding: .7rem .85rem; border-radius: .9rem; color: #fff; font-weight: 850; }
-.live-score-checkpoint-team--a { background: linear-gradient(135deg, #1d4ed8, #3b82f6); }
-.live-score-checkpoint-team--b { background: linear-gradient(135deg, #be123c, #f43f5e); }
-.live-score-checkpoint-team strong { font-size: 1.7rem; line-height: 1; }
+.live-automatic-team { display: flex; width: fit-content; align-items: center; gap: .65rem; margin: 0 auto 1rem; padding: .65rem .9rem; border-radius: .9rem; color: #fff; font-weight: 850; box-shadow: 0 8px 18px rgb(15 23 42 / 12%); }
+.live-automatic-team--a { background: linear-gradient(135deg, #1d4ed8, #3b82f6); }
+.live-automatic-team--b { background: linear-gradient(135deg, #be123c, #f43f5e); }
+.live-automatic-team strong { display: grid; width: 2rem; height: 2rem; place-items: center; border-radius: .65rem; background: rgb(255 255 255 / 22%); font-size: 1.15rem; }
 .live-team-details { padding: .85rem 1rem; }
 .live-team-details summary { color: #0b4938; font-weight: 850; cursor: pointer; }
 .live-team-details > div { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-block-start: .8rem; }

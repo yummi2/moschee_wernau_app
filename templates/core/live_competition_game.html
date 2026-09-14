@@ -15,12 +15,12 @@
     <span aria-hidden="true">★</span>
     {% if game.winner %}
     <h2><span data-app-ar="الفائز: المجموعة" data-app-de="Gewinner: Gruppe">Gewinner: Gruppe</span> {{ game.winner }}</h2>
-    <p data-app-ar="حصل كل طفل في المجموعة الفائزة على 3 نقاط."
-       data-app-de="Jedes Kind der Siegergruppe hat 3 Punkte erhalten.">Jedes Kind der Siegergruppe hat 3 Punkte erhalten.</p>
+    <p data-app-ar="حصل كل طفل في المجموعة الفائزة على 3 نقاط، وكل طفل في المجموعة الأخرى على نقطة واحدة."
+       data-app-de="Jedes Kind der Siegergruppe hat 3 Punkte erhalten, jedes Kind der anderen Gruppe 1 Punkt.">Jedes Kind der Siegergruppe hat 3 Punkte erhalten, jedes Kind der anderen Gruppe 1 Punkt.</p>
     {% else %}
     <h2 data-app-ar="تعادل" data-app-de="Unentschieden">Unentschieden</h2>
-    <p data-app-ar="حصل كل طفل في المجموعتين على نقطة واحدة."
-       data-app-de="Jedes Kind beider Gruppen hat 1 Punkt erhalten.">Jedes Kind beider Gruppen hat 1 Punkt erhalten.</p>
+    <p data-app-ar="حصل كل طفل في المجموعتين على نقطتين."
+       data-app-de="Jedes Kind beider Gruppen hat 2 Punkte erhalten.">Jedes Kind beider Gruppen hat 2 Punkte erhalten.</p>
     {% endif %}
     <a href="{% url 'live_competition_setup' %}" data-app-ar="مسابقة جديدة" data-app-de="Neues Spiel">Neues Spiel</a>
   </section>
@@ -30,24 +30,6 @@
     <h2>{{ current_question.text }}</h2>
 
     {% if current_answer %}
-    {% if show_score_checkpoint %}
-    <section class="live-score-checkpoint" aria-live="polite">
-      <small data-app-ar="النتيجة بعد {{ question_number }} أسئلة"
-             data-app-de="Zwischenstand nach {{ question_number }} Fragen">Zwischenstand nach {{ question_number }} Fragen</small>
-      <h3 data-app-ar="النتيجة الحالية" data-app-de="Aktueller Punktestand">Aktueller Punktestand</h3>
-      <div class="live-score-checkpoint-board">
-        <article class="live-score-checkpoint-team live-score-checkpoint-team--a">
-          <span data-app-ar="المجموعة أ" data-app-de="Gruppe A">Gruppe A</span>
-          <strong>{{ game.team_a_score }}</strong>
-        </article>
-        <b aria-hidden="true">:</b>
-        <article class="live-score-checkpoint-team live-score-checkpoint-team--b">
-          <span data-app-ar="المجموعة ب" data-app-de="Gruppe B">Gruppe B</span>
-          <strong>{{ game.team_b_score }}</strong>
-        </article>
-      </div>
-    </section>
-    {% endif %}
     <div class="live-answer-grid is-revealed">
       {% for option in option_rows %}
       <div class="live-answer-option live-answer-option--{{ option.number }} {% if option.is_correct %}is-correct{% elif option.number == current_answer.selected_option %}is-wrong{% endif %}">
@@ -70,13 +52,19 @@
     {% else %}
     <form method="post" class="live-answer-form">
       {% csrf_token %}
+      {% if question_number == 1 %}
       <fieldset class="live-team-answering">
         <legend data-app-ar="أي مجموعة أجابت؟" data-app-de="Welche Gruppe antwortet?">Welche Gruppe antwortet?</legend>
         <label><input type="radio" name="team" value="A" required><span data-app-ar="المجموعة أ" data-app-de="Gruppe A">Gruppe A</span></label>
         <label><input type="radio" name="team" value="B" required><span data-app-ar="المجموعة ب" data-app-de="Gruppe B">Gruppe B</span></label>
       </fieldset>
+      {% else %}
+      <div class="live-automatic-team live-automatic-team--{{ answering_team|lower }}">
+        <span data-app-ar="الدور الآن للمجموعة" data-app-de="Jetzt antwortet Gruppe">Jetzt antwortet Gruppe</span>
+        <strong>{{ answering_team }}</strong>
+      </div>
+      {% endif %}
       <fieldset class="live-answer-grid">
-        <legend data-app-ar="اختر الإجابة الشفوية" data-app-de="Mündliche Antwort auswählen">Mündliche Antwort auswählen</legend>
         {% for option in option_rows %}
         <label class="live-answer-option live-answer-option--{{ option.number }}">
           <input type="radio" name="selected_option" value="{{ option.number }}" required>
