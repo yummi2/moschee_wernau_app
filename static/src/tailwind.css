@@ -7566,6 +7566,15 @@ html.app-language-german body:not(.login-auth-page):not(.registration-auth-page)
 .live-answer-feedback { margin-block-start: 1rem; padding: .8rem; border-radius: .9rem; text-align: center; font-size: 1.05rem; font-weight: 850; }
 .live-answer-feedback.is-correct { color: #166534; background: #dcfce7; }
 .live-answer-feedback.is-wrong { color: #991b1b; background: #fee2e2; }
+.live-score-checkpoint { max-width: 42rem; margin: 0 auto 1.2rem; padding: 1rem; border: 1px solid rgb(23 128 94 / 24%); border-radius: 1.2rem; background: linear-gradient(135deg, #edf6f1, #fff9ec); text-align: center; box-shadow: 0 12px 28px rgb(11 73 56 / 10%); }
+.live-score-checkpoint > small { color: #52645f; font-weight: 800; }
+.live-score-checkpoint h3 { margin-block-start: .2rem; color: #0b4938; font-size: clamp(1.2rem, 3vw, 1.65rem); font-weight: 900; }
+.live-score-checkpoint-board { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: .7rem; margin-block-start: .75rem; }
+.live-score-checkpoint-board > b { color: #52645f; font-size: 1.5rem; }
+.live-score-checkpoint-team { display: flex; min-width: 0; align-items: center; justify-content: space-between; gap: .65rem; padding: .7rem .85rem; border-radius: .9rem; color: #fff; font-weight: 850; }
+.live-score-checkpoint-team--a { background: linear-gradient(135deg, #1d4ed8, #3b82f6); }
+.live-score-checkpoint-team--b { background: linear-gradient(135deg, #be123c, #f43f5e); }
+.live-score-checkpoint-team strong { font-size: 1.7rem; line-height: 1; }
 .live-team-details { padding: .85rem 1rem; }
 .live-team-details summary { color: #0b4938; font-weight: 850; cursor: pointer; }
 .live-team-details > div { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-block-start: .8rem; }

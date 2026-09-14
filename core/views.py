@@ -1679,18 +1679,27 @@ def live_competition_game(request, game_id):
                 else:
                     locked_game.winner = ""
 
-                if locked_game.winner and not locked_game.winner_points_awarded:
-                    winners = LiveCompetitionParticipant.objects.filter(
-                        game=locked_game, team=locked_game.winner
-                    ).select_related("student")
+                if not locked_game.winner_points_awarded:
+                    if locked_game.winner:
+                        point_recipients = LiveCompetitionParticipant.objects.filter(
+                            game=locked_game, team=locked_game.winner
+                        ).select_related("student")
+                        awarded_points = 3
+                        award_reason = f"Live-Wettbewerb: {locked_game.competition.title} – Siegergruppe {locked_game.winner}"
+                    else:
+                        point_recipients = LiveCompetitionParticipant.objects.filter(
+                            game=locked_game
+                        ).select_related("student")
+                        awarded_points = 1
+                        award_reason = f"Live-Wettbewerb: {locked_game.competition.title} – Unentschieden"
                     TeacherPointAward.objects.bulk_create([
                         TeacherPointAward(
                             student=participant.student,
                             teacher=request.user,
-                            points=3,
-                            reason=f"Live-Wettbewerb: {locked_game.competition.title} – Siegergruppe {locked_game.winner}",
+                            points=awarded_points,
+                            reason=award_reason,
                         )
-                        for participant in winners
+                        for participant in point_recipients
                     ])
                     locked_game.winner_points_awarded = True
                 locked_game.status = "finished"
@@ -1717,6 +1726,7 @@ def live_competition_game(request, game_id):
         "question_number": current_index + 1,
         "question_total": len(questions),
         "is_last_question": current_index == len(questions) - 1,
+        "show_score_checkpoint": bool(current_answer and (current_index + 1) % 5 == 0),
         "team_a": [participant for participant in participants if participant.team == "A"],
         "team_b": [participant for participant in participants if participant.team == "B"],
     })
