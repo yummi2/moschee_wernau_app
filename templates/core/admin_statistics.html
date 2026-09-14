@@ -28,6 +28,12 @@
     </p>
   </header>
 
+  {% if is_admin_statistics %}
+  <a href="{% url 'live_competition_setup' %}" class="admin-live-quiz-link">
+    <strong data-app-ar="مسابقة" data-app-de="Live-Wettbewerb">Live-Wettbewerb</strong>
+  </a>
+  {% endif %}
+
   <nav class="admin-dashboard-tabs" role="tablist" aria-label="Schülerübersicht" data-dashboard-tabs>
     <span class="admin-dashboard-tab-indicator" aria-hidden="true"></span>
     {% if show_assignment_tracking %}
@@ -467,6 +473,15 @@
     window.addEventListener("resize", () => {
       positionDashboardIndicator(dashboardTabs.find((button) => button.classList.contains("is-active")), false);
       updateScrollTopButton();
+    });
+    window.addEventListener("app-language-change", () => {
+      dashboardTabList?.classList.remove("has-indicator", "is-indicator-ready");
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        positionDashboardIndicator(
+          dashboardTabs.find((button) => button.classList.contains("is-active")),
+          false
+        );
+      }));
     });
 
     if (scrollTopButton) {

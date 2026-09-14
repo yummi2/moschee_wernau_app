@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Profile, Assignment, AssignmentCompletion, Absence, ClassRoom, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStatus, RamadanItemDone, QuizScore, TeacherPointAward
+from .models import Profile, Assignment, AssignmentCompletion, Absence, ClassRoom, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStatus, RamadanItemDone, QuizScore, TeacherPointAward, LiveCompetition, LiveCompetitionGame, LiveCompetitionParticipant, LiveCompetitionAnswer
 from .points import point_balances, student_users
 from .forms import ProfileForm
 from django.contrib import messages
@@ -14,6 +14,7 @@ from django.conf import settings
 from django.views.decorators.http import require_POST, require_GET
 from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView
+from django.db import transaction
 from django.db.models import Q
 from .forms import WeeklyBannerForm
 from django.urls import reverse
@@ -1465,6 +1466,189 @@ def award_student_points(request):
     )
     messages.success(request, f"{points} Punkte wurden an {student.get_full_name() or student.username} vergeben.")
     return redirect("admin_statistics")
+
+
+def _can_manage_live_competition(user):
+    profile = getattr(user, "profile", None)
+    is_teacher = bool(profile and profile.is_teacher) or user.classes_as_teacher.exists()
+    return user.is_superuser or (user.is_staff and not is_teacher)
+
+
+@login_required
+def live_competition_setup(request):
+    if not _can_manage_live_competition(request.user):
+        return HttpResponseForbidden("Dieser Bereich ist nur für die Verwaltung verfügbar.")
+
+    competition = (
+        LiveCompetition.objects
+        .filter(is_active=True, questions__isnull=False)
+        .prefetch_related("questions")
+        .distinct()
+        .first()
+    )
+    students = sorted(
+        student_users().select_related("profile"),
+        key=lambda student: (student.get_full_name().strip() or student.username).casefold(),
+    )
+    live_games = LiveCompetitionGame.objects.filter(status="live").select_related("competition")[:5]
+    return render(request, "core/live_competition_setup.html", {
+        "competition": competition,
+        "students": students,
+        "live_games": live_games,
+    })
+
+
+@login_required
+@require_POST
+def live_competition_start(request):
+    if not _can_manage_live_competition(request.user):
+        return HttpResponseForbidden("Dieser Bereich ist nur für die Verwaltung verfügbar.")
+
+    competition = get_object_or_404(LiveCompetition, pk=request.POST.get("competition_id"), is_active=True)
+    if not competition.questions.exists():
+        messages.error(request, "Dieser Wettbewerb enthält noch keine Fragen.")
+        return redirect("live_competition_setup")
+
+    try:
+        team_a_ids = {int(value) for value in request.POST.getlist("team_a")}
+        team_b_ids = {int(value) for value in request.POST.getlist("team_b")}
+    except (TypeError, ValueError):
+        messages.error(request, "Die Gruppenauswahl ist ungültig.")
+        return redirect("live_competition_setup")
+
+    if not team_a_ids or not team_b_ids:
+        messages.error(request, "Beide Gruppen benötigen mindestens ein Kind.")
+        return redirect("live_competition_setup")
+    if team_a_ids & team_b_ids:
+        messages.error(request, "Ein Kind kann nur in einer Gruppe sein.")
+        return redirect("live_competition_setup")
+
+    allowed_students = {
+        student.id: student
+        for student in student_users().filter(id__in=team_a_ids | team_b_ids)
+    }
+    if set(allowed_students) != team_a_ids | team_b_ids:
+        messages.error(request, "Mindestens ein ausgewählter Benutzer ist kein Schüler.")
+        return redirect("live_competition_setup")
+
+    with transaction.atomic():
+        game = LiveCompetitionGame.objects.create(
+            competition=competition,
+            created_by=request.user,
+        )
+        LiveCompetitionParticipant.objects.bulk_create([
+            LiveCompetitionParticipant(
+                game=game,
+                student=allowed_students[student_id],
+                team="A" if student_id in team_a_ids else "B",
+            )
+            for student_id in sorted(team_a_ids | team_b_ids)
+        ])
+    return redirect("live_competition_game", game_id=game.id)
+
+
+@login_required
+def live_competition_game(request, game_id):
+    if not _can_manage_live_competition(request.user):
+        return HttpResponseForbidden("Dieser Bereich ist nur für die Verwaltung verfügbar.")
+
+    game = get_object_or_404(
+        LiveCompetitionGame.objects.select_related("competition").prefetch_related("participants__student"),
+        pk=game_id,
+    )
+    questions = list(game.competition.questions.all())
+    if not questions:
+        messages.error(request, "Dieser Wettbewerb enthält keine Fragen.")
+        return redirect("live_competition_setup")
+
+    if request.method == "POST" and game.status == "live":
+        action = request.POST.get("action")
+        with transaction.atomic():
+            locked_game = LiveCompetitionGame.objects.select_for_update().get(pk=game.pk)
+            question_index = min(locked_game.current_question_index, len(questions) - 1)
+            question = questions[question_index]
+            existing_answer = LiveCompetitionAnswer.objects.filter(
+                game=locked_game, question=question
+            ).first()
+
+            if action == "answer" and not existing_answer:
+                team = request.POST.get("team")
+                try:
+                    selected_option = int(request.POST.get("selected_option", ""))
+                except (TypeError, ValueError):
+                    selected_option = 0
+                if team not in {"A", "B"} or selected_option not in {1, 2, 3, 4}:
+                    messages.error(request, "Bitte Gruppe und Antwort auswählen.")
+                else:
+                    is_correct = selected_option == question.correct_option
+                    LiveCompetitionAnswer.objects.create(
+                        game=locked_game,
+                        question=question,
+                        team=team,
+                        selected_option=selected_option,
+                        is_correct=is_correct,
+                    )
+                    if is_correct:
+                        if team == "A":
+                            locked_game.team_a_score += 1
+                        else:
+                            locked_game.team_b_score += 1
+                        locked_game.save(update_fields=("team_a_score", "team_b_score"))
+
+            elif action == "next" and existing_answer:
+                if locked_game.current_question_index < len(questions) - 1:
+                    locked_game.current_question_index += 1
+                    locked_game.save(update_fields=("current_question_index",))
+
+            elif action == "finish" and existing_answer and locked_game.current_question_index >= len(questions) - 1:
+                if locked_game.team_a_score > locked_game.team_b_score:
+                    locked_game.winner = "A"
+                elif locked_game.team_b_score > locked_game.team_a_score:
+                    locked_game.winner = "B"
+                else:
+                    locked_game.winner = ""
+
+                if locked_game.winner and not locked_game.winner_points_awarded:
+                    winners = LiveCompetitionParticipant.objects.filter(
+                        game=locked_game, team=locked_game.winner
+                    ).select_related("student")
+                    TeacherPointAward.objects.bulk_create([
+                        TeacherPointAward(
+                            student=participant.student,
+                            teacher=request.user,
+                            points=3,
+                            reason=f"Live-Wettbewerb: {locked_game.competition.title} – Siegergruppe {locked_game.winner}",
+                        )
+                        for participant in winners
+                    ])
+                    locked_game.winner_points_awarded = True
+                locked_game.status = "finished"
+                locked_game.finished_at = timezone.now()
+                locked_game.save(update_fields=("winner", "winner_points_awarded", "status", "finished_at"))
+        return redirect("live_competition_game", game_id=game.id)
+
+    game.refresh_from_db()
+    current_index = min(game.current_question_index, len(questions) - 1)
+    current_question = questions[current_index]
+    current_answer = LiveCompetitionAnswer.objects.filter(
+        game=game, question=current_question
+    ).first()
+    option_rows = [
+        {"number": number, "text": text, "is_correct": number == current_question.correct_option}
+        for number, text in enumerate(current_question.options, start=1)
+    ]
+    participants = list(game.participants.select_related("student"))
+    return render(request, "core/live_competition_game.html", {
+        "game": game,
+        "current_question": current_question,
+        "current_answer": current_answer,
+        "option_rows": option_rows,
+        "question_number": current_index + 1,
+        "question_total": len(questions),
+        "is_last_question": current_index == len(questions) - 1,
+        "team_a": [participant for participant in participants if participant.team == "A"],
+        "team_b": [participant for participant in participants if participant.team == "B"],
+    })
 
 
 @login_required

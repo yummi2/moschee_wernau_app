@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ClassRoom, Assignment, Absence, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStatus, RamadanItemDone, QuizScore, Profile, TeacherPointAward
+from .models import ClassRoom, Assignment, Absence, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStatus, RamadanItemDone, QuizScore, Profile, TeacherPointAward, LiveCompetition, LiveCompetitionQuestion, LiveCompetitionGame, LiveCompetitionParticipant, LiveCompetitionAnswer
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from .views import STORIES
@@ -188,3 +188,50 @@ class TeacherPointAwardAdmin(admin.ModelAdmin):
     list_filter = ("teacher", "created_at")
     search_fields = ("student__username", "student__first_name", "student__last_name", "reason")
     readonly_fields = ("created_at",)
+
+
+class LiveCompetitionQuestionInline(admin.StackedInline):
+    model = LiveCompetitionQuestion
+    extra = 5
+    fields = ("order", "text", "option_1", "option_2", "option_3", "option_4", "correct_option")
+
+
+@admin.register(LiveCompetition)
+class LiveCompetitionAdmin(admin.ModelAdmin):
+    list_display = ("title", "is_active", "question_count", "created_at")
+    list_filter = ("is_active",)
+    search_fields = ("title",)
+    exclude = ("created_by",)
+    inlines = (LiveCompetitionQuestionInline,)
+
+    def question_count(self, obj):
+        return obj.questions.count()
+    question_count.short_description = "Fragen"
+
+    def save_model(self, request, obj, form, change):
+        if not obj.created_by_id:
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
+        if obj.is_active:
+            LiveCompetition.objects.exclude(pk=obj.pk).update(is_active=False)
+
+
+@admin.register(LiveCompetitionGame)
+class LiveCompetitionGameAdmin(admin.ModelAdmin):
+    list_display = ("competition", "status", "team_a_score", "team_b_score", "winner", "started_at")
+    list_filter = ("status", "winner")
+    readonly_fields = ("started_at", "finished_at")
+
+
+@admin.register(LiveCompetitionParticipant)
+class LiveCompetitionParticipantAdmin(admin.ModelAdmin):
+    list_display = ("game", "student", "team")
+    list_filter = ("team",)
+    search_fields = ("student__username", "student__first_name", "student__last_name")
+
+
+@admin.register(LiveCompetitionAnswer)
+class LiveCompetitionAnswerAdmin(admin.ModelAdmin):
+    list_display = ("game", "question", "team", "selected_option", "is_correct", "answered_at")
+    list_filter = ("team", "is_correct")
+    readonly_fields = ("answered_at",)

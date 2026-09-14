@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Live-Wettbewerb – Dar Al Farah{% endblock %}
+
+{% block content %}
+<main class="live-quiz-page" dir="ltr" data-app-language-surface>
+  <header class="live-quiz-hero">
+    <span class="live-quiz-kicker">LIVE</span>
+    <h1 data-app-ar="المسابقة" data-app-de="Live-Wettbewerb">Live-Wettbewerb</h1>
+    <p data-app-ar="تُستخدم جميع الأسئلة المحفوظة تلقائياً. قسّم الأطفال الحاضرين مباشرة إلى مجموعتين."
+       data-app-de="Alle gespeicherten Fragen werden automatisch verwendet. Teile jetzt die anwesenden Kinder in zwei Gruppen ein.">
+      Alle gespeicherten Fragen werden automatisch verwendet. Teile jetzt die anwesenden Kinder in zwei Gruppen ein.
+    </p>
+  </header>
+
+  {% if live_games %}
+  <section class="live-quiz-resume">
+    <h2 data-app-ar="مسابقات جارية" data-app-de="Laufende Spiele">Laufende Spiele</h2>
+    <div>
+      {% for game in live_games %}
+      <a href="{% url 'live_competition_game' game.id %}">
+        <strong>{{ game.competition.title }}</strong>
+        <span>{{ game.team_a_score }} : {{ game.team_b_score }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <form method="post" action="{% url 'live_competition_start' %}" class="live-quiz-setup-form" data-live-team-form>
+    {% csrf_token %}
+    <section class="live-quiz-competition-choice">
+      <h2 data-app-ar="الأسئلة الجاهزة" data-app-de="Aktuelle Fragensammlung">Aktuelle Fragensammlung</h2>
+      {% if competition %}
+      <input type="hidden" name="competition_id" value="{{ competition.id }}">
+      <div class="live-current-competition">
+        <strong>{{ competition.title }}</strong>
+        <span><bdi dir="ltr">{{ competition.questions.count }}</bdi> <span data-app-ar="سؤال" data-app-de="Fragen">Fragen</span></span>
+      </div>
+      {% else %}
+      <p class="live-quiz-empty" data-app-ar="لا توجد مجموعة أسئلة جاهزة بعد." data-app-de="Noch keine Fragensammlung mit Fragen vorhanden.">Noch keine Fragensammlung mit Fragen vorhanden.</p>
+      {% endif %}
+      <a href="{% url 'admin:core_livecompetition_add' %}" target="_blank" rel="noopener"
+         data-app-ar="إنشاء مسابقة وأسئلة" data-app-de="Wettbewerb und Fragen erstellen">Wettbewerb und Fragen erstellen</a>
+    </section>
+
+    <section class="live-team-picker">
+      <header>
+        <div><span class="team-dot team-dot--a"></span><h2 data-app-ar="المجموعة أ" data-app-de="Gruppe A">Gruppe A</h2><b data-team-count="A">0</b></div>
+        <div><span class="team-dot team-dot--b"></span><h2 data-app-ar="المجموعة ب" data-app-de="Gruppe B">Gruppe B</h2><b data-team-count="B">0</b></div>
+      </header>
+      <div class="live-student-list">
+        {% for student in students %}
+        <article>
+          <strong>{{ student.get_full_name|default:student.username }}</strong>
+          <div>
+            <label class="team-choice team-choice--a"><input type="checkbox" name="team_a" value="{{ student.id }}" data-team-choice="A"><span>A</span></label>
+            <label class="team-choice team-choice--b"><input type="checkbox" name="team_b" value="{{ student.id }}" data-team-choice="B"><span>B</span></label>
+          </div>
+        </article>
+        {% empty %}
+        <p class="live-quiz-empty" data-app-ar="لا يوجد طلاب." data-app-de="Keine Schüler vorhanden.">Keine Schüler vorhanden.</p>
+        {% endfor %}
+      </div>
+    </section>
+
+    {% if competition and students %}
+    <button type="submit" class="live-quiz-start" data-app-ar="ابدأ المسابقة" data-app-de="Wettbewerb starten">Wettbewerb starten</button>
+    {% endif %}
+  </form>
+</main>
+
+<script>
+  (() => {
+    const form = document.querySelector("[data-live-team-form]");
+    if (!form) return;
+    const updateCounts = () => {
+      ["A", "B"].forEach((team) => {
+        const count = form.querySelectorAll(`[data-team-choice="${team}"]:checked`).length;
+        const output = form.querySelector(`[data-team-count="${team}"]`);
+        if (output) output.textContent = count;
+      });
+    };
+    form.addEventListener("change", (event) => {
+      const choice = event.target.closest("[data-team-choice]");
+      if (!choice || !choice.checked) return updateCounts();
+      const row = choice.closest("article");
+      row?.querySelectorAll("[data-team-choice]").forEach((other) => {
+        if (other !== choice) other.checked = false;
+      });
+      updateCounts();
+    });
+    updateCounts();
+  })();
+</script>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}{{ game.competition.title }} – Live{% endblock %}
+
+{% block content %}
+<main class="live-game-page" dir="ltr" data-app-language-surface>
+  <header class="live-game-scoreboard">
+    <section class="live-score live-score--a"><span data-app-ar="المجموعة أ" data-app-de="Gruppe A">Gruppe A</span><strong>{{ game.team_a_score }}</strong></section>
+    <div><span class="live-quiz-kicker">LIVE</span><h1>{{ game.competition.title }}</h1></div>
+    <section class="live-score live-score--b"><span data-app-ar="المجموعة ب" data-app-de="Gruppe B">Gruppe B</span><strong>{{ game.team_b_score }}</strong></section>
+  </header>
+
+  {% if game.status == "finished" %}
+  <section class="live-game-result">
+    <span aria-hidden="true">★</span>
+    {% if game.winner %}
+    <h2><span data-app-ar="الفائز: المجموعة" data-app-de="Gewinner: Gruppe">Gewinner: Gruppe</span> {{ game.winner }}</h2>
+    <p data-app-ar="حصل كل طفل في المجموعة الفائزة على 3 نقاط."
+       data-app-de="Jedes Kind der Siegergruppe hat 3 Punkte erhalten.">Jedes Kind der Siegergruppe hat 3 Punkte erhalten.</p>
+    {% else %}
+    <h2 data-app-ar="تعادل" data-app-de="Unentschieden">Unentschieden</h2>
+    <p data-app-ar="لم تُمنح نقاط للفوز." data-app-de="Es wurden keine Siegerpunkte vergeben.">Es wurden keine Siegerpunkte vergeben.</p>
+    {% endif %}
+    <a href="{% url 'live_competition_setup' %}" data-app-ar="مسابقة جديدة" data-app-de="Neues Spiel">Neues Spiel</a>
+  </section>
+  {% else %}
+  <section class="live-question-card">
+    <div class="live-question-progress"><span data-app-ar="السؤال" data-app-de="Frage">Frage</span> <bdi dir="ltr">{{ question_number }} / {{ question_total }}</bdi></div>
+    <h2>{{ current_question.text }}</h2>
+
+    {% if current_answer %}
+    <div class="live-answer-grid is-revealed">
+      {% for option in option_rows %}
+      <div class="live-answer-option live-answer-option--{{ option.number }} {% if option.is_correct %}is-correct{% elif option.number == current_answer.selected_option %}is-wrong{% endif %}">
+        <b>{{ option.number }}</b><span>{{ option.text }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="live-answer-feedback {% if current_answer.is_correct %}is-correct{% else %}is-wrong{% endif %}">
+      <strong><span data-app-ar="إجابة المجموعة" data-app-de="Antwort von Gruppe">Antwort von Gruppe</span> {{ current_answer.team }}:</strong>
+      {% if current_answer.is_correct %}<span data-app-ar="صحيحة" data-app-de="Richtig">Richtig</span>{% else %}<span data-app-ar="غير صحيحة" data-app-de="Falsch">Falsch</span>{% endif %}
+    </div>
+    <form method="post" class="live-next-form">
+      {% csrf_token %}
+      {% if is_last_question %}
+      <button name="action" value="finish" data-app-ar="إظهار النتيجة" data-app-de="Ergebnis anzeigen">Ergebnis anzeigen</button>
+      {% else %}
+      <button name="action" value="next" data-app-ar="السؤال التالي" data-app-de="Nächste Frage">Nächste Frage</button>
+      {% endif %}
+    </form>
+    {% else %}
+    <form method="post" class="live-answer-form">
+      {% csrf_token %}
+      <fieldset class="live-team-answering">
+        <legend data-app-ar="أي مجموعة أجابت؟" data-app-de="Welche Gruppe antwortet?">Welche Gruppe antwortet?</legend>
+        <label><input type="radio" name="team" value="A" required><span data-app-ar="المجموعة أ" data-app-de="Gruppe A">Gruppe A</span></label>
+        <label><input type="radio" name="team" value="B" required><span data-app-ar="المجموعة ب" data-app-de="Gruppe B">Gruppe B</span></label>
+      </fieldset>
+      <fieldset class="live-answer-grid">
+        <legend data-app-ar="اختر الإجابة الشفوية" data-app-de="Mündliche Antwort auswählen">Mündliche Antwort auswählen</legend>
+        {% for option in option_rows %}
+        <label class="live-answer-option live-answer-option--{{ option.number }}">
+          <input type="radio" name="selected_option" value="{{ option.number }}" required>
+          <b>{{ option.number }}</b><span>{{ option.text }}</span>
+        </label>
+        {% endfor %}
+      </fieldset>
+      <button type="submit" name="action" value="answer" class="live-lock-answer" data-app-ar="تأكيد الإجابة" data-app-de="Antwort bestätigen">Antwort bestätigen</button>
+    </form>
+    {% endif %}
+  </section>
+
+  <details class="live-team-details">
+    <summary data-app-ar="عرض أعضاء المجموعتين" data-app-de="Gruppenmitglieder anzeigen">Gruppenmitglieder anzeigen</summary>
+    <div>
+      <section><h3 data-app-ar="المجموعة أ" data-app-de="Gruppe A">Gruppe A</h3><ul>{% for member in team_a %}<li>{{ member.student.get_full_name|default:member.student.username }}</li>{% endfor %}</ul></section>
+      <section><h3 data-app-ar="المجموعة ب" data-app-de="Gruppe B">Gruppe B</h3><ul>{% for member in team_b %}<li>{{ member.student.get_full_name|default:member.student.username }}</li>{% endfor %}</ul></section>
+    </div>
+  </details>
+  {% endif %}
+</main>
+{% endblock %}

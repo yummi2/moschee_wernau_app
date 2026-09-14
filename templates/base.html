@@ -50,7 +50,7 @@
       }
     } catch (_) {}
   </script>
-  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260914-255">  <style>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260914-259">  <style>
   .act-grid{
     display: grid;
     gap: 12px;
@@ -484,6 +484,18 @@
         indicator.style.transition = "none";
         setIndicatorPosition(activeIndex);
         requestAnimationFrame(() => indicator.style.removeProperty("transition"));
+      });
+
+      window.addEventListener("app-language-change", () => {
+        const indicator = bottomNav.querySelector(".app-bottom-nav-indicator");
+        if (!indicator) return;
+        indicator.getAnimations().forEach((animation) => animation.cancel());
+        bottomNav.classList.remove("is-moving");
+        indicator.style.transition = "none";
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          setIndicatorPosition(activeIndex);
+          indicator.style.removeProperty("transition");
+        }));
       });
     })();
   </script>

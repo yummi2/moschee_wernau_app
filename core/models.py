@@ -94,6 +94,118 @@ class TeacherPointAward(models.Model):
         return f"{self.student}: +{self.points} ({self.teacher})"
 
 
+class LiveCompetition(models.Model):
+    title = models.CharField(max_length=180)
+    is_active = models.BooleanField(default=True)
+    created_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="live_competitions_created",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("-created_at", "-id")
+
+    def __str__(self):
+        return self.title
+
+
+class LiveCompetitionQuestion(models.Model):
+    CORRECT_OPTIONS = [(number, f"Antwort {number}") for number in range(1, 5)]
+
+    competition = models.ForeignKey(
+        LiveCompetition, on_delete=models.CASCADE, related_name="questions"
+    )
+    text = models.TextField("Frage")
+    option_1 = models.CharField("Antwort 1", max_length=300)
+    option_2 = models.CharField("Antwort 2", max_length=300)
+    option_3 = models.CharField("Antwort 3", max_length=300)
+    option_4 = models.CharField("Antwort 4", max_length=300)
+    correct_option = models.PositiveSmallIntegerField(choices=CORRECT_OPTIONS)
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ("order", "id")
+
+    @property
+    def options(self):
+        return [self.option_1, self.option_2, self.option_3, self.option_4]
+
+    @property
+    def correct_text(self):
+        return self.options[self.correct_option - 1]
+
+    def __str__(self):
+        return f"{self.competition}: {self.text[:55]}"
+
+
+class LiveCompetitionGame(models.Model):
+    STATUS_CHOICES = [
+        ("live", "Läuft"),
+        ("finished", "Beendet"),
+    ]
+
+    competition = models.ForeignKey(
+        LiveCompetition, on_delete=models.PROTECT, related_name="games"
+    )
+    created_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, related_name="live_games_created"
+    )
+    status = models.CharField(max_length=12, choices=STATUS_CHOICES, default="live")
+    current_question_index = models.PositiveIntegerField(default=0)
+    team_a_score = models.PositiveIntegerField(default=0)
+    team_b_score = models.PositiveIntegerField(default=0)
+    winner = models.CharField(max_length=1, blank=True, choices=[("A", "Gruppe A"), ("B", "Gruppe B")])
+    winner_points_awarded = models.BooleanField(default=False)
+    started_at = models.DateTimeField(auto_now_add=True)
+    finished_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ("-started_at", "-id")
+
+    def __str__(self):
+        return f"{self.competition} ({self.started_at:%d.%m.%Y %H:%M})"
+
+
+class LiveCompetitionParticipant(models.Model):
+    game = models.ForeignKey(
+        LiveCompetitionGame, on_delete=models.CASCADE, related_name="participants"
+    )
+    student = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="live_competition_participations"
+    )
+    team = models.CharField(max_length=1, choices=[("A", "Gruppe A"), ("B", "Gruppe B")])
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=("game", "student"), name="unique_live_game_student"),
+        ]
+
+    def __str__(self):
+        return f"{self.student} – Gruppe {self.team}"
+
+
+class LiveCompetitionAnswer(models.Model):
+    game = models.ForeignKey(
+        LiveCompetitionGame, on_delete=models.CASCADE, related_name="answers"
+    )
+    question = models.ForeignKey(
+        LiveCompetitionQuestion, on_delete=models.PROTECT, related_name="game_answers"
+    )
+    team = models.CharField(max_length=1, choices=[("A", "Gruppe A"), ("B", "Gruppe B")])
+    selected_option = models.PositiveSmallIntegerField(choices=LiveCompetitionQuestion.CORRECT_OPTIONS)
+    is_correct = models.BooleanField(default=False)
+    answered_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=("game", "question"), name="unique_live_game_question_answer"),
+        ]
+
+    def __str__(self):
+        return f"{self.game} – Frage {self.question_id} – Gruppe {self.team}"
+
+
 class Profile(models.Model):
     user   = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     avatar = models.ImageField(upload_to="avatars/", blank=True, null=True)

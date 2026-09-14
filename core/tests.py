@@ -18,9 +18,67 @@ from .models import (
     RamadanItemDone,
     StoryRead,
     TeacherPointAward,
+    LiveCompetition,
+    LiveCompetitionQuestion,
+    LiveCompetitionGame,
 )
 from .points import point_balance
 from .ramadan_data import RAMADAN_ITEMS_ORDER
+
+
+class LiveCompetitionTests(TestCase):
+    def setUp(self):
+        self.admin = get_user_model().objects.create_superuser("quiz-admin", "admin@example.com", "x")
+        self.students = [
+            get_user_model().objects.create_user(f"quiz-child-{number}", password="x")
+            for number in range(1, 5)
+        ]
+        self.competition = LiveCompetition.objects.create(title="Test-Wettbewerb", created_by=self.admin)
+        for order in range(2):
+            LiveCompetitionQuestion.objects.create(
+                competition=self.competition,
+                text=f"Frage {order + 1}",
+                option_1="A",
+                option_2="B",
+                option_3="C",
+                option_4="D",
+                correct_option=2,
+                order=order,
+            )
+
+    def test_admin_can_assign_live_teams_and_winners_receive_three_points_once(self):
+        self.client.force_login(self.admin)
+        response = self.client.post(reverse("live_competition_start"), {
+            "competition_id": self.competition.id,
+            "team_a": [self.students[0].id, self.students[1].id],
+            "team_b": [self.students[2].id, self.students[3].id],
+        })
+        game = LiveCompetitionGame.objects.get()
+        self.assertRedirects(response, reverse("live_competition_game", args=[game.id]))
+
+        self.client.post(reverse("live_competition_game", args=[game.id]), {
+            "action": "answer", "team": "A", "selected_option": "2",
+        })
+        self.client.post(reverse("live_competition_game", args=[game.id]), {"action": "next"})
+        self.client.post(reverse("live_competition_game", args=[game.id]), {
+            "action": "answer", "team": "A", "selected_option": "2",
+        })
+        self.client.post(reverse("live_competition_game", args=[game.id]), {"action": "finish"})
+
+        game.refresh_from_db()
+        self.assertEqual(game.status, "finished")
+        self.assertEqual(game.winner, "A")
+        self.assertEqual(game.team_a_score, 2)
+        self.assertEqual(TeacherPointAward.objects.count(), 2)
+        self.assertTrue(all(award.points == 3 for award in TeacherPointAward.objects.all()))
+
+        self.client.post(reverse("live_competition_game", args=[game.id]), {"action": "finish"})
+        self.assertEqual(TeacherPointAward.objects.count(), 2)
+
+    def test_student_cannot_open_live_control(self):
+        self.client.force_login(self.students[0])
+        response = self.client.get(reverse("live_competition_setup"))
+        self.assertEqual(response.status_code, 403)
 
 
 class StudentPointsTests(TestCase):
