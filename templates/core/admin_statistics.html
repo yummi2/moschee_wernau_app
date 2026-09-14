@@ -40,7 +40,7 @@
     <button type="button" role="tab" data-dashboard-tab="ramadan" aria-selected="false" data-app-ar="رمضان" data-app-de="Ramadan">رمضان</button>
     <button type="button" role="tab" data-dashboard-tab="library" aria-selected="false" data-app-ar="المكتبة" data-app-de="Bibliothek">المكتبة</button>
     {% if show_points_bank %}
-    <button type="button" role="tab" data-dashboard-tab="mosque" aria-selected="false" data-app-ar="المسجد" data-app-de="Moschee">المسجد</button>
+    <button type="button" role="tab" data-dashboard-tab="mosque" aria-selected="false" data-app-ar="الأوائل" data-app-de="Die Besten">الأوائل</button>
     {% endif %}
   </nav>
 
@@ -395,12 +395,16 @@
     const dashboardPanels = Array.from(page.querySelectorAll("[data-dashboard-panel]"));
     const dashboardTabList = page.querySelector("[data-dashboard-tabs]");
     const dashboardTabIndicator = dashboardTabList?.querySelector(".admin-dashboard-tab-indicator");
+    const scrollTopButton = page.querySelector("[data-admin-scroll-top]");
     const dashboardStorageKey = "darAlFarahTeacherDashboardTab";
     const dashboardReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    let dashboardSwitchToken = 0;
-    const waitForDashboardAnimations = (animations) => Promise.all(
-      animations.map((animation) => animation.finished.catch(() => undefined))
-    );
+    const updateScrollTopButton = () => {
+      if (!scrollTopButton) return;
+      const hasOverflow = page.scrollHeight > page.clientHeight + 4;
+      const nearBottom = page.scrollTop > 64
+        && page.scrollTop + page.clientHeight >= page.scrollHeight - 32;
+      scrollTopButton.classList.toggle("is-visible", hasOverflow && nearBottom);
+    };
     const positionDashboardIndicator = (button, animate = true) => {
       if (!dashboardTabList || !dashboardTabIndicator || !button) return;
       if (!animate) dashboardTabList.classList.remove("is-indicator-ready");
@@ -411,7 +415,7 @@
       dashboardTabList.classList.add("has-indicator");
       if (!animate) requestAnimationFrame(() => dashboardTabList.classList.add("is-indicator-ready"));
     };
-    const activateDashboardTab = async (name, save = true, animate = true) => {
+    const activateDashboardTab = (name, save = true, animate = true) => {
       const activeButton = dashboardTabs.find((button) => button.dataset.dashboardTab === name) || dashboardTabs[0];
       if (!activeButton) return;
       const activeName = activeButton.dataset.dashboardTab;
@@ -430,28 +434,13 @@
       if (save) localStorage.setItem(dashboardStorageKey, activeName);
 
       if (alreadyActive) return;
-      const switchToken = ++dashboardSwitchToken;
       dashboardPanels.forEach((panel) => {
         panel.getAnimations().forEach((animation) => animation.cancel());
-      });
-
-      const shouldAnimate = animate && !dashboardReducedMotion.matches;
-      if (shouldAnimate && visiblePanels.length) {
-        await waitForDashboardAnimations(visiblePanels.map((panel) => panel.animate([
-          { opacity: 1, transform: "translateY(0)" },
-          { opacity: 0, transform: "translateY(-0.4rem)" },
-        ], {
-          duration: 110,
-          easing: "cubic-bezier(0.4, 0, 1, 1)",
-          fill: "forwards",
-        })));
-        if (switchToken !== dashboardSwitchToken) return;
-      }
-
-      dashboardPanels.forEach((panel) => {
         panel.hidden = !nextPanels.includes(panel);
       });
+      requestAnimationFrame(updateScrollTopButton);
 
+      const shouldAnimate = animate && !dashboardReducedMotion.matches;
       if (shouldAnimate) {
         nextPanels.forEach((panel) => panel.animate([
           { opacity: 0, transform: "translateY(0.65rem)" },
@@ -477,16 +466,14 @@
     });
     window.addEventListener("resize", () => {
       positionDashboardIndicator(dashboardTabs.find((button) => button.classList.contains("is-active")), false);
+      updateScrollTopButton();
     });
 
-    const pageEnd = page.querySelector("[data-admin-page-end]");
-    const scrollTopButton = page.querySelector("[data-admin-scroll-top]");
-    if (pageEnd && scrollTopButton) {
-      const pageEndObserver = new IntersectionObserver(([entry]) => {
-        scrollTopButton.classList.toggle("is-visible", entry.isIntersecting && page.scrollHeight > page.clientHeight);
-      }, { root: page, threshold: 0.75 });
-      pageEndObserver.observe(pageEnd);
+    if (scrollTopButton) {
+      page.addEventListener("scroll", updateScrollTopButton, { passive: true });
+      requestAnimationFrame(updateScrollTopButton);
       scrollTopButton.addEventListener("click", () => {
+        scrollTopButton.classList.remove("is-visible");
         page.scrollTo({ top: 0, behavior: dashboardReducedMotion.matches ? "auto" : "smooth" });
       });
     }

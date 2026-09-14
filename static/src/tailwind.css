@@ -6089,6 +6089,22 @@ body.auth-page {
   }
 }
 
+.library-story-content > .library-story-text--beginner {
+  width: 50%;
+  margin-inline: auto;
+  font-size: clamp(1.7rem, 3vw, 2.2rem);
+  font-weight: 800;
+  line-height: 2.15;
+  letter-spacing: normal;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 39.999rem) {
+  .library-story-content > .library-story-text--beginner {
+    width: min(100%, 20rem);
+  }
+}
+
 @media (min-width: 40rem) {
   .ramadan-day-page .app-content-card {
     display: flex;
