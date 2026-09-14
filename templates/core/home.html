@@ -85,6 +85,33 @@
                 {% endif %}
                 {% endif %}
 
+                {% if active_tab == "home" and daily_quran %}
+                <section class="student-daily-quran {% if daily_quran.completed_today %}is-complete{% endif %}" data-home-overview-only>
+                    <span class="student-daily-quran-mark" aria-hidden="true">ق</span>
+                    <div>
+                        <small data-app-ar="ورد القرآن اليومي" data-app-de="Deine tägliche Koranlesung">ورد القرآن اليومي</small>
+                        {% if daily_quran.is_complete %}
+                        <strong data-app-ar="أتممت قراءة القرآن كاملاً" data-app-de="Du hast den gesamten Koran gelesen">أتممت قراءة القرآن كاملاً</strong>
+                        {% else %}
+                        <strong>
+                            <span data-app-ar="الصفحة" data-app-de="Seite">الصفحة</span> <bdi dir="ltr">{{ daily_quran.page }}</bdi>
+                            · {% if daily_quran.half == 1 %}<span data-app-ar="النصف الأول" data-app-de="erste Hälfte">النصف الأول</span>{% else %}<span data-app-ar="النصف الثاني" data-app-de="zweite Hälfte">النصف الثاني</span>{% endif %}
+                        </strong>
+                        {% endif %}
+                        <p data-app-ar="إذا لم تُنجزها اليوم، تبقى نفس نصف الصفحة لليوم التالي."
+                           data-app-de="Wenn du sie heute nicht abschließt, bleibt dieselbe halbe Seite für morgen.">إذا لم تُنجزها اليوم، تبقى نفس نصف الصفحة لليوم التالي.</p>
+                    </div>
+                    {% if daily_quran.completed_today %}
+                    <span class="student-daily-quran-done" data-app-ar="تم اليوم ✓" data-app-de="Heute erledigt ✓">تم اليوم ✓</span>
+                    {% elif not daily_quran.is_complete %}
+                    <form method="post" action="{% url 'complete_daily_quran' %}">
+                        {% csrf_token %}
+                        <button type="submit" data-app-ar="تم" data-app-de="Erledigt">تم</button>
+                    </form>
+                    {% endif %}
+                </section>
+                {% endif %}
+
                 {% if active_tab == "home" and show_points_bank and point_balance %}
                 <section class="student-points-bank" data-home-overview-only aria-label="بنك النقاط">
                     <div class="student-points-total">
@@ -105,6 +132,7 @@
                         <span><bdi dir="ltr">{{ point_balance.prayer_points }}</bdi> <small data-app-ar="أيام صلاة" data-app-de="Gebetstage">أيام صلاة</small></span>
                         <span><bdi dir="ltr">{{ point_balance.ramadan_points }}</bdi> <small data-app-ar="أيام رمضان" data-app-de="Ramadan-Tage">أيام رمضان</small></span>
                         <span><bdi dir="ltr">{{ point_balance.story_points }}</bdi> <small data-app-ar="قراءة" data-app-de="Gelesen">قراءة</small></span>
+                        <span><bdi dir="ltr">{{ point_balance.quran_points }}</bdi> <small data-app-ar="ورد القرآن" data-app-de="Koran">ورد القرآن</small></span>
                         <span><bdi dir="ltr">{{ point_balance.teacher_points }}</bdi> <small data-app-ar="من المعلم" data-app-de="von Lehrkräften">من المعلم</small></span>
                     </div>
                     {% if point_awards %}

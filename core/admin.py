@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ClassRoom, Assignment, Absence, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStatus, RamadanItemDone, QuizScore, Profile, TeacherPointAward, LiveCompetition, LiveCompetitionQuestion, LiveCompetitionGame, LiveCompetitionParticipant, LiveCompetitionAnswer
+from .models import ClassRoom, Assignment, Absence, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStatus, RamadanItemDone, QuizScore, Profile, TeacherPointAward, LiveCompetition, LiveCompetitionQuestion, LiveCompetitionGame, LiveCompetitionParticipant, LiveCompetitionAnswer, DailyQuranReading
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from .views import STORIES
@@ -235,3 +235,22 @@ class LiveCompetitionAnswerAdmin(admin.ModelAdmin):
     list_display = ("game", "question", "team", "selected_option", "is_correct", "answered_at")
     list_filter = ("team", "is_correct")
     readonly_fields = ("answered_at",)
+
+
+@admin.register(DailyQuranReading)
+class DailyQuranReadingAdmin(admin.ModelAdmin):
+    list_display = ("student", "page", "half", "completed_on", "completed_at")
+    list_filter = ("completed_on",)
+    search_fields = ("student__username", "student__first_name", "student__last_name")
+    readonly_fields = ("student", "portion_index", "completed_on", "completed_at")
+
+    def page(self, obj):
+        return obj.page_number
+    page.short_description = "Seite"
+
+    def half(self, obj):
+        return "Erste Hälfte" if obj.half_number == 1 else "Zweite Hälfte"
+    half.short_description = "Hälfte"
+
+    def has_add_permission(self, request):
+        return False

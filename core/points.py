@@ -3,7 +3,7 @@ import datetime as dt
 from django.contrib.auth.models import User
 from django.db.models import Count, Q, Sum
 
-from .models import AssignmentCompletion, PrayerStatus, RamadanItemDone, StoryRead, TeacherPointAward
+from .models import AssignmentCompletion, PrayerStatus, RamadanItemDone, StoryRead, TeacherPointAward, DailyQuranReading
 from .ramadan_data import RAMADAN_ITEMS_ORDER
 
 
@@ -34,6 +34,7 @@ def point_balances(users=None):
             "prayer_points": 0,
             "ramadan_points": 0,
             "story_points": 0,
+            "quran_points": 0,
             "teacher_points": 0,
             "total_points": 0,
         }
@@ -84,6 +85,13 @@ def point_balances(users=None):
         balances[row["user_id"]]["story_points"] = row["total"]
 
     for row in (
+        DailyQuranReading.objects.filter(student_id__in=user_ids)
+        .values("student_id")
+        .annotate(total=Count("id"))
+    ):
+        balances[row["student_id"]]["quran_points"] = row["total"]
+
+    for row in (
         TeacherPointAward.objects.filter(student_id__in=user_ids)
         .values("student_id")
         .annotate(total=Sum("points"))
@@ -98,6 +106,7 @@ def point_balances(users=None):
                 "prayer_points",
                 "ramadan_points",
                 "story_points",
+                "quran_points",
                 "teacher_points",
             )
         )

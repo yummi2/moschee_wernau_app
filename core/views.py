@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Profile, Assignment, AssignmentCompletion, Absence, ClassRoom, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStatus, RamadanItemDone, QuizScore, TeacherPointAward, LiveCompetition, LiveCompetitionGame, LiveCompetitionParticipant, LiveCompetitionAnswer
+from .models import Profile, Assignment, AssignmentCompletion, Absence, ClassRoom, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStatus, RamadanItemDone, QuizScore, TeacherPointAward, LiveCompetition, LiveCompetitionGame, LiveCompetitionParticipant, LiveCompetitionAnswer, DailyQuranReading
 from .points import point_balances, student_users
 from .forms import ProfileForm
 from django.contrib import messages
@@ -865,6 +865,19 @@ def home(request):
     show_points_bank = school_year_ranges["year"] == "2027"
     ctx["show_points_bank"] = show_points_bank
     if not has_teacher_role and not has_admin_role:
+        if show_points_bank:
+            quran_readings = DailyQuranReading.objects.filter(student=request.user)
+            quran_completed_today = quran_readings.filter(completed_on=timezone.localdate()).first()
+            next_portion_index = min(quran_readings.count() + 1, 1208)
+            shown_portion_index = (
+                quran_completed_today.portion_index if quran_completed_today else next_portion_index
+            )
+            ctx["daily_quran"] = {
+                "page": (shown_portion_index + 1) // 2,
+                "half": 1 if shown_portion_index % 2 else 2,
+                "completed_today": bool(quran_completed_today),
+                "is_complete": quran_readings.count() >= 1208,
+            }
         ctx.update(student_top10_achievements(request.user, school_year_ranges))
         if show_points_bank:
             all_balances = point_balances(student_users().select_related("profile"))
@@ -887,6 +900,34 @@ def home(request):
                 .order_by("-created_at", "-id")
             )
     return render(request, "core/home.html", ctx)
+
+
+@login_required
+@require_POST
+def complete_daily_quran(request):
+    if selected_school_year_ranges(request)["year"] != "2027":
+        return HttpResponseForbidden("Daily Quran reading is only available for 2027.")
+    if request.user.is_staff or is_user_teacher(request.user):
+        return HttpResponseForbidden("Only students can complete the daily Quran reading.")
+
+    today = timezone.localdate()
+    with transaction.atomic():
+        student = User.objects.select_for_update().get(pk=request.user.pk)
+        readings = DailyQuranReading.objects.filter(student=student)
+        if readings.filter(completed_on=today).exists():
+            messages.info(request, "Die heutige Koran-Aufgabe wurde bereits erledigt.")
+            return redirect(f"{reverse('home')}?tab=home")
+        portion_index = readings.count() + 1
+        if portion_index > 1208:
+            messages.info(request, "Der gesamte Koran wurde bereits abgeschlossen.")
+            return redirect(f"{reverse('home')}?tab=home")
+        DailyQuranReading.objects.create(
+            student=student,
+            portion_index=portion_index,
+            completed_on=today,
+        )
+    messages.success(request, "تم إنجاز ورد القرآن اليومي وإضافة نقطة واحدة.")
+    return redirect(f"{reverse('home')}?tab=home")
 
 
 @login_required
@@ -1412,6 +1453,34 @@ def admin_statistics(request):
     if is_teacher and not is_admin:
         point_awards = point_awards.filter(teacher=request.user)
 
+    quran_students = list(student_users().select_related("profile"))
+    latest_quran_by_student = {}
+    quran_counts = {
+        row["student_id"]: row["total"]
+        for row in DailyQuranReading.objects
+        .filter(student_id__in=[student.id for student in quran_students])
+        .values("student_id")
+        .annotate(total=Count("id"))
+    }
+    for reading in (
+        DailyQuranReading.objects
+        .filter(student_id__in=[student.id for student in quran_students])
+        .select_related("student")
+        .order_by("student_id", "-completed_on", "-completed_at")
+    ):
+        latest_quran_by_student.setdefault(reading.student_id, reading)
+    quran_today = timezone.localdate()
+    quran_rows = []
+    for student in sorted(quran_students, key=lambda item: student_name(item).casefold()):
+        latest = latest_quran_by_student.get(student.id)
+        quran_rows.append({
+            "student": student,
+            "name": student_name(student),
+            "latest": latest,
+            "total": quran_counts.get(student.id, 0),
+            "completed_today": bool(latest and latest.completed_on == quran_today),
+        })
+
     return render(request, "core/admin_statistics.html", {
         "is_admin_statistics": is_admin,
         "ramadan_ranking": ramadan_ranking,
@@ -1430,6 +1499,8 @@ def admin_statistics(request):
         "teacher_students": teacher_students,
         "can_award_points": is_teacher,
         "point_awards": point_awards,
+        "quran_rows": quran_rows,
+        "quran_today": quran_today,
         "profile": profile,
     })
 

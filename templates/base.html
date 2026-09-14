@@ -50,7 +50,7 @@
       }
     } catch (_) {}
   </script>
-  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260914-259">  <style>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260914-260">  <style>
   .act-grid{
     display: grid;
     gap: 12px;
@@ -375,6 +375,16 @@
 
       nav.querySelectorAll("a").forEach((link) => {
         link.addEventListener("click", () => setMenuState(false));
+      });
+
+      document.addEventListener("pointerdown", (event) => {
+        if (
+          sidebar.classList.contains("is-open")
+          && !sidebar.contains(event.target)
+          && window.matchMedia("(max-width: 63.999rem)").matches
+        ) {
+          setMenuState(false);
+        }
       });
 
       window.addEventListener("resize", () => {

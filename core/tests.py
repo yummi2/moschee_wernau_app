@@ -21,6 +21,7 @@ from .models import (
     LiveCompetition,
     LiveCompetitionQuestion,
     LiveCompetitionGame,
+    DailyQuranReading,
 )
 from .points import point_balance
 from .ramadan_data import RAMADAN_ITEMS_ORDER
@@ -79,6 +80,52 @@ class LiveCompetitionTests(TestCase):
         self.client.force_login(self.students[0])
         response = self.client.get(reverse("live_competition_setup"))
         self.assertEqual(response.status_code, 403)
+
+
+class DailyQuranReadingTests(TestCase):
+    def setUp(self):
+        self.student = get_user_model().objects.create_user("quran-student", password="x")
+
+    def test_daily_reading_awards_one_point_only_once(self):
+        self.client.force_login(self.student)
+        response = self.client.post(reverse("complete_daily_quran"))
+        self.assertRedirects(response, f"{reverse('home')}?tab=home")
+        self.assertEqual(DailyQuranReading.objects.count(), 1)
+        reading = DailyQuranReading.objects.get()
+        self.assertEqual(reading.portion_index, 1)
+        self.assertEqual(point_balance(self.student)["quran_points"], 1)
+        self.assertEqual(point_balance(self.student)["total_points"], 1)
+
+        self.client.post(reverse("complete_daily_quran"))
+        self.assertEqual(DailyQuranReading.objects.count(), 1)
+        self.assertEqual(point_balance(self.student)["quran_points"], 1)
+
+    def test_unfinished_days_do_not_advance_the_half_page(self):
+        DailyQuranReading.objects.create(
+            student=self.student,
+            portion_index=1,
+            completed_on=timezone.localdate() - dt.timedelta(days=4),
+        )
+        self.client.force_login(self.student)
+        response = self.client.get(f"{reverse('home')}?tab=home")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["daily_quran"]["page"], 1)
+        self.assertEqual(response.context["daily_quran"]["half"], 2)
+        self.assertFalse(response.context["daily_quran"]["completed_today"])
+
+    def test_admin_overview_contains_students_latest_half_page(self):
+        admin = get_user_model().objects.create_superuser("quran-admin", "admin@example.com", "x")
+        reading = DailyQuranReading.objects.create(
+            student=self.student,
+            portion_index=3,
+            completed_on=timezone.localdate(),
+        )
+        self.client.force_login(admin)
+        response = self.client.get(reverse("admin_statistics"))
+        self.assertEqual(response.status_code, 200)
+        row = next(row for row in response.context["quran_rows"] if row["student"] == self.student)
+        self.assertEqual(row["latest"], reading)
+        self.assertTrue(row["completed_today"])
 
 
 class StudentPointsTests(TestCase):

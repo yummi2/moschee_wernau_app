@@ -206,6 +206,37 @@ class LiveCompetitionAnswer(models.Model):
         return f"{self.game} – Frage {self.question_id} – Gruppe {self.team}"
 
 
+class DailyQuranReading(models.Model):
+    student = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="daily_quran_readings"
+    )
+    portion_index = models.PositiveSmallIntegerField()
+    completed_on = models.DateField()
+    completed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("-completed_on", "-completed_at")
+        constraints = [
+            models.UniqueConstraint(fields=("student", "completed_on"), name="unique_daily_quran_reading"),
+            models.UniqueConstraint(fields=("student", "portion_index"), name="unique_student_quran_portion"),
+        ]
+
+    @property
+    def page_number(self):
+        return (self.portion_index + 1) // 2
+
+    @property
+    def half_number(self):
+        return 1 if self.portion_index % 2 else 2
+
+    def clean(self):
+        if not 1 <= self.portion_index <= 1208:
+            raise ValidationError({"portion_index": "Der Abschnitt muss zwischen 1 und 1208 liegen."})
+
+    def __str__(self):
+        return f"{self.student} – Seite {self.page_number}, Hälfte {self.half_number}"
+
+
 class Profile(models.Model):
     user   = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     avatar = models.ImageField(upload_to="avatars/", blank=True, null=True)

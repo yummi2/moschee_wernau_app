@@ -6605,11 +6605,59 @@ html.app-language-german .about-page { direction: ltr; }
 .admin-stats-grid,
 .admin-welcome,
 .admin-dashboard-tabs,
+.daily-quran-admin,
 .points-award-panel,
 .points-table-panel,
 .points-history-panel { width: min(100%, 70rem); margin-inline: auto; }
 .admin-page-end { display: block; width: 100%; height: 1px; flex: 0 0 1px; }
 .admin-scroll-top { display: none; }
+
+.student-daily-quran {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: .9rem;
+  margin-block-start: 1rem;
+  padding: 1rem;
+  border: 1px solid rgb(23 128 94 / 24%);
+  border-radius: 1.25rem;
+  background: linear-gradient(135deg, rgb(237 246 241 / 92%), rgb(255 253 248 / 88%));
+  box-shadow: 0 10px 24px rgb(11 73 56 / 9%);
+}
+.student-daily-quran.is-complete { border-color: rgb(22 163 74 / 35%); background: linear-gradient(135deg, #dcfce7, #f7fee7); }
+.student-daily-quran-mark,
+.daily-quran-icon { display: grid; width: 3rem; height: 3rem; place-items: center; border-radius: .9rem; color: #f5ead4; background: linear-gradient(145deg, #0b4938, #17805e); font-size: 1.25rem; font-weight: 900; box-shadow: 0 8px 18px rgb(11 73 56 / 18%); }
+.student-daily-quran > div { min-width: 0; }
+.student-daily-quran small { color: #17805e; font-size: .72rem; font-weight: 850; }
+.student-daily-quran strong { display: block; margin-block-start: .12rem; color: #10231e; font-size: 1.05rem; font-weight: 900; line-height: 1.6; }
+.student-daily-quran p { margin-block-start: .15rem; color: #64748b; font-size: .72rem; font-weight: 650; line-height: 1.55; }
+.student-daily-quran form button,
+.student-daily-quran-done { display: inline-flex; min-height: 2.7rem; align-items: center; justify-content: center; padding: .5rem .85rem; border-radius: .85rem; color: #fff; background: #0b4938; font-weight: 900; }
+.student-daily-quran-done { color: #166534; background: rgb(255 255 255 / 72%); }
+
+.daily-quran-admin {
+  order: 2;
+  margin-block-start: 1.25rem;
+  padding: clamp(1rem, 2.5vw, 1.4rem);
+  border: 1px solid rgb(23 128 94 / 24%);
+  border-radius: 1.5rem;
+  background: linear-gradient(145deg, rgb(237 246 241 / 90%), rgb(255 253 248 / 88%));
+  box-shadow: 0 14px 34px rgb(11 73 56 / 9%);
+}
+.daily-quran-admin > header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-block-end: .9rem; border-block-end: 1px solid rgb(23 128 94 / 16%); }
+.daily-quran-admin > header > div { display: flex; min-width: 0; align-items: center; gap: .8rem; }
+.daily-quran-admin h2 { color: #0b4938; font-size: 1.15rem; font-weight: 900; }
+.daily-quran-admin header p { margin-block-start: .15rem; color: #64748b; font-size: .75rem; font-weight: 650; }
+.daily-quran-admin header time { flex: 0 0 auto; color: #52645f; font-size: .75rem; font-weight: 800; }
+.daily-quran-student-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; margin-block-start: .9rem; }
+.daily-quran-student-list article { display: flex; min-width: 0; align-items: center; justify-content: space-between; gap: .75rem; padding: .75rem .85rem; border: 1px solid #ead9b7; border-radius: 1rem; background: rgb(255 253 248 / 90%); }
+.daily-quran-student-list article.is-complete { border-color: rgb(22 163 74 / 30%); background: #ecfdf3; }
+.daily-quran-student-list article > div { display: grid; min-width: 0; gap: .12rem; }
+.daily-quran-student-list strong { overflow-wrap: anywhere; color: #10231e; font-weight: 900; }
+.daily-quran-student-list span { color: #52645f; font-size: .78rem; font-weight: 750; }
+.daily-quran-student-list small { color: #64748b; font-size: .68rem; font-weight: 650; }
+.daily-quran-student-list article > b { flex: 0 0 auto; padding: .3rem .55rem; border-radius: 999px; color: #166534; background: #dcfce7; font-size: .68rem; font-weight: 900; }
+.daily-quran-student-list article > b.is-pending { color: #92400e; background: #fef3c7; }
 .admin-welcome {
   display: flex;
   align-items: center;
@@ -7224,6 +7272,15 @@ html.app-language-german .admin-stats-page { direction: ltr; }
   .admin-stats-page { height: 100%; max-height: 100%; padding: .75rem 0 2rem; }
   .admin-dashboard-tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .3rem; padding: .3rem; }
   .admin-dashboard-tabs button { min-height: 2.75rem; padding: .45rem .25rem; font-size: .72rem; }
+  .student-daily-quran { grid-template-columns: auto minmax(0, 1fr); padding: .8rem; }
+  .student-daily-quran form,
+  .student-daily-quran-done { grid-column: 1 / -1; width: 100%; }
+  .student-daily-quran form button { width: 100%; }
+  .daily-quran-admin { padding: .8rem; border-radius: 1.25rem; }
+  .daily-quran-admin > header { align-items: flex-start; }
+  .daily-quran-admin header p { display: none; }
+  .daily-quran-student-list { grid-template-columns: 1fr; }
+  .daily-quran-student-list article { align-items: flex-start; }
   .admin-scroll-top {
     position: fixed;
     z-index: 48;

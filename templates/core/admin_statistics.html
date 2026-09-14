@@ -46,6 +46,7 @@
     <button type="button" role="tab" data-dashboard-tab="ramadan" aria-selected="false" data-app-ar="رمضان" data-app-de="Ramadan">رمضان</button>
     <button type="button" role="tab" data-dashboard-tab="library" aria-selected="false" data-app-ar="المكتبة" data-app-de="Bibliothek">المكتبة</button>
     {% if show_points_bank %}
+    <button type="button" role="tab" data-dashboard-tab="quran" aria-selected="false" data-app-ar="ورد القرآن اليومي" data-app-de="Täglicher Koran">ورد القرآن اليومي</button>
     <button type="button" role="tab" data-dashboard-tab="mosque" aria-selected="false" data-app-ar="الأوائل" data-app-de="Die Besten">الأوائل</button>
     {% endif %}
   </nav>
@@ -117,6 +118,7 @@
             <th data-app-ar="الصلاة" data-app-de="Gebet">الصلاة</th>
             <th data-app-ar="رمضان 2027" data-app-de="Ramadan 2027">رمضان 2027</th>
             <th data-app-ar="القراءة" data-app-de="Lesen">القراءة</th>
+            <th data-app-ar="ورد القرآن" data-app-de="Koran">ورد القرآن</th>
             <th data-app-ar="نقاط المعلم" data-app-de="Lehrerpunkte">نقاط المعلم</th>
             <th data-app-ar="المجموع" data-app-de="Gesamt">المجموع</th>
           </tr>
@@ -130,11 +132,12 @@
             <td data-label-ar="الصلاة" data-label-de="Gebet"><bdi dir="ltr">{{ entry.prayer_points }}</bdi></td>
             <td data-label-ar="رمضان 2027" data-label-de="Ramadan 2027"><bdi dir="ltr">{{ entry.ramadan_points }}</bdi></td>
             <td data-label-ar="القراءة" data-label-de="Lesen"><bdi dir="ltr">{{ entry.story_points }}</bdi></td>
+            <td data-label-ar="ورد القرآن" data-label-de="Koran"><bdi dir="ltr">{{ entry.quran_points }}</bdi></td>
             <td data-label-ar="نقاط المعلم" data-label-de="Lehrerpunkte"><bdi dir="ltr">{{ entry.teacher_points }}</bdi></td>
             <td data-label-ar="المجموع" data-label-de="Gesamt"><strong class="points-total"><bdi dir="ltr">{{ entry.total_points }}</bdi></strong></td>
           </tr>
           {% empty %}
-          <tr><td colspan="8" class="points-table-empty" data-app-ar="لا يوجد طلاب بعد." data-app-de="Noch keine Schüler vorhanden.">لا يوجد طلاب بعد.</td></tr>
+          <tr><td colspan="9" class="points-table-empty" data-app-ar="لا يوجد طلاب بعد." data-app-de="Noch keine Schüler vorhanden.">لا يوجد طلاب بعد.</td></tr>
           {% endfor %}
         </tbody>
       </table>
@@ -167,6 +170,47 @@
       </article>
       {% empty %}
       <p class="points-history-empty" data-app-ar="لم يتم منح نقاط إضافية بعد." data-app-de="Noch keine zusätzlichen Punkte vergeben.">لم يتم منح نقاط إضافية بعد.</p>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if show_points_bank %}
+  <section class="daily-quran-admin" data-dashboard-panel="quran" hidden>
+    <header>
+      <div>
+        <span class="daily-quran-icon" aria-hidden="true">ق</span>
+        <div>
+          <h2 data-app-ar="ورد القرآن اليومي" data-app-de="Täglicher Koran">ورد القرآن اليومي</h2>
+          <p data-app-ar="آخر نصف صفحة قرأها كل طالب وحالة إنجاز اليوم."
+             data-app-de="Die zuletzt gelesene halbe Seite und der heutige Status jedes Schülers.">آخر نصف صفحة قرأها كل طالب وحالة إنجاز اليوم.</p>
+        </div>
+      </div>
+      <time datetime="{{ quran_today|date:'Y-m-d' }}"><bdi dir="ltr">{{ quran_today|date:"d.m.Y" }}</bdi></time>
+    </header>
+    <div class="daily-quran-student-list">
+      {% for row in quran_rows %}
+      <article class="{% if row.completed_today %}is-complete{% endif %}">
+        <div>
+          <strong>{{ row.name }}</strong>
+          {% if row.latest %}
+          <span>
+            <span data-app-ar="الصفحة" data-app-de="Seite">الصفحة</span> <bdi dir="ltr">{{ row.latest.page_number }}</bdi>
+            · {% if row.latest.half_number == 1 %}<span data-app-ar="النصف الأول" data-app-de="erste Hälfte">النصف الأول</span>{% else %}<span data-app-ar="النصف الثاني" data-app-de="zweite Hälfte">النصف الثاني</span>{% endif %}
+          </span>
+          <small><bdi dir="ltr">{{ row.latest.completed_on|date:"d.m.Y" }}</bdi> · <bdi dir="ltr">{{ row.total }}</bdi> <span data-app-ar="أنصاف صفحات" data-app-de="halbe Seiten">أنصاف صفحات</span></small>
+          {% else %}
+          <span data-app-ar="لم يبدأ بعد" data-app-de="Noch nicht begonnen">لم يبدأ بعد</span>
+          {% endif %}
+        </div>
+        {% if row.completed_today %}
+        <b data-app-ar="تم اليوم" data-app-de="Heute erledigt">تم اليوم</b>
+        {% else %}
+        <b class="is-pending" data-app-ar="لم يتم اليوم" data-app-de="Heute offen">لم يتم اليوم</b>
+        {% endif %}
+      </article>
+      {% empty %}
+      <p data-app-ar="لا يوجد طلاب." data-app-de="Keine Schüler vorhanden.">لا يوجد طلاب.</p>
       {% endfor %}
     </div>
   </section>
