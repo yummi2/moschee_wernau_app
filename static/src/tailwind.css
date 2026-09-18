@@ -1488,7 +1488,7 @@ html.app-language-german .mini-calendar-header {
 
 .absence-confirm-actions {
   display: grid;
-  grid-template-columns: 1fr 1.5fr;
+  grid-template-columns: 1.5fr 1fr;
   gap: 0.7rem;
   margin-block-start: 1.5rem;
 }
