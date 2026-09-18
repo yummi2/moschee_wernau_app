@@ -27,7 +27,7 @@
   {% else %}
   <section class="live-question-card">
     <div class="live-question-progress"><span data-app-ar="السؤال" data-app-de="Frage">Frage</span> <bdi dir="ltr">{{ question_number }} / {{ question_total }}</bdi></div>
-    <h2>{{ current_question.text }}</h2>
+    <h2 dir="auto">{{ current_question.text }}</h2>
 
     {% if current_answer %}
     <div class="live-answer-grid is-revealed">
