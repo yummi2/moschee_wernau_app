@@ -131,6 +131,8 @@ class LiveCompetitionTests(TestCase):
         self.client.post(game_url, {"action": "next"})
         response = self.client.get(game_url)
         self.assertEqual(response.context["answering_team"], "B")
+        self.assertEqual(response.context["answering_team_name"], "صانعات الأمل")
+        self.assertContains(response, "صانعات الأمل")
         self.assertNotContains(response, 'name="team"')
 
         self.client.post(game_url, {
@@ -381,6 +383,14 @@ class StudentPointsTests(TestCase):
             )
         self.client.force_login(self.student)
 
+        response_without_quran = self.client.get(reverse("home"), {"tab": "home"})
+        self.assertFalse(response_without_quran.context["mosque_top10"])
+
+        DailyQuranReading.objects.create(
+            student=self.student,
+            portion_index=1,
+            completed_on=dt.date(2026, 9, 8),
+        )
         response = self.client.get(reverse("home"), {"tab": "home"})
 
         self.assertTrue(response.context["mosque_top10"])

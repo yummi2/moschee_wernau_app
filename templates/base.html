@@ -50,7 +50,7 @@
       }
     } catch (_) {}
   </script>
-  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260914-263">  <style>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260918-268">  <style>
   .act-grid{
     display: grid;
     gap: 12px;
@@ -212,11 +212,19 @@
                 });
                 const data = await response.json();
                 if (!response.ok) return window.showAbsenceError(data.error || "تعذر تنفيذ الطلب.");
-                btn.classList.remove("bg-purple-600", "is-purple");
+                btn.classList.remove(
+                  "bg-purple-600",
+                  "bg-green-500",
+                  "calendar-teaching",
+                  "is-purple"
+                );
                 btn.classList.add("bg-red-600", "text-white", "is-absent");
+                btn.querySelector(":scope > span")?.classList.remove("is-today");
                 btn.disabled = true;
+                btn.style.cursor = "default";
                 const count = document.getElementById("absencesCount");
                 if (count && typeof data.total === "number") count.textContent = String(data.total);
+                window.showAbsenceSuccess?.();
               } catch (_) {
                 window.showAbsenceError("حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.");
               }
@@ -711,6 +719,32 @@
         submitButton.value = "cancel";
         submitButton.textContent = isGerman() ? "Okay" : "حسنًا";
         dialog.showModal();
+      };
+
+      let absenceSuccessTimer;
+      window.showAbsenceSuccess = () => {
+        const page = document.querySelector(".app-main");
+        if (!page) return;
+
+        let status = document.getElementById("absenceSuccessMessage");
+        if (!status) {
+          status = document.createElement("div");
+          status.id = "absenceSuccessMessage";
+          status.className = "absence-success-message";
+          status.setAttribute("role", "status");
+          status.setAttribute("aria-live", "polite");
+          page.prepend(status);
+        }
+
+        status.dir = isGerman() ? "ltr" : "rtl";
+        status.textContent = isGerman() ? "Änderungen gespeichert" : "تم حفظ التغييرات";
+        status.classList.remove("is-visible");
+        requestAnimationFrame(() => status.classList.add("is-visible"));
+
+        window.clearTimeout(absenceSuccessTimer);
+        absenceSuccessTimer = window.setTimeout(() => {
+          status.classList.remove("is-visible");
+        }, 4000);
       };
 
       dialog?.addEventListener("click", (event) => {

@@ -67,11 +67,19 @@
           });
           const data = await response.json();
           if (!response.ok) return window.showAbsenceError(data.error || "تعذر تنفيذ الطلب.");
-          button.classList.remove("bg-purple-600", "is-purple");
+          button.classList.remove(
+            "bg-purple-600",
+            "bg-green-500",
+            "calendar-teaching",
+            "is-purple"
+          );
           button.classList.add("bg-red-600", "text-white", "is-absent");
+          button.querySelector(":scope > span")?.classList.remove("is-today");
           button.disabled = true;
+          button.style.cursor = "default";
           const count = document.getElementById("absencesCount");
           if (count && typeof data.total === "number") count.textContent = String(data.total);
+          window.showAbsenceSuccess?.();
         } catch (_) {
           window.showAbsenceError("حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.");
         }

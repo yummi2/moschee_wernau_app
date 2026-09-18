@@ -39,6 +39,11 @@ from django.core.validators import validate_email
 
 logger = logging.getLogger(__name__)
 
+LIVE_COMPETITION_TEAM_NAMES = {
+    "A": "دعاة المستقبل",
+    "B": "صانعات الأمل",
+}
+
 DRIVE_LIBRARY_FILES = {
     "rashidi_part": "1MwkfiHsx1qEkTztTb1g66wQ_ECUZ1ZYW",
     "first_quran_reflection": "1-2pyb5N_HX4MAlmNk_76KqsVZxKvREPk",
@@ -539,7 +544,10 @@ def mark_absence(request):
     if not created:
         return JsonResponse({"error": ARABIC_ALREADY_MARKED}, status=400)
 
-    return JsonResponse({"ok": True})
+    return JsonResponse({
+        "ok": True,
+        "total": Absence.objects.filter(user=request.user).count(),
+    })
 
 @login_required
 def school_year(request):
@@ -1052,7 +1060,7 @@ def about(request):
 
 
 def mosque_top10_ranking(school_year_ranges):
-    """Rank students who qualify in Ramadan, prayer and library by points."""
+    """Rank students who qualify in Ramadan, prayer, library and daily Quran by points."""
     if school_year_ranges["year"] != "2027":
         return []
 
@@ -1130,7 +1138,30 @@ def mosque_top10_ranking(school_year_ranges):
         )[:10]
     }
 
-    eligible_ids = ramadan_top_ids & prayer_top_ids & library_top_ids
+    quran_rows = list(
+        DailyQuranReading.objects
+        .filter(
+            student_id__in=student_ids,
+            completed_on__range=(
+                school_year_ranges["prayer_start"],
+                school_year_ranges["prayer_end"],
+            ),
+        )
+        .values("student_id")
+        .annotate(total=Count("id"))
+    )
+    quran_top_ids = {
+        row["student_id"]
+        for row in sorted(
+            quran_rows,
+            key=lambda row: (
+                -row["total"],
+                display_name(students_by_id[row["student_id"]]).casefold(),
+            ),
+        )[:10]
+    }
+
+    eligible_ids = ramadan_top_ids & prayer_top_ids & library_top_ids & quran_top_ids
     balances = point_balances(students)
     return [
         {
@@ -1624,7 +1655,7 @@ def live_competition_game(request, game_id):
         return HttpResponseForbidden("Dieser Bereich ist nur für die Verwaltung verfügbar.")
 
     game = get_object_or_404(
-        LiveCompetitionGame.objects.select_related("competition").prefetch_related("participants__student"),
+        LiveCompetitionGame.objects.select_related("competition"),
         pk=game_id,
     )
     questions = list(game.competition.questions.all())
@@ -1700,7 +1731,8 @@ def live_competition_game(request, game_id):
 
                         def award_reason(participant):
                             result = "Siegergruppe" if participant.team == locked_game.winner else "Teilnahme"
-                            return f"Live-Wettbewerb: {locked_game.competition.title} – {result} {participant.team}"
+                            team_name = LIVE_COMPETITION_TEAM_NAMES[participant.team]
+                            return f"Live-Wettbewerb: {locked_game.competition.title} – {result} {team_name}"
                     else:
                         def awarded_points(participant):
                             return 2
@@ -1742,7 +1774,6 @@ def live_competition_game(request, game_id):
         {"number": number, "text": text, "is_correct": number == current_question.correct_option}
         for number, text in enumerate(current_question.options, start=1)
     ]
-    participants = list(game.participants.select_related("student"))
     return render(request, "core/live_competition_game.html", {
         "game": game,
         "current_question": current_question,
@@ -1752,8 +1783,12 @@ def live_competition_game(request, game_id):
         "question_total": len(questions),
         "is_last_question": current_index == len(questions) - 1,
         "answering_team": answering_team,
-        "team_a": [participant for participant in participants if participant.team == "A"],
-        "team_b": [participant for participant in participants if participant.team == "B"],
+        "answering_team_name": LIVE_COMPETITION_TEAM_NAMES.get(answering_team, ""),
+        "current_answer_team_name": LIVE_COMPETITION_TEAM_NAMES.get(
+            current_answer.team if current_answer else None,
+            "",
+        ),
+        "winner_name": LIVE_COMPETITION_TEAM_NAMES.get(game.winner, ""),
     })
 
 
