@@ -1972,6 +1972,7 @@ def library(request):
             "8": "Zainab, Tochter des Gesandten",
             "9": "Fatima az-Zahra, Tochter Muhammads",
             "10": "Prophet Ibrahim (Friede sei mit ihm)",
+            "11": "Prophet Musa (Friede sei mit ihm)",
         },
     }
     

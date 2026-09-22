@@ -590,6 +590,47 @@ class LibraryTranslationTests(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertFalse(StoryRead.objects.filter(user=student).exists())
 
+    def test_musa_story_has_bilingual_quiz_and_arabic_content(self):
+        student = get_user_model().objects.create_user("musa-reader", password="x")
+        self.client.force_login(student)
+
+        response = self.client.get(reverse("library"), {"level": "advanced", "sid": "11"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'data-app-de="Prophet Musa (Friede sei mit ihm)"')
+        self.assertContains(response, "المَوْلِدُ وَالنَّجَاةُ المُعْجِزَةُ")
+        self.assertContains(response, 'data-app-de="Was tat Musas Mutter, als sie Angst um ihn hatte?"')
+        self.assertContains(response, 'data-app-de="Warum beschädigte Al-Chidr das Schiff?"')
+        self.assertContains(response, 'class="library-quiz-question"', count=5)
+
+    def test_musa_quiz_awards_exactly_one_point_only_when_all_answers_are_correct(self):
+        student = get_user_model().objects.create_user("musa-quiz-reader", password="x")
+        self.client.force_login(student)
+        quiz_url = reverse("submit_story_quiz")
+
+        failed = self.client.post(
+            quiz_url,
+            data='{"level":"advanced","sid":"11","answers":["3","true","2","true","3"]}',
+            content_type="application/json",
+        )
+        passed = self.client.post(
+            quiz_url,
+            data='{"level":"advanced","sid":"11","answers":["3","true","2","false","3"]}',
+            content_type="application/json",
+        )
+        repeated = self.client.post(
+            quiz_url,
+            data='{"level":"advanced","sid":"11","answers":["3","true","2","false","3"]}',
+            content_type="application/json",
+        )
+
+        self.assertFalse(failed.json()["passed"])
+        self.assertTrue(passed.json()["passed"])
+        self.assertTrue(passed.json()["created"])
+        self.assertFalse(repeated.json()["created"])
+        self.assertEqual(StoryRead.objects.filter(user=student, level="advanced", sid="11").count(), 1)
+        self.assertEqual(point_balance(student)["story_points"], 1)
+
 
 class AdminStatisticsTests(TestCase):
     def setUp(self):
