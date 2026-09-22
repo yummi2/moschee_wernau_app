@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from .school_years import can_switch_school_years
-from .views import selected_school_year_ranges
+from .views import selected_school_year_ranges, teaching_week_number, saturday_week_bounds
 from .models import (
     Assignment,
     AssignmentCompletion,
@@ -26,6 +26,29 @@ from .models import (
 )
 from .points import point_balance
 from .ramadan_data import RAMADAN_ITEMS_ORDER
+
+
+class TeachingWeekNumberTests(TestCase):
+    def test_first_two_weeks_of_2027_school_year_are_numbered(self):
+        self.assertEqual(
+            teaching_week_number(dt.date(2026, 9, 19), dt.date(2026, 9, 25)),
+            1,
+        )
+        self.assertEqual(
+            teaching_week_number(dt.date(2026, 9, 26), dt.date(2026, 10, 2)),
+            2,
+        )
+
+    def test_assignment_week_runs_from_saturday_through_friday(self):
+        self.assertEqual(
+            saturday_week_bounds(dt.date(2026, 9, 22)),
+            (dt.date(2026, 9, 19), dt.date(2026, 9, 25)),
+        )
+
+    def test_holiday_week_has_no_teaching_week_number(self):
+        self.assertIsNone(
+            teaching_week_number(dt.date(2026, 10, 31), dt.date(2026, 11, 6))
+        )
 
 
 class LiveCompetitionTests(TestCase):

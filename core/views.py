@@ -498,18 +498,27 @@ def is_purple_date(d: dt.date) -> bool:                                         
     return SPECIAL_DATES.get(d) == COLOR_TEACHING    
 
 def teaching_week_number(week_start: dt.date, week_end: dt.date) -> int | None:
-    """Return the sequential number only for a week containing a purple teaching date."""
+    """Return the teaching-week number within the week date's own school year."""
+    school_year_start_year = week_start.year if week_start.month >= 9 else week_start.year - 1
+    school_year_start = dt.date(school_year_start_year, 9, 1)
+    school_year_end = dt.date(school_year_start_year + 1, 9, 1)
     purple_dates = sorted(
         date for date, css_class in SPECIAL_DATES.items()
         if (
             css_class == COLOR_TEACHING
-            and ACADEMIC_START <= date < ACADEMIC_END_EXCL
+            and school_year_start <= date < school_year_end
         )
     )
     for number, date in enumerate(purple_dates, start=1):
         if week_start <= date <= week_end:
             return number
     return None
+
+
+def saturday_week_bounds(day: dt.date) -> tuple[dt.date, dt.date]:
+    """Return the Saturday-to-Friday week containing day."""
+    saturday = day - dt.timedelta(days=(day.weekday() - 5) % 7)
+    return saturday, saturday + dt.timedelta(days=6)
 
 def month_neighbors(year, month):
     first = dt.date(year, month, 1)
@@ -721,14 +730,14 @@ def home(request):
             assignment.color_key = "blue"
             assignment.icon_key = "assignment"
         assignment_date = timezone.localtime(assignment.created_at).date()
-        monday = assignment_date - dt.timedelta(days=assignment_date.weekday())
-        week_key = monday.isocalendar()[:2]
+        week_start, week_end = saturday_week_bounds(assignment_date)
+        week_key = week_start
         if not assignment_weeks or assignment_weeks[-1]["key"] != week_key:
             assignment_weeks.append({
                 "key": week_key,
-                "start": monday,
-                "end": monday + dt.timedelta(days=6),
-                "number": teaching_week_number(monday, monday + dt.timedelta(days=6)),
+                "start": week_start,
+                "end": week_end,
+                "number": teaching_week_number(week_start, week_end),
                 "assignments": [],
             })
         assignment_weeks[-1]["assignments"].append(assignment)
