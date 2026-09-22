@@ -167,6 +167,12 @@
             {# "Gelesen" nur auf der letzten Seite und wenn eingeloggt #}
             {% if p == total %}
             <div id="story-read-action" class="library-read-action mt-8">
+                {% if level != "beginner" %}
+                <button type="button" class="library-scroll-top" data-library-scroll-top
+                    aria-label="العودة إلى أعلى القصة / Zurück zum Anfang der Geschichte">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 14 6-6 6 6"/></svg>
+                </button>
+                {% endif %}
                 {% if request.user.is_authenticated %}
                 {% if already_read %}
                 <button id="mark-read-btn" class="library-read-button is-complete px-4 py-2 rounded bg-green-600 text-white cursor-default" aria-label="تمّت القراءة" disabled>
@@ -589,6 +595,48 @@
                     console.error(e);
                 }
             });
+        })();
+
+        (() => {
+            const page = document.querySelector(".library-page--story");
+            const button = page?.querySelector("[data-library-scroll-top]");
+            if (!page || !button) return;
+
+            // iOS clips fixed elements inside animated overflow containers.
+            // Only phones need the viewport-level floating control.
+            if (window.matchMedia("(max-width: 39.999rem)").matches) {
+                document.body.appendChild(button);
+            }
+
+            const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+            const scrollElements = () => [page, document.scrollingElement]
+                .filter((element, index, elements) => element && elements.indexOf(element) === index);
+            const updateButton = () => {
+                const nearEnd = scrollElements().some((scroller) => {
+                    const hasOverflow = scroller.scrollHeight > scroller.clientHeight + 4;
+                    return hasOverflow
+                        && scroller.scrollTop > 64
+                        && scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 32;
+                });
+                button.classList.toggle("is-visible", nearEnd);
+            };
+
+            page.addEventListener("scroll", updateButton, { passive: true });
+            window.addEventListener("scroll", updateButton, { passive: true });
+            window.addEventListener("resize", updateButton);
+            button.addEventListener("click", () => {
+                scrollElements().forEach((scroller) => {
+                    scroller.scrollTo({
+                        top: 0,
+                        behavior: reducedMotion.matches ? "auto" : "smooth",
+                    });
+                });
+            });
+
+            if ("ResizeObserver" in window) {
+                new ResizeObserver(updateButton).observe(page);
+            }
+            updateButton();
         })();
     </script>
 </div>

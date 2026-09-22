@@ -1973,6 +1973,9 @@ def library(request):
             "9": "Fatima az-Zahra, Tochter Muhammads",
             "10": "Prophet Ibrahim (Friede sei mit ihm)",
             "11": "Prophet Musa (Friede sei mit ihm)",
+            "12": "Prophet Yunus (Friede sei mit ihm)",
+            "13": "Prophet Yusuf (Friede sei mit ihm)",
+            "14": "Maryam (Friede sei mit ihr)",
         },
     }
     
@@ -2041,7 +2044,7 @@ def library(request):
             "level_title_de": valid_levels_de[level],
             "sid": sid,
             "story": story,
-            "story_title_de": story_titles_de[level].get(sid) or f"Satz {p}",
+            "story_title_de": story.get("title_de") or story_titles_de[level].get(sid) or story["title"],
             "p":p,
             "total": total,  
             "current_text": current_text,
@@ -2057,7 +2060,7 @@ def library(request):
         href = f"{reverse('library')}?level={level}&sid={s_id}"
         sentences.append({
             "title": s_data["title"],
-            "title_de": story_titles_de[level].get(s_id, s_data["title"]),
+            "title_de": s_data.get("title_de") or story_titles_de[level].get(s_id, s_data["title"]),
             "href": href,
         })
 

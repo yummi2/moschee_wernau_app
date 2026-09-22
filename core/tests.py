@@ -453,6 +453,19 @@ class SchoolYearAccessTests(TestCase):
 
 
 class LibraryTranslationTests(TestCase):
+    def test_story_scroll_top_button_is_available_except_for_beginner_level(self):
+        student = get_user_model().objects.create_user("story-scroll-reader", password="x")
+        self.client.force_login(student)
+
+        beginner = self.client.get(reverse("library"), {"level": "beginner", "sid": "1"})
+        intermediate = self.client.get(reverse("library"), {"level": "intermediate", "sid": "1"})
+        advanced = self.client.get(reverse("library"), {"level": "advanced", "sid": "1"})
+
+        button_markup = '<button type="button" class="library-scroll-top"'
+        self.assertNotContains(beginner, button_markup)
+        self.assertContains(intermediate, button_markup)
+        self.assertContains(advanced, button_markup)
+
     def test_books_level_contains_embedded_cloudinary_pdfs(self):
         response = self.client.get(reverse("library"), {"level": "books"})
 
@@ -629,6 +642,142 @@ class LibraryTranslationTests(TestCase):
         self.assertTrue(passed.json()["created"])
         self.assertFalse(repeated.json()["created"])
         self.assertEqual(StoryRead.objects.filter(user=student, level="advanced", sid="11").count(), 1)
+        self.assertEqual(point_balance(student)["story_points"], 1)
+
+    def test_yunus_story_has_bilingual_quiz_and_arabic_content(self):
+        student = get_user_model().objects.create_user("yunus-reader", password="x")
+        self.client.force_login(student)
+
+        response = self.client.get(reverse("library"), {"level": "advanced", "sid": "12"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'data-app-de="Prophet Yunus (Friede sei mit ihm)"')
+        self.assertContains(response, "يُونُسُ عَلَيْهِ السَّلَامُ وَأَهْلُ نِينَوَى")
+        self.assertContains(response, 'data-app-de="Zu welchem Volk sandte Allah Yunus, Friede sei mit ihm?"')
+        self.assertContains(response, 'data-app-de="Welches Bittgebet sprach Yunus im Bauch des Wals?"')
+        self.assertContains(response, 'class="library-quiz-question"', count=5)
+
+    def test_yunus_quiz_awards_exactly_one_point_only_when_all_answers_are_correct(self):
+        student = get_user_model().objects.create_user("yunus-quiz-reader", password="x")
+        self.client.force_login(student)
+        quiz_url = reverse("submit_story_quiz")
+
+        failed = self.client.post(
+            quiz_url,
+            data='{"level":"advanced","sid":"12","answers":["2","true","3","true","3"]}',
+            content_type="application/json",
+        )
+        passed = self.client.post(
+            quiz_url,
+            data='{"level":"advanced","sid":"12","answers":["2","true","3","false","3"]}',
+            content_type="application/json",
+        )
+        repeated = self.client.post(
+            quiz_url,
+            data='{"level":"advanced","sid":"12","answers":["2","true","3","false","3"]}',
+            content_type="application/json",
+        )
+
+        self.assertFalse(failed.json()["passed"])
+        self.assertTrue(passed.json()["passed"])
+        self.assertTrue(passed.json()["created"])
+        self.assertFalse(repeated.json()["created"])
+        self.assertEqual(StoryRead.objects.filter(user=student, level="advanced", sid="12").count(), 1)
+        self.assertEqual(point_balance(student)["story_points"], 1)
+
+    def test_yusuf_story_has_bilingual_quiz_and_arabic_content(self):
+        student = get_user_model().objects.create_user("yusuf-reader", password="x")
+        self.client.force_login(student)
+
+        response = self.client.get(reverse("library"), {"level": "advanced", "sid": "13"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'data-app-de="Prophet Yusuf (Friede sei mit ihm)"')
+        self.assertNotContains(response, 'data-app-de="Satz 1"')
+        self.assertContains(response, "رُؤْيَا يُوسُفَ عَلَيْهِ السَّلَامُ")
+        self.assertContains(response, 'data-app-de="Was sah Yusuf, Friede sei mit ihm, in seinem Traum, als er noch jung war?"')
+        self.assertContains(response, 'data-app-de="Was sagte Yusuf zu seinen Brüdern, nachdem er ihnen offenbart hatte, wer er war?"')
+        self.assertContains(response, 'class="library-quiz-question"', count=5)
+
+        overview = self.client.get(reverse("library"), {"level": "advanced"})
+        self.assertContains(overview, 'data-app-de="Prophet Yusuf (Friede sei mit ihm)"')
+
+    def test_yusuf_quiz_awards_exactly_one_point_only_when_all_answers_are_correct(self):
+        student = get_user_model().objects.create_user("yusuf-quiz-reader", password="x")
+        self.client.force_login(student)
+        quiz_url = reverse("submit_story_quiz")
+
+        failed = self.client.post(
+            quiz_url,
+            data='{"level":"advanced","sid":"13","answers":["2","true","2","true","1"]}',
+            content_type="application/json",
+        )
+        passed = self.client.post(
+            quiz_url,
+            data='{"level":"advanced","sid":"13","answers":["2","true","2","false","1"]}',
+            content_type="application/json",
+        )
+        repeated = self.client.post(
+            quiz_url,
+            data='{"level":"advanced","sid":"13","answers":["2","true","2","false","1"]}',
+            content_type="application/json",
+        )
+
+        self.assertFalse(failed.json()["passed"])
+        self.assertTrue(passed.json()["passed"])
+        self.assertTrue(passed.json()["created"])
+        self.assertFalse(repeated.json()["created"])
+        self.assertEqual(StoryRead.objects.filter(user=student, level="advanced", sid="13").count(), 1)
+        self.assertEqual(point_balance(student)["story_points"], 1)
+
+    def test_maryam_story_has_bilingual_quiz_and_arabic_content(self):
+        student = get_user_model().objects.create_user("maryam-reader", password="x")
+        self.client.force_login(student)
+
+        response = self.client.get(reverse("library"), {"level": "advanced", "sid": "14"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'data-app-de="Maryam (Friede sei mit ihr)"')
+        self.assertContains(response, "وِلَادَةُ مَرْيَمَ عَلَيْهَا السَّلَامُ وَنَشْأَتُهَا")
+        self.assertContains(
+            response,
+            'data-app-de="Wer übernahm die Fürsorge für Maryam, Friede sei mit ihr, als sie jung war?"',
+        )
+        self.assertContains(
+            response,
+            'data-app-de="Was geschah mit Isa, als seine Feinde ihn töten wollten?"',
+        )
+        self.assertContains(response, 'class="library-quiz-question"', count=5)
+
+        overview = self.client.get(reverse("library"), {"level": "advanced"})
+        self.assertContains(overview, 'data-app-de="Maryam (Friede sei mit ihr)"')
+
+    def test_maryam_quiz_awards_exactly_one_point_only_when_all_answers_are_correct(self):
+        student = get_user_model().objects.create_user("maryam-quiz-reader", password="x")
+        self.client.force_login(student)
+        quiz_url = reverse("submit_story_quiz")
+
+        failed = self.client.post(
+            quiz_url,
+            data='{"level":"advanced","sid":"14","answers":["2","true","2","false","3"]}',
+            content_type="application/json",
+        )
+        passed = self.client.post(
+            quiz_url,
+            data='{"level":"advanced","sid":"14","answers":["2","true","2","true","3"]}',
+            content_type="application/json",
+        )
+        repeated = self.client.post(
+            quiz_url,
+            data='{"level":"advanced","sid":"14","answers":["2","true","2","true","3"]}',
+            content_type="application/json",
+        )
+
+        self.assertFalse(failed.json()["passed"])
+        self.assertTrue(passed.json()["passed"])
+        self.assertTrue(passed.json()["created"])
+        self.assertFalse(repeated.json()["created"])
+        self.assertEqual(StoryRead.objects.filter(user=student, level="advanced", sid="14").count(), 1)
         self.assertEqual(point_balance(student)["story_points"], 1)
 
 
