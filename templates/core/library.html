@@ -449,6 +449,9 @@
             };
             const showNotice = (arabic, german) => {
                 if (!notice || !noticeMessage) return;
+                if (notice.parentElement !== document.body) {
+                    document.body.appendChild(notice);
+                }
                 setTranslatedMessage(noticeMessage, arabic, german);
                 notice.hidden = false;
                 document.body.classList.add("library-quiz-notice-open");

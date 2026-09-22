@@ -2759,16 +2759,23 @@ body.library-quiz-notice-open { overflow: hidden; }
   position: fixed;
   z-index: 1200;
   inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  min-height: 100dvh;
   display: grid;
   place-items: center;
   padding: 1rem;
+  overflow: hidden;
+  isolation: isolate;
 }
 
 .library-quiz-notice[hidden] { display: none; }
 
 .library-quiz-notice-backdrop {
-  position: absolute;
+  position: fixed;
   inset: 0;
+  width: 100vw;
+  height: 100dvh;
   background: rgb(6 34 27 / 48%);
   backdrop-filter: blur(3px);
 }
