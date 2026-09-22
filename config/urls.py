@@ -45,6 +45,7 @@ urlpatterns = [
     path('library/books/<slug:book_id>/pdf/', views.library_book_pdf, name='library_book_pdf'),
     path('calendar/', views.calendar_page, name='calendar'),
     path("ajax/mark-story-read/", views.mark_story_read, name="mark_story_read"),
+    path("ajax/submit-story-quiz/", views.submit_story_quiz, name="submit_story_quiz"),
     path("prayer/toggle/", views.toggle_prayer, name="toggle_prayer"),
     path("ramadan-plan/", views.ramadan_plan, name="ramadan_plan"),
     path("ramadan/<int:day>/", views.ramadan_day, name="ramadan_day"),

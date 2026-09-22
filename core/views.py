@@ -1971,6 +1971,7 @@ def library(request):
             "7": "Hafsa bint Umar – Mutter der Gläubigen",
             "8": "Zainab, Tochter des Gesandten",
             "9": "Fatima az-Zahra, Tochter Muhammads",
+            "10": "Prophet Ibrahim (Friede sei mit ihm)",
         },
     }
     
@@ -2122,8 +2123,54 @@ def mark_story_read(request):
     if sid not in valid_story_ids:
         return HttpResponseBadRequest("Unknown library item")
 
+    story = STORIES.get(level, {}).get(sid)
+    if story and story.get("quiz"):
+        return JsonResponse({"ok": False, "error": "Quiz required"}, status=400)
+
     obj, created = StoryRead.objects.get_or_create(user=request.user, level=level, sid=sid)
     return JsonResponse({"ok": True, "created": created})
+
+
+@login_required
+@require_POST
+def submit_story_quiz(request):
+    try:
+        data = json.loads(request.body.decode("utf-8"))
+        level = str(data["level"])
+        sid = str(data["sid"])
+        answers = data["answers"]
+    except (KeyError, TypeError, ValueError, json.JSONDecodeError, UnicodeDecodeError):
+        return HttpResponseBadRequest("Bad payload")
+
+    story = STORIES.get(level, {}).get(sid)
+    quiz = story.get("quiz") if story else None
+    if not quiz:
+        return HttpResponseBadRequest("Unknown story quiz")
+    if not isinstance(answers, list) or len(answers) != len(quiz):
+        return HttpResponseBadRequest("Incomplete answers")
+
+    correct_count = sum(
+        str(answer) == str(question["correct"])
+        for answer, question in zip(answers, quiz)
+    )
+    if correct_count != len(quiz):
+        return JsonResponse({
+            "ok": True,
+            "passed": False,
+            "correct_count": correct_count,
+            "total": len(quiz),
+        })
+
+    _reading, created = StoryRead.objects.get_or_create(
+        user=request.user, level=level, sid=sid
+    )
+    return JsonResponse({
+        "ok": True,
+        "passed": True,
+        "created": created,
+        "correct_count": correct_count,
+        "total": len(quiz),
+    })
 
 @login_required
 @require_POST

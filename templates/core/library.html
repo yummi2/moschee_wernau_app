@@ -125,16 +125,13 @@
     {% elif story %}
     <div class="library-story-shell mx-auto max-w-3xl px-4">
         <div class="library-story-content p-6 text-right">
-            <div class="library-story-heading {% if level == 'beginner' %}library-story-heading--beginner{% endif %}"{% if level == "beginner" %} data-app-language-surface{% endif %}>
-                {% if level == "beginner" %}
+            <div id="story-reading-view">
+            <div class="library-story-heading {% if level == 'beginner' %}library-story-heading--beginner{% endif %}" data-app-language-surface>
                 <h2 class="library-story-title text-2xl font-bold text-blue-800"
                     data-app-ar="{{ story.title }}"
                     data-app-de="{{ story_title_de }}">
                     {{ story.title }}
                 </h2>
-                {% else %}
-                <h2 class="library-story-title text-2xl font-bold text-blue-800">{{ story.title }}</h2>
-                {% endif %}
             </div>
             <div class="library-story-count {% if level == 'beginner' %}library-story-count--beginner{% endif %} text-sm text-gray-500"{% if level == "beginner" %} data-app-language-surface{% endif %}>
                 <bdi dir="ltr">{{ p }} / {{ total }}</bdi>
@@ -165,15 +162,19 @@
             </div>
             {% endif %}
             {# Ende Navigation nur für Beginner #}
+            </div>
 
             {# "Gelesen" nur auf der letzten Seite und wenn eingeloggt #}
             {% if p == total %}
-            <div class="library-read-action mt-8">
+            <div id="story-read-action" class="library-read-action mt-8">
                 {% if request.user.is_authenticated %}
                 {% if already_read %}
                 <button id="mark-read-btn" class="library-read-button is-complete px-4 py-2 rounded bg-green-600 text-white cursor-default" aria-label="تمّت القراءة" disabled>
                     <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>
                 </button>
+                {% elif story.quiz %}
+                <button type="button" id="story-quiz-open" class="library-read-button px-5 py-2"
+                    data-app-ar="ابدأ الاختبار" data-app-de="Quiz starten">ابدأ الاختبار</button>
                 {% else %}
                 <button id="mark-read-btn" class="library-read-button px-4 py-2 rounded bg-green-600 text-white" data-app-ar="تم" data-app-de="Erledigt">
                   تم
@@ -186,6 +187,49 @@
                     سجّل الدخول لوضع علامة "تمت القراءة"
                 </a>
                 {% endif %}
+            </div>
+            {% endif %}
+
+            {% if p == total and story.quiz and request.user.is_authenticated and not already_read %}
+            <section id="story-quiz" class="library-story-quiz" hidden aria-labelledby="story-quiz-title">
+                <div class="library-quiz-heading" data-app-language-surface>
+                    <p class="library-quiz-kicker" data-app-ar="اختبار القصة" data-app-de="Quiz zur Geschichte">اختبار القصة</p>
+                    <h3 id="story-quiz-title" data-app-ar="أجب عن الأسئلة الخمسة" data-app-de="Beantworte alle fünf Fragen">أجب عن الأسئلة الخمسة</h3>
+                </div>
+                <form id="story-quiz-form">
+                    {% for question in story.quiz %}
+                    <fieldset class="library-quiz-question" dir="rtl" data-app-language-surface>
+                        <legend><span>{{ forloop.counter }}.</span>
+                            <span data-app-ar="{{ question.question }}" data-app-de="{{ question.question_de }}">{{ question.question }}</span>
+                        </legend>
+                        <div class="library-quiz-options">
+                            {% for option in question.options %}
+                            <label>
+                                <input type="radio" name="quiz-question-{{ forloop.parentloop.counter0 }}"
+                                    value="{{ option.value }}">
+                                <span data-app-ar="{{ option.text }}" data-app-de="{{ option.text_de }}">{{ option.text }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </fieldset>
+                    {% endfor %}
+                    <button type="submit" class="library-quiz-submit"
+                        data-app-ar="تحقق من الإجابات" data-app-de="Antworten prüfen">تحقق من الإجابات</button>
+                    <p id="story-quiz-feedback" class="library-quiz-feedback" role="status" aria-live="polite"></p>
+                </form>
+            </section>
+            <div id="story-quiz-notice" class="library-quiz-notice" hidden>
+                <div class="library-quiz-notice-backdrop" data-quiz-notice-close></div>
+                <div class="library-quiz-notice-dialog" role="alertdialog" aria-modal="true"
+                    aria-labelledby="story-quiz-notice-title" aria-describedby="story-quiz-notice-message"
+                    data-app-language-surface>
+                    <div class="library-quiz-notice-icon" aria-hidden="true">!</div>
+                    <h3 id="story-quiz-notice-title"
+                        data-app-ar="حاول مرة أخرى" data-app-de="Bitte noch einmal versuchen">حاول مرة أخرى</h3>
+                    <p id="story-quiz-notice-message"></p>
+                    <button type="button" class="library-quiz-notice-close" data-quiz-notice-close
+                        data-app-ar="حسنًا" data-app-de="Okay">حسنًا</button>
+                </div>
             </div>
             {% endif %}
         </div>
@@ -371,6 +415,124 @@
                 if (!documentPdf || reader.hidden) return;
                 window.clearTimeout(resizeTimer);
                 resizeTimer = window.setTimeout(renderPage, 160);
+            });
+        })();
+
+        (function () {
+            const openButton = document.getElementById("story-quiz-open");
+            const quiz = document.getElementById("story-quiz");
+            const form = document.getElementById("story-quiz-form");
+            const feedback = document.getElementById("story-quiz-feedback");
+            const readingView = document.getElementById("story-reading-view");
+            const readAction = document.getElementById("story-read-action");
+            const notice = document.getElementById("story-quiz-notice");
+            const noticeMessage = document.getElementById("story-quiz-notice-message");
+            if (!openButton || !quiz || !form || !feedback) return;
+
+            const selectedLanguage = () => document.documentElement.classList.contains("app-language-german") ? "de" : "ar";
+            const translated = (arabic, german) => selectedLanguage() === "de" ? german : arabic;
+            const setTranslatedMessage = (element, arabic, german) => {
+                element.dataset.appAr = arabic;
+                element.dataset.appDe = german;
+                element.textContent = translated(arabic, german);
+            };
+            const closeNotice = () => {
+                if (!notice) return;
+                notice.hidden = true;
+                document.body.classList.remove("library-quiz-notice-open");
+            };
+            const showNotice = (arabic, german) => {
+                if (!notice || !noticeMessage) return;
+                setTranslatedMessage(noticeMessage, arabic, german);
+                notice.hidden = false;
+                document.body.classList.add("library-quiz-notice-open");
+                notice.querySelector(".library-quiz-notice-close")?.focus();
+            };
+            const getCookie = (name) => {
+                const value = document.cookie.match(`(^|;)\\s*${name}\\s*=\\s*([^;]+)`);
+                return value ? value.pop() : "";
+            };
+            const showCompletedState = () => {
+                openButton.replaceChildren();
+                const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                icon.setAttribute("viewBox", "0 0 24 24");
+                icon.setAttribute("aria-hidden", "true");
+                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                path.setAttribute("d", "m5 12 4 4L19 6");
+                icon.appendChild(path);
+                openButton.appendChild(icon);
+                openButton.disabled = true;
+                openButton.classList.add("is-complete");
+            };
+
+            openButton.addEventListener("click", () => {
+                if (readingView) readingView.hidden = true;
+                if (readAction) readAction.hidden = true;
+                quiz.hidden = false;
+                quiz.scrollIntoView({ behavior: "smooth", block: "start" });
+            });
+
+            form.addEventListener("submit", async (event) => {
+                event.preventDefault();
+                const submitButton = form.querySelector("button[type='submit']");
+                const answers = [...form.querySelectorAll("fieldset")].map((fieldset) =>
+                    fieldset.querySelector("input:checked")?.value ?? null
+                );
+                if (answers.some((answer) => answer === null)) {
+                    showNotice(
+                        "يرجى اختيار إجابة واحدة لكل سؤال.",
+                        "Bitte wähle bei jeder Frage eine Antwort aus."
+                    );
+                    return;
+                }
+
+                submitButton.disabled = true;
+                feedback.textContent = "";
+                try {
+                    const response = await fetch("{% url 'submit_story_quiz' %}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": getCookie("csrftoken"),
+                        },
+                        body: JSON.stringify({ level: "{{ level }}", sid: "{{ sid }}", answers }),
+                    });
+                    const result = await response.json();
+                    if (!response.ok || !result.ok) throw new Error("Request failed");
+
+                    if (!result.passed) {
+                        showNotice(
+                            "لم تكن الإجابات الخمس كلها صحيحة. أعد الاختبار من فضلك.",
+                            "Nicht alle fünf Antworten waren richtig. Bitte wiederhole das Quiz."
+                        );
+                        form.reset();
+                        submitButton.disabled = false;
+                        quiz.scrollIntoView({ behavior: "smooth", block: "start" });
+                        return;
+                    }
+
+                    feedback.className = "library-quiz-feedback is-success";
+                    setTranslatedMessage(
+                        feedback,
+                        "جميع الإجابات صحيحة. تم حفظ النقطة.",
+                        "Alle fünf Antworten sind richtig. Der Punkt wurde gespeichert"
+                    );
+                    showCompletedState();
+                    openButton.hidden = false;
+                    form.querySelectorAll("fieldset, button[type='submit']").forEach((element) => element.hidden = true);
+                } catch (error) {
+                    submitButton.disabled = false;
+                    feedback.className = "library-quiz-feedback is-error";
+                    setTranslatedMessage(feedback, "تعذر حفظ الاختبار. حاول مرة أخرى.", "Das Quiz konnte nicht gespeichert werden. Bitte versuche es erneut.");
+                    console.error(error);
+                }
+            });
+
+            notice?.querySelectorAll("[data-quiz-notice-close]").forEach((element) => {
+                element.addEventListener("click", closeNotice);
+            });
+            document.addEventListener("keydown", (event) => {
+                if (event.key === "Escape" && notice && !notice.hidden) closeNotice();
             });
         })();
 

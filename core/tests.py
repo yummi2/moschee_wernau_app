@@ -523,6 +523,73 @@ class LibraryTranslationTests(TestCase):
         response = self.client.get(reverse("library"), {"level": "beginner", "sid": "1"})
         self.assertContains(response, 'data-app-de="Satz 1"')
 
+    def test_ibrahim_story_keeps_arabic_content_and_has_german_title_and_quiz(self):
+        student = get_user_model().objects.create_user("ibrahim-reader", password="x")
+        self.client.force_login(student)
+
+        response = self.client.get(reverse("library"), {"level": "advanced", "sid": "10"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'data-app-de="Prophet Ibrahim (Friede sei mit ihm)"')
+        self.assertContains(response, "نَشْأَةُ الصَّادِقِ")
+        self.assertContains(response, 'id="story-quiz-open"')
+        self.assertContains(response, 'class="library-quiz-question"', count=5)
+        self.assertContains(response, 'id="story-reading-view"')
+        self.assertContains(response, 'data-app-de="Warum ließ Ibrahim den großen Götzen unzerstört?"')
+        self.assertContains(response, 'data-app-de="Richtig"')
+        self.assertContains(response, 'data-app-de="Um seinem Volk die Machtlosigkeit der Götzen zu zeigen"')
+        self.assertContains(response, 'id="story-quiz-notice"')
+        self.assertContains(response, "Bitte wähle bei jeder Frage eine Antwort aus.")
+        self.assertContains(response, "Nicht alle fünf Antworten waren richtig. Bitte wiederhole das Quiz.")
+        self.assertNotContains(response, 'value="true" required')
+        self.assertNotContains(response, 'id="mark-read-btn"')
+
+    def test_ibrahim_quiz_requires_all_answers_before_awarding_point(self):
+        student = get_user_model().objects.create_user("ibrahim-quiz-reader", password="x")
+        self.client.force_login(student)
+        quiz_url = reverse("submit_story_quiz")
+
+        failed = self.client.post(
+            quiz_url,
+            data='{"level":"advanced","sid":"10","answers":["false","2","3","false","3"]}',
+            content_type="application/json",
+        )
+
+        self.assertEqual(failed.status_code, 200)
+        self.assertFalse(failed.json()["passed"])
+        self.assertFalse(StoryRead.objects.filter(user=student, level="advanced", sid="10").exists())
+        self.assertEqual(point_balance(student)["story_points"], 0)
+
+        passed = self.client.post(
+            quiz_url,
+            data='{"level":"advanced","sid":"10","answers":["true","2","3","false","3"]}',
+            content_type="application/json",
+        )
+        repeated = self.client.post(
+            quiz_url,
+            data='{"level":"advanced","sid":"10","answers":["true","2","3","false","3"]}',
+            content_type="application/json",
+        )
+
+        self.assertTrue(passed.json()["passed"])
+        self.assertTrue(passed.json()["created"])
+        self.assertFalse(repeated.json()["created"])
+        self.assertEqual(StoryRead.objects.filter(user=student, level="advanced", sid="10").count(), 1)
+        self.assertEqual(point_balance(student)["story_points"], 1)
+
+    def test_quiz_story_cannot_be_completed_through_normal_read_endpoint(self):
+        student = get_user_model().objects.create_user("quiz-bypass-reader", password="x")
+        self.client.force_login(student)
+
+        response = self.client.post(
+            reverse("mark_story_read"),
+            data='{"level":"advanced","sid":"10"}',
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(StoryRead.objects.filter(user=student).exists())
+
 
 class AdminStatisticsTests(TestCase):
     def setUp(self):
