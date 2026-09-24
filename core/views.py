@@ -1,7 +1,8 @@
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Profile, Assignment, AssignmentCompletion, Absence, ClassRoom, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStatus, RamadanItemDone, QuizScore, TeacherPointAward, LiveCompetition, LiveCompetitionGame, LiveCompetitionParticipant, LiveCompetitionAnswer, DailyQuranReading
+from .models import Profile, Assignment, AssignmentCompletion, Absence, ClassRoom, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStatus, RamadanItemDone, QuizScore, TeacherPointAward, LiveCompetition, LiveCompetitionGame, LiveCompetitionParticipant, LiveCompetitionAnswer, DailyQuranReading, StudentPointActivity
 from .points import point_balances, student_users
+from .parent_points import expire_pending_activities, queue_point_activity, rollback_point_activity
 from .forms import ProfileForm
 from django.contrib import messages
 import calendar
@@ -27,7 +28,7 @@ from .ramadan_translations import FIQH_QUESTIONS_DE, ISLAM_QUESTIONS_DE
 import math
 from .islam_questions import ISLAM_QUESTIONS
 from .drawing_links import DRAWING_LINKS_VIEW, DRAWING_LINKS_DOWNLOAD
-from django.db.models import Count
+from django.db.models import Count, Max
 from django.core.mail import EmailMessage
 import logging
 from urllib.error import HTTPError, URLError
@@ -934,17 +935,24 @@ def complete_daily_quran(request):
         if readings.filter(completed_on=today).exists():
             messages.info(request, "Die heutige Koran-Aufgabe wurde bereits erledigt.")
             return redirect(f"{reverse('home')}?tab=home")
-        portion_index = readings.count() + 1
+        portion_index = (readings.aggregate(last=Max("portion_index"))["last"] or 0) + 1
         if portion_index > 1208:
             messages.info(request, "Der gesamte Koran wurde bereits abgeschlossen.")
             return redirect(f"{reverse('home')}?tab=home")
-        DailyQuranReading.objects.create(
+        reading = DailyQuranReading.objects.create(
             student=student,
             portion_index=portion_index,
             completed_on=today,
         )
-    messages.success(request, "تم إنجاز ورد القرآن اليومي وإضافة نقطة واحدة.")
-    return redirect(f"{reverse('home')}?tab=home")
+        queue_point_activity(
+            student=student,
+            category="quran",
+            source_key=reading.pk,
+            activity_date=today,
+            label_ar=f"ورد القرآن: الصفحة {reading.page_number}، النصف {'الأول' if reading.half_number == 1 else 'الثاني'}",
+            label_de=f"Koranlesung: Seite {reading.page_number}, {'erste' if reading.half_number == 1 else 'zweite'} Hälfte",
+        )
+    return redirect(f"{reverse('home')}?tab=home&activity_saved=1")
 
 
 @login_required
@@ -975,17 +983,91 @@ def mark_assignment_done(request):
     if not can_access_assignment:
         return HttpResponseForbidden("Kein Zugriff")
 
-    AssignmentCompletion.objects.get_or_create(
+    completion, created = AssignmentCompletion.objects.get_or_create(
         user=request.user,
         assignment=assignment,
     )
+    if created and not request.user.is_staff and not is_user_teacher(request.user):
+        queue_point_activity(
+            student=request.user,
+            category="assignment",
+            source_key=assignment.pk,
+            activity_date=timezone.localdate(completion.completed_at),
+            label_ar=f"الواجب: {assignment.title}",
+            label_de=f"Hausaufgabe: {assignment.title}",
+        )
     visible_assignments = list(
         Assignment.objects.filter(
             classroom__students=request.user,
         ).select_related("classroom", "created_by").distinct()
     )
     counts = assignment_progress(visible_assignments, request.user)
-    return JsonResponse({"ok": True, "counts": counts})
+    return JsonResponse({"ok": True, "counts": counts, "activity_saved": created})
+
+
+@login_required
+def parent_point_approvals(request):
+    if request.user.is_staff or is_user_teacher(request.user):
+        return HttpResponseForbidden("Only student accounts have parent approvals.")
+
+    expire_pending_activities(request.user)
+    if request.method == "POST":
+        action = request.POST.get("action")
+        if action == "confirm_day":
+            try:
+                activity_date = dt.date.fromisoformat(request.POST.get("date", ""))
+            except ValueError:
+                return HttpResponseBadRequest("Invalid date")
+            entered_pin = request.POST.get("pin", "").strip()
+            configured_pin = str(settings.PARENT_APPROVAL_PIN).strip()
+            if not (configured_pin.isdigit() and len(configured_pin) == 4):
+                logger.error("PARENT_APPROVAL_PIN must contain exactly four digits.")
+                return HttpResponseForbidden("Parent PIN is not configured correctly.")
+            if entered_pin != configured_pin:
+                return redirect(f"{reverse('parent_point_approvals')}?pin_error={activity_date.isoformat()}")
+            StudentPointActivity.objects.filter(
+                student=request.user,
+                activity_date=activity_date,
+                status="pending",
+                expires_at__gt=timezone.now(),
+            ).update(status="confirmed", confirmed_at=timezone.now())
+            messages.success(request, "تم تأكيد الأنشطة وإضافة النقاط. / Die Aktivitäten wurden bestätigt und die Punkte gutgeschrieben.")
+        elif action == "remove_item":
+            try:
+                activity_id = int(request.POST.get("activity_id", ""))
+            except ValueError:
+                return HttpResponseBadRequest("Invalid activity")
+            with transaction.atomic():
+                activity = get_object_or_404(
+                    StudentPointActivity.objects.select_for_update(),
+                    pk=activity_id,
+                    student=request.user,
+                    status="pending",
+                )
+                rollback_point_activity(activity)
+                activity.status = "rejected"
+                activity.save(update_fields=("status",))
+            messages.success(request, "تم حذف النشاط. / Die Aktivität wurde entfernt.")
+        else:
+            return HttpResponseBadRequest("Unknown action")
+        return redirect("parent_point_approvals")
+
+    activities = list(
+        StudentPointActivity.objects.filter(
+            student=request.user,
+            status="pending",
+            expires_at__gt=timezone.now(),
+        ).order_by("-activity_date", "created_at", "id")
+    )
+    days = []
+    for activity in activities:
+        if not days or days[-1]["date"] != activity.activity_date:
+            days.append({"date": activity.activity_date, "activities": []})
+        days[-1]["activities"].append(activity)
+    return render(request, "core/parent_point_approvals.html", {
+        "approval_days": days,
+        "pin_error_date": request.GET.get("pin_error", ""),
+    })
 
 @login_required
 def calendar_page(request):
@@ -2132,7 +2214,18 @@ def mark_story_read(request):
         return JsonResponse({"ok": False, "error": "Quiz required"}, status=400)
 
     obj, created = StoryRead.objects.get_or_create(user=request.user, level=level, sid=sid)
-    return JsonResponse({"ok": True, "created": created})
+    if created and not request.user.is_staff and not is_user_teacher(request.user):
+        title_ar = story.get("title") if story else f"كتاب المكتبة ({sid.replace('_', ' ')})"
+        title_de = story.get("title_de", title_ar) if story else f"Bibliotheksbuch ({sid.replace('_', ' ')})"
+        queue_point_activity(
+            student=request.user,
+            category="library",
+            source_key=f"{level}:{sid}",
+            activity_date=timezone.localdate(obj.read_at),
+            label_ar=f"قراءة: {title_ar}",
+            label_de=f"Gelesen: {title_de}",
+        )
+    return JsonResponse({"ok": True, "created": created, "activity_saved": created})
 
 
 @login_required
@@ -2165,13 +2258,25 @@ def submit_story_quiz(request):
             "total": len(quiz),
         })
 
-    _reading, created = StoryRead.objects.get_or_create(
+    reading, created = StoryRead.objects.get_or_create(
         user=request.user, level=level, sid=sid
     )
+    if created and not request.user.is_staff and not is_user_teacher(request.user):
+        title_ar = story.get("title", "قصة")
+        title_de = story.get("title_de", title_ar)
+        queue_point_activity(
+            student=request.user,
+            category="library",
+            source_key=f"{level}:{sid}",
+            activity_date=timezone.localdate(reading.read_at),
+            label_ar=f"قراءة: {title_ar}",
+            label_de=f"Gelesen: {title_de}",
+        )
     return JsonResponse({
         "ok": True,
         "passed": True,
         "created": created,
+        "activity_saved": created,
         "correct_count": correct_count,
         "total": len(quiz),
     })
@@ -2213,7 +2318,30 @@ def toggle_prayer(request):
     obj.prayed = not obj.prayed
     obj.save()
 
-    return JsonResponse({"ok": True, "prayed": obj.prayed})
+    full_day = PrayerStatus.objects.filter(
+        user=request.user,
+        date=date,
+        prayed=True,
+    ).values("prayer").distinct().count() == 5
+    activity_saved = False
+    if full_day and not request.user.is_staff and not is_user_teacher(request.user):
+        _activity, activity_saved = queue_point_activity(
+            student=request.user,
+            category="prayer",
+            source_key=date.isoformat(),
+            activity_date=date,
+            label_ar=f"إتمام الصلوات الخمس ليوم {date:%d.%m.%Y}",
+            label_de=f"Alle fünf Gebete am {date:%d.%m.%Y}",
+        )
+    elif not full_day:
+        StudentPointActivity.objects.filter(
+            student=request.user,
+            category="prayer",
+            source_key=date.isoformat(),
+            status="pending",
+        ).update(status="rejected")
+
+    return JsonResponse({"ok": True, "prayed": obj.prayed, "activity_saved": activity_saved})
 
 def ramadan_is_open(now=None) -> bool:
     tz = ZoneInfo("Europe/Berlin")
@@ -2637,9 +2765,22 @@ def mark_ramadan_item_done(request):
                             .distinct()
                             .count())
 
+    all_done = completed_item_count == len(RAMADAN_ITEMS_ORDER)
+    activity_saved = False
+    if all_done and not request.user.is_staff and not is_user_teacher(request.user):
+        _activity, activity_saved = queue_point_activity(
+            student=request.user,
+            category="ramadan",
+            source_key=f"{selected_year}:{day}",
+            activity_date=timezone.localdate(),
+            label_ar=f"إتمام جميع مهام اليوم {day} من رمضان",
+            label_de=f"Alle Aufgaben von Ramadan-Tag {day}",
+        )
+
     return JsonResponse({
         "ok": True,
-        "all_done": completed_item_count == len(RAMADAN_ITEMS_ORDER),
+        "all_done": all_done,
+        "activity_saved": activity_saved,
     })
 
 @login_required

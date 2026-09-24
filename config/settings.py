@@ -23,6 +23,7 @@ DJANGO_DB_PATH = os.environ.get("DJANGO_DB_PATH", str(BASE_DIR / "db.sqlite3"))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("SECRET_KEY", "dev-insecure-key-only-local")
+PARENT_APPROVAL_PIN = os.environ.get("PARENT_APPROVAL_PIN", "1717").strip()
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -54,6 +55,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'core.middleware.ExpireParentPointActivitiesMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]

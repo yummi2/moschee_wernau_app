@@ -3139,6 +3139,246 @@ body.library-quiz-notice-open { overflow: hidden; }
   }
 }
 
+.activity-saved-popup {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 1rem;
+  border: 0;
+  background: transparent;
+  opacity: 0;
+  transition: opacity .2s ease;
+}
+
+.activity-saved-popup[open] { display: grid; place-items: center; }
+.activity-saved-popup::backdrop { background: rgb(6 34 27 / 52%); backdrop-filter: blur(4px); }
+.activity-saved-popup.is-visible { opacity: 1; }
+
+.activity-saved-popup > div {
+  position: relative;
+  width: min(100%, 25rem);
+  padding: 1.4rem;
+  border: 1px solid rgb(23 128 94 / 22%);
+  border-radius: 1.5rem;
+  background: #fffdf8;
+  text-align: center;
+  box-shadow: 0 24px 70px rgb(6 34 27 / 28%);
+}
+
+.activity-saved-popup-close {
+  position: absolute;
+  inset-block-start: .75rem;
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-items: center;
+  border-radius: 999px;
+  background: #ffe3d6;
+  color: #a63f1f;
+}
+
+html:not(.app-language-german) .activity-saved-popup-close { left: .75rem; right: auto; }
+html.app-language-german .activity-saved-popup-close { right: .75rem; left: auto; }
+
+.activity-saved-popup-close:focus-visible { outline: 3px solid #17805e; outline-offset: 2px; }
+.activity-saved-popup-close svg { width: 1.2rem; height: 1.2rem; margin: 0; padding: 0; border-radius: 0; background: transparent; stroke: currentColor; }
+
+.activity-saved-popup > div > svg {
+  width: 3rem;
+  height: 3rem;
+  margin: 0 auto .8rem;
+  padding: .65rem;
+  border-radius: 999px;
+  background: #17805e;
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.activity-saved-popup strong {
+  display: block;
+  color: #10231e;
+  font-size: 1.2rem;
+  font-weight: 900;
+  line-height: 1.5;
+}
+
+.activity-saved-popup p {
+  margin-block-start: .45rem;
+  color: #52645f;
+  font-weight: 700;
+  line-height: 1.7;
+}
+
+.parent-approval-page {
+  width: 100%;
+  padding: clamp(1rem, 3vw, 2.25rem);
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-color: #17805e #f1e7d3;
+  scrollbar-width: thin;
+}
+
+.parent-approval-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: min(100%, 54rem);
+  margin-inline: auto;
+  padding-block-end: 1.2rem;
+  border-block-end: 1px solid rgb(23 128 94 / 20%);
+}
+
+.parent-approval-header-icon {
+  display: grid;
+  flex: 0 0 3.5rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  place-items: center;
+  border-radius: 1.1rem;
+  background: #0b4938;
+  color: #fff;
+}
+
+.parent-approval-header-icon svg,
+.parent-approval-dialog-close svg,
+.parent-approval-remove svg,
+.parent-approval-empty svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.parent-approval-header-icon svg { width: 2rem; height: 2rem; }
+.parent-approval-header p { color: #17805e; font-size: .78rem; font-weight: 900; }
+.parent-approval-header h1 { color: #10231e; font-size: clamp(1.55rem, 4vw, 2.2rem); font-weight: 900; line-height: 1.35; }
+.parent-approval-header div > span { color: #64748b; font-size: .85rem; font-weight: 650; line-height: 1.6; }
+
+.parent-approval-days {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .85rem;
+  width: min(100%, 54rem);
+  margin: 1.2rem auto 0;
+}
+
+.parent-approval-day-card {
+  overflow: hidden;
+  border: 1px solid rgb(23 128 94 / 22%);
+  border-radius: 1.25rem;
+  background: rgb(255 253 248 / 88%);
+  box-shadow: 0 10px 26px rgb(11 73 56 / 9%);
+  aspect-ratio: 1;
+}
+
+.parent-approval-day-open {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: .85rem;
+  width: 100%;
+  height: 100%;
+  min-height: 11rem;
+  padding: 1rem;
+  text-align: start;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.parent-approval-day-open:hover { transform: translateY(-2px); }
+.parent-approval-day-open:focus-visible { outline: 3px solid #17805e; outline-offset: -3px; }
+
+.parent-approval-day-date {
+  border-radius: .8rem;
+  background: #f5ead4;
+  padding: .55rem .7rem;
+  color: #0b4938;
+  font-weight: 900;
+}
+
+.parent-approval-day-summary { display: grid; gap: .25rem; width: 100%; }
+.parent-approval-day-summary strong { color: #17805e; font-size: 2rem; line-height: 1; }
+.parent-approval-day-summary span { color: #52645f; font-size: .82rem; font-weight: 750; line-height: 1.5; }
+.parent-approval-dialog {
+  width: min(calc(100% - 1.2rem), 34rem);
+  max-height: min(88dvh, 46rem);
+  margin: auto;
+  padding: 1.2rem;
+  border: 0;
+  border-radius: 1.5rem;
+  background: #fffdf8;
+  color: #10231e;
+  overflow-y: auto;
+  box-shadow: 0 24px 70px rgb(6 34 27 / 30%);
+}
+
+.parent-approval-dialog::backdrop { background: rgb(6 34 27 / 50%); backdrop-filter: blur(3px); }
+.parent-approval-dialog-close { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; margin-inline-start: auto; border-radius: 999px; background: #f5ead4; color: #0b4938; }
+.parent-approval-dialog-close svg { width: 1.25rem; height: 1.25rem; }
+.parent-approval-dialog header { margin-block-start: -.8rem; padding-inline-end: 3.2rem; }
+.parent-approval-dialog header small { color: #17805e; font-weight: 850; }
+.parent-approval-dialog header h2 { font-size: 1.5rem; font-weight: 900; }
+
+.parent-approval-items { display: grid; gap: .6rem; margin-block-start: 1rem; }
+.parent-approval-activity-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: .7rem; min-width: 0; padding: .75rem; border: 1px solid rgb(23 128 94 / 16%); border-radius: 1rem; background: #fbf7ee; }
+.parent-approval-activity-row--prayer { background: #fff9e9; }
+.parent-approval-activity-row--ramadan { background: #f7f5ff; }
+.parent-approval-activity-row--assignment { background: #fff8ef; }
+.parent-approval-activity-copy { min-width: 0; }
+.parent-approval-activity-copy small { display: block; color: #52645f; font-size: .72rem; font-weight: 900; line-height: 1.5; }
+.parent-approval-activity-copy p { margin-block-start: .12rem; overflow-wrap: anywhere; color: #10231e; font-weight: 800; line-height: 1.6; }
+.parent-approval-category { display: grid; place-items: center; width: 2.35rem; height: 2.35rem; border-radius: .75rem; background: #e2f1ea; color: #0b4938; font-weight: 900; }
+.parent-approval-category--prayer { background: #fff1c7; color: #8a5b0a; }
+.parent-approval-category--ramadan { background: #e8e5f8; color: #4d3b8f; }
+.parent-approval-remove { display: flex; align-items: center; justify-content: center; gap: .35rem; min-width: 2.75rem; min-height: 2.75rem; padding: .45rem .65rem; border-radius: .8rem; background: #fff0ed; color: #b42318; font-size: .75rem; font-weight: 850; }
+.parent-approval-remove svg { width: 1.2rem; height: 1.2rem; }
+.parent-approval-confirm-form button { display: flex; justify-content: center; align-items: center; width: 100%; min-height: 3.2rem; margin-block-start: 1rem; padding: .65rem 1rem; border-radius: 1rem; background: #0b4938; color: #fff; font-weight: 900; }
+.parent-approval-pin-label { display: block; margin-block-start: 1rem; color: #203c34; font-size: .85rem; font-weight: 850; }
+.parent-approval-pin { width: 100%; min-height: 3.15rem; margin-block-start: .4rem; padding: .65rem 1rem; border: 1.5px solid rgb(23 128 94 / 35%); border-radius: .9rem; background: #fffdf8; color: #10231e; font-size: 1.25rem; font-weight: 900; letter-spacing: .45em; text-align: center; }
+.parent-approval-pin:focus { border-color: #17805e; outline: 3px solid rgb(23 128 94 / 14%); }
+.parent-approval-pin-help { display: block; margin-block-start: .35rem; color: #64748b; font-size: .76rem; font-weight: 650; }
+.parent-approval-pin-error { margin-block-start: .55rem; padding: .6rem .75rem; border-radius: .75rem; background: #fff0ed; color: #9f2219; font-size: .8rem; font-weight: 800; line-height: 1.5; }
+
+.parent-pin-validation-dialog { width: min(calc(100% - 1.5rem), 25rem); margin: auto; padding: 1.25rem; border: 0; border-radius: 1.4rem; background: #fffdf8; color: #10231e; text-align: center; box-shadow: 0 24px 70px rgb(6 34 27 / 30%); }
+.parent-pin-validation-dialog::backdrop { background: rgb(6 34 27 / 52%); backdrop-filter: blur(4px); }
+.parent-pin-validation-close { display: grid; width: 2.75rem; height: 2.75rem; margin-inline-start: auto; place-items: center; border-radius: 999px; background: #ffe3d6; color: #a63f1f; }
+.parent-pin-validation-close svg { width: 1.2rem; height: 1.2rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.parent-pin-validation-icon { display: grid; width: 3.3rem; height: 3.3rem; margin: -.35rem auto .75rem; place-items: center; border-radius: 999px; background: #fff0c9; color: #93620d; font-size: 1.55rem; font-weight: 900; }
+.parent-pin-validation-dialog h2 { font-size: 1.15rem; font-weight: 900; line-height: 1.5; }
+.parent-pin-validation-dialog p { margin-block-start: .4rem; color: #52645f; font-weight: 700; line-height: 1.7; }
+.parent-pin-validation-ok { width: 100%; min-height: 3rem; margin-block-start: 1rem; border-radius: .9rem; background: #0b4938; color: #fff; font-weight: 900; }
+.parent-pin-validation-close:focus-visible, .parent-pin-validation-ok:focus-visible { outline: 3px solid #17805e; outline-offset: 2px; }
+
+.parent-approval-empty { padding: clamp(2rem, 8vw, 4rem) 1rem; text-align: center; }
+.parent-approval-empty svg { width: 3.5rem; height: 3.5rem; margin-inline: auto; padding: .8rem; border-radius: 999px; background: #e2f1ea; color: #0b4938; }
+.parent-approval-empty h2 { margin-block-start: .8rem; color: #10231e; font-size: 1.15rem; font-weight: 900; }
+.parent-approval-empty p { margin-block-start: .35rem; color: #64748b; font-weight: 650; }
+
+@media (max-width: 39.999rem) {
+  .parent-approval-page { width: calc(100% - .7rem); margin-inline: auto; padding: .85rem .35rem 6rem; }
+  .parent-approval-header { align-items: flex-start; padding-inline: .4rem; }
+  .parent-approval-header-icon { flex-basis: 3rem; width: 3rem; height: 3rem; }
+  .parent-approval-days { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; }
+  .parent-approval-day-open { gap: .6rem; min-height: 9.5rem; padding: .75rem; }
+  .parent-approval-day-date { padding-inline: .5rem; font-size: .78rem; }
+  .parent-approval-dialog { padding: .9rem; }
+  .parent-approval-remove span { display: none; }
+}
+
+@media (min-width: 40rem) and (max-width: 63.999rem) {
+  .parent-approval-days { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .activity-saved-popup { transition: none; }
+}
+
 .ramadan-days-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

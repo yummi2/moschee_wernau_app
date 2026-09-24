@@ -50,7 +50,7 @@
       }
     } catch (_) {}
   </script>
-  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260922-278">  <style>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260924-284">  <style>
   .act-grid{
     display: grid;
     gap: 12px;
@@ -130,6 +130,13 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h6"/></svg>
         <span data-app-ar="الواجبات" data-app-de="Hausaufgaben">الواجبات</span>
       </a>
+
+      {% if not user.is_staff and not user|is_teacher_account %}
+      <a href="{% url 'parent_point_approvals' %}" class="app-nav-link app-mobile-top {% if request.resolver_match.url_name == 'parent_point_approvals' %}is-active{% endif %}">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11.5 11 14l4.5-5M12 3l7 3v5c0 4.6-2.9 8.1-7 10-4.1-1.9-7-5.4-7-10V6l7-3Z"/></svg>
+        <span data-app-ar="تأكيد الوالدين" data-app-de="Elternbestätigung">تأكيد الوالدين</span>
+      </a>
+      {% endif %}
 
       <a href="{% url 'library' %}" class="app-nav-link app-mobile-top {% if request.resolver_match.url_name == 'library' %}is-active{% endif %}">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11v16H6.5A2.5 2.5 0 0 0 4 21.5v-16ZM20 5.5A2.5 2.5 0 0 0 17.5 3H13v16h4.5a2.5 2.5 0 0 1 2.5 2.5v-16Z"/></svg>
@@ -321,6 +328,41 @@
 
     {% block content %}{% endblock %}
   </main>
+
+  <dialog class="activity-saved-popup" data-activity-saved-popup aria-labelledby="activity-saved-title">
+    <div>
+      <button type="button" class="activity-saved-popup-close" data-activity-saved-close aria-label="إغلاق / Schließen">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+      </button>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>
+      <strong id="activity-saved-title" data-app-ar="تم حفظ تغييراتك" data-app-de="Deine Änderungen wurden gespeichert">تم حفظ تغييراتك</strong>
+      <p data-app-ar="النقاط بانتظار تأكيد الوالدين" data-app-de="Die Punkte warten auf die Bestätigung der Eltern.">النقاط بانتظار تأكيد الوالدين</p>
+    </div>
+  </dialog>
+
+  <script>
+    (() => {
+      const popup = document.querySelector("[data-activity-saved-popup]");
+      const closeButton = popup?.querySelector("[data-activity-saved-close]");
+      window.showActivitySavedPopup = () => {
+        if (!popup) return;
+        if (!popup.open) popup.showModal();
+        requestAnimationFrame(() => popup.classList.add("is-visible"));
+      };
+      closeButton?.addEventListener("click", () => {
+        popup.classList.remove("is-visible");
+        window.setTimeout(() => popup.close(), 180);
+      });
+      popup?.addEventListener("close", () => popup.classList.remove("is-visible"));
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("activity_saved") === "1") {
+        window.showActivitySavedPopup();
+        params.delete("activity_saved");
+        const cleanQuery = params.toString();
+        history.replaceState(history.state, "", `${location.pathname}${cleanQuery ? `?${cleanQuery}` : ""}${location.hash}`);
+      }
+    })();
+  </script>
 
   <script>
     (() => {

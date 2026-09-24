@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ClassRoom, Assignment, Absence, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStatus, RamadanItemDone, QuizScore, Profile, TeacherPointAward, LiveCompetition, LiveCompetitionQuestion, LiveCompetitionGame, LiveCompetitionParticipant, LiveCompetitionAnswer, DailyQuranReading
+from .models import ClassRoom, Assignment, Absence, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStatus, RamadanItemDone, QuizScore, Profile, TeacherPointAward, LiveCompetition, LiveCompetitionQuestion, LiveCompetitionGame, LiveCompetitionParticipant, LiveCompetitionAnswer, DailyQuranReading, StudentPointActivity
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from .views import STORIES
@@ -188,6 +188,14 @@ class TeacherPointAwardAdmin(admin.ModelAdmin):
     list_filter = ("teacher", "created_at")
     search_fields = ("student__username", "student__first_name", "student__last_name", "reason")
     readonly_fields = ("created_at",)
+
+
+@admin.register(StudentPointActivity)
+class StudentPointActivityAdmin(admin.ModelAdmin):
+    list_display = ("student", "category", "activity_date", "status", "expires_at")
+    list_filter = ("category", "status", "activity_date")
+    search_fields = ("student__username", "student__first_name", "student__last_name", "label_ar", "label_de")
+    readonly_fields = ("student", "category", "source_key", "activity_date", "label_ar", "label_de", "created_at", "expires_at", "confirmed_at")
 
 
 class LiveCompetitionQuestionInline(admin.StackedInline):

@@ -94,6 +94,50 @@ class TeacherPointAward(models.Model):
         return f"{self.student}: +{self.points} ({self.teacher})"
 
 
+class StudentPointActivity(models.Model):
+    CATEGORY_CHOICES = [
+        ("assignment", "Hausaufgabe"),
+        ("prayer", "Gebetstag"),
+        ("ramadan", "Ramadan-Tag"),
+        ("library", "Bibliothek"),
+        ("quran", "Koranlesung"),
+    ]
+    STATUS_CHOICES = [
+        ("pending", "Wartet auf Eltern"),
+        ("confirmed", "Bestätigt"),
+        ("rejected", "Entfernt"),
+        ("expired", "Abgelaufen"),
+    ]
+
+    student = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="point_activities"
+    )
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
+    source_key = models.CharField(max_length=100)
+    activity_date = models.DateField()
+    label_ar = models.CharField(max_length=300)
+    label_de = models.CharField(max_length=300)
+    status = models.CharField(max_length=12, choices=STATUS_CHOICES, default="pending")
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    confirmed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ("-activity_date", "-created_at", "-id")
+        constraints = [
+            models.UniqueConstraint(
+                fields=("student", "category", "source_key"),
+                name="unique_student_point_activity",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=("student", "status", "activity_date")),
+        ]
+
+    def __str__(self):
+        return f"{self.student} – {self.category}:{self.source_key} ({self.status})"
+
+
 class LiveCompetition(models.Model):
     title = models.CharField(max_length=180)
     is_active = models.BooleanField(default=True)

@@ -3,7 +3,7 @@ import datetime as dt
 from django.contrib.auth.models import User
 from django.db.models import Count, Q, Sum
 
-from .models import AssignmentCompletion, PrayerStatus, RamadanItemDone, StoryRead, TeacherPointAward, DailyQuranReading
+from .models import AssignmentCompletion, PrayerStatus, RamadanItemDone, StoryRead, TeacherPointAward, DailyQuranReading, StudentPointActivity
 from .ramadan_data import RAMADAN_ITEMS_ORDER
 
 
@@ -97,6 +97,31 @@ def point_balances(users=None):
         .annotate(total=Sum("points"))
     ):
         balances[row["student_id"]]["teacher_points"] = row["total"] or 0
+
+    # Existing source records without a review entry are legacy points and stay valid.
+    # Reviewed activities replace their legacy/source point and only confirmed ones count.
+    category_keys = {
+        "assignment": "assignment_points",
+        "prayer": "prayer_points",
+        "ramadan": "ramadan_points",
+        "library": "story_points",
+        "quran": "quran_points",
+    }
+    reviewed_rows = (
+        StudentPointActivity.objects.filter(student_id__in=user_ids)
+        .values("student_id", "category")
+        .annotate(
+            total=Count("id"),
+            confirmed=Count("id", filter=Q(status="confirmed")),
+        )
+    )
+    for row in reviewed_rows:
+        balance_key = category_keys.get(row["category"])
+        if balance_key:
+            balances[row["student_id"]][balance_key] = max(
+                0,
+                balances[row["student_id"]][balance_key] - row["total"],
+            ) + row["confirmed"]
 
     for balance in balances.values():
         balance["total_points"] = sum(

@@ -411,7 +411,8 @@
                     if (!response.ok || !result.ok) throw new Error("Request failed");
                     currentBookRead = true;
                     showCompletedState();
-                    feedback.textContent = translated("تم تسجيل قراءة الكتاب وإضافة نقطة.", "Das Buch wurde als gelesen markiert und der Punkt gespeichert.");
+                    feedback.textContent = translated("تم حفظ قراءة الكتاب.", "Das Buch wurde als gelesen gespeichert.");
+                    if (result.activity_saved) window.showActivitySavedPopup?.();
                 } catch (error) {
                     doneButton.disabled = false;
                     feedback.textContent = translated("تعذر حفظ القراءة. حاول مرة أخرى.", "Das Speichern ist fehlgeschlagen. Bitte versuche es erneut.");
@@ -523,10 +524,11 @@
                     feedback.className = "library-quiz-feedback is-success";
                     setTranslatedMessage(
                         feedback,
-                        "جميع الإجابات صحيحة. تم حفظ النقطة.",
-                        "Alle fünf Antworten sind richtig. Der Punkt wurde gespeichert"
+                        "جميع الإجابات صحيحة. تم حفظ القراءة بانتظار تأكيد الوالدين.",
+                        "Alle fünf Antworten sind richtig. Die Lesung wartet auf die Bestätigung der Eltern."
                     );
                     showCompletedState();
+                    if (result.activity_saved) window.showActivitySavedPopup?.();
                     openButton.hidden = false;
                     form.querySelectorAll("fieldset, button[type='submit']").forEach((element) => element.hidden = true);
                 } catch (error) {
@@ -576,6 +578,8 @@
                     if (!res.ok || !data.ok) {
                         throw new Error((data && (data.error || data.detail)) || "Request failed");
                     }
+
+                    if (data.activity_saved) window.showActivitySavedPopup?.();
 
                     btn.replaceChildren();
                     const checkIcon = document.createElementNS("http://www.w3.org/2000/svg", "svg");

@@ -165,6 +165,8 @@ function playSuccessAnimation(onComplete) {
       const data = await res.json();
       if (!res.ok || !data.ok) throw new Error("Request failed");
 
+      if (data.activity_saved) window.showActivitySavedPopup?.();
+
       btn.textContent = "✓";
       btn.classList.add("is-complete");
       btn.setAttribute("aria-pressed", "true");

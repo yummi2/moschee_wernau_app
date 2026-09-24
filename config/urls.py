@@ -32,6 +32,7 @@ urlpatterns = [
     path('about/', views.about, name='about'),
     path('admin-statistics/', views.admin_statistics, name='admin_statistics'),
     path('points/award/', views.award_student_points, name='award_student_points'),
+    path('points/elternbestaetigung/', views.parent_point_approvals, name='parent_point_approvals'),
     path('quran/daily/complete/', views.complete_daily_quran, name='complete_daily_quran'),
     path('live-wettbewerb/', views.live_competition_setup, name='live_competition_setup'),
     path('live-wettbewerb/start/', views.live_competition_start, name='live_competition_start'),

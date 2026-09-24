@@ -406,6 +406,8 @@
                                     const data = await response.json();
                                     if (!response.ok || !data.ok) throw new Error("Request failed");
 
+                                    if (data.activity_saved) window.showActivitySavedPopup?.();
+
                                     document.querySelectorAll(`.assignment-done-button[data-assignment-id="${assignmentId}"]`).forEach((matchingButton) => {
                                         matchingButton.disabled = true;
                                         matchingButton.classList.add("is-complete");
@@ -781,6 +783,8 @@
 
                             const data = await resp.json();
                             if (!data.ok) return;
+
+                        if (data.activity_saved) window.showActivitySavedPopup?.();
 
                         if (data.prayed) {
                             btn.classList.remove("is-open");

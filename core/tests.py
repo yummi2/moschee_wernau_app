@@ -1,4 +1,5 @@
 import datetime as dt
+import json
 
 from django.contrib.auth import get_user_model
 from django.core import mail
@@ -14,6 +15,7 @@ from .models import (
     AssignmentCompletion,
     AssignmentReminderDelivery,
     ClassRoom,
+    Profile,
     PrayerStatus,
     RamadanItemDone,
     StoryRead,
@@ -23,6 +25,7 @@ from .models import (
     LiveCompetitionGame,
     LiveCompetitionAnswer,
     DailyQuranReading,
+    StudentPointActivity,
 )
 from .points import point_balance
 from .ramadan_data import RAMADAN_ITEMS_ORDER
@@ -175,16 +178,17 @@ class DailyQuranReadingTests(TestCase):
     def test_daily_reading_awards_one_point_only_once(self):
         self.client.force_login(self.student)
         response = self.client.post(reverse("complete_daily_quran"))
-        self.assertRedirects(response, f"{reverse('home')}?tab=home")
+        self.assertRedirects(response, f"{reverse('home')}?tab=home&activity_saved=1")
         self.assertEqual(DailyQuranReading.objects.count(), 1)
         reading = DailyQuranReading.objects.get()
         self.assertEqual(reading.portion_index, 1)
-        self.assertEqual(point_balance(self.student)["quran_points"], 1)
-        self.assertEqual(point_balance(self.student)["total_points"], 1)
+        self.assertEqual(point_balance(self.student)["quran_points"], 0)
+        self.assertEqual(point_balance(self.student)["total_points"], 0)
+        self.assertEqual(StudentPointActivity.objects.get().status, "pending")
 
         self.client.post(reverse("complete_daily_quran"))
         self.assertEqual(DailyQuranReading.objects.count(), 1)
-        self.assertEqual(point_balance(self.student)["quran_points"], 1)
+        self.assertEqual(point_balance(self.student)["quran_points"], 0)
 
     def test_unfinished_days_do_not_advance_the_half_page(self):
         DailyQuranReading.objects.create(
@@ -261,6 +265,7 @@ class StudentPointsTests(TestCase):
         self.assertEqual(balance["story_points"], 1)
         self.assertEqual(balance["teacher_points"], 4)
         self.assertEqual(balance["total_points"], 8)
+
 
     def test_completed_ramadan_2026_days_do_not_give_points(self):
         for item_key in RAMADAN_ITEMS_ORDER:
@@ -425,6 +430,174 @@ class StudentPointsTests(TestCase):
         self.assertContains(teacher_response, "Top 10 der Moschee")
 
 
+@override_settings(PARENT_APPROVAL_PIN="1717")
+class ParentPointApprovalTests(TestCase):
+    def setUp(self):
+        self.student = get_user_model().objects.create_user("approval-student", password="x")
+        self.teacher = get_user_model().objects.create_user("approval-teacher", password="x")
+        Profile.objects.create(user=self.teacher, is_teacher=True)
+        self.classroom = ClassRoom.objects.create(name="Bestätigungsklasse")
+        self.classroom.students.add(self.student)
+        self.classroom.teachers.add(self.teacher)
+        self.assignment = Assignment.objects.create(
+            classroom=self.classroom,
+            title="Eltern prüfen diese Aufgabe",
+            created_by=self.teacher,
+        )
+
+    def complete_assignment(self):
+        self.client.force_login(self.student)
+        return self.client.post(
+            reverse("mark_assignment_done"),
+            data='{"assignment_id": %d}' % self.assignment.pk,
+            content_type="application/json",
+        )
+
+    def test_new_activity_waits_for_parent_and_confirmation_awards_point(self):
+        response = self.complete_assignment()
+        self.assertTrue(response.json()["activity_saved"])
+        activity = StudentPointActivity.objects.get(student=self.student)
+        self.assertEqual(activity.status, "pending")
+        self.assertEqual(point_balance(self.student)["assignment_points"], 0)
+
+        page = self.client.get(reverse("parent_point_approvals"))
+        self.assertContains(page, "Eltern prüfen diese Aufgabe")
+        self.client.post(reverse("parent_point_approvals"), {
+            "action": "confirm_day",
+            "date": activity.activity_date.isoformat(),
+            "pin": "1717",
+        })
+
+        activity.refresh_from_db()
+        self.assertEqual(activity.status, "confirmed")
+        self.assertEqual(point_balance(self.student)["assignment_points"], 1)
+        self.assertNotContains(self.client.get(reverse("parent_point_approvals")), "Eltern prüfen diese Aufgabe")
+
+    def test_parent_can_remove_one_activity_without_awarding_point(self):
+        self.complete_assignment()
+        activity = StudentPointActivity.objects.get(student=self.student)
+        self.client.post(reverse("parent_point_approvals"), {
+            "action": "remove_item",
+            "activity_id": activity.pk,
+        })
+        activity.refresh_from_db()
+        self.assertEqual(activity.status, "rejected")
+        self.assertFalse(AssignmentCompletion.objects.filter(
+            user=self.student, assignment=self.assignment,
+        ).exists())
+        self.assertEqual(point_balance(self.student)["assignment_points"], 0)
+
+        response = self.complete_assignment()
+        self.assertTrue(response.json()["activity_saved"])
+        activity.refresh_from_db()
+        self.assertEqual(activity.status, "pending")
+
+    def test_pending_card_expires_after_seven_days(self):
+        self.complete_assignment()
+        activity = StudentPointActivity.objects.get(student=self.student)
+        StudentPointActivity.objects.filter(pk=activity.pk).update(
+            expires_at=timezone.now() - dt.timedelta(seconds=1),
+        )
+        response = self.client.get(reverse("parent_point_approvals"))
+        activity.refresh_from_db()
+        self.assertEqual(activity.status, "expired")
+        self.assertFalse(AssignmentCompletion.objects.filter(
+            user=self.student, assignment=self.assignment,
+        ).exists())
+        self.assertNotContains(response, "Eltern prüfen diese Aufgabe")
+        self.assertEqual(point_balance(self.student)["assignment_points"], 0)
+
+    def test_wrong_parent_pin_keeps_activity_pending(self):
+        self.complete_assignment()
+        activity = StudentPointActivity.objects.get(student=self.student)
+        response = self.client.post(reverse("parent_point_approvals"), {
+            "action": "confirm_day",
+            "date": activity.activity_date.isoformat(),
+            "pin": "9999",
+        }, follow=True)
+        activity.refresh_from_db()
+        self.assertEqual(activity.status, "pending")
+        self.assertEqual(point_balance(self.student)["assignment_points"], 0)
+        self.assertContains(response, "Die PIN ist falsch")
+
+    def test_teacher_cannot_open_parent_approval_page(self):
+        self.client.force_login(self.teacher)
+        self.assertEqual(self.client.get(reverse("parent_point_approvals")).status_code, 403)
+
+    def test_prayer_library_and_ramadan_create_pending_parent_items(self):
+        self.client.force_login(self.student)
+        today = timezone.localdate()
+        for prayer in range(1, 6):
+            prayer_response = self.client.post(
+                reverse("toggle_prayer"),
+                data=json.dumps({"prayer": prayer, "date": today.isoformat()}),
+                content_type="application/json",
+            )
+        self.assertTrue(prayer_response.json()["activity_saved"])
+
+        story_response = self.client.post(
+            reverse("mark_story_read"),
+            data='{"level":"beginner","sid":"1"}',
+            content_type="application/json",
+        )
+        self.assertTrue(story_response.json()["activity_saved"])
+
+        get_user_model().objects.filter(pk=self.student.pk).update(
+            date_joined=timezone.make_aware(dt.datetime(2026, 8, 1, 12, 0)),
+        )
+        self.student.refresh_from_db()
+        session = self.client.session
+        session["school_year"] = "2026"
+        session.save()
+        for item_key in RAMADAN_ITEMS_ORDER:
+            ramadan_response = self.client.post(
+                reverse("mark_ramadan_item_done"),
+                data=json.dumps({"day": 1, "item_key": item_key}),
+                content_type="application/json",
+            )
+        self.assertTrue(ramadan_response.json()["activity_saved"])
+
+        self.assertEqual(
+            set(StudentPointActivity.objects.values_list("category", flat=True)),
+            {"prayer", "library", "ramadan"},
+        )
+        balance = point_balance(self.student)
+        self.assertEqual(balance["prayer_points"], 0)
+        self.assertEqual(balance["story_points"], 0)
+        self.assertEqual(balance["ramadan_points"], 0)
+
+        for activity in list(StudentPointActivity.objects.all()):
+            self.client.post(reverse("parent_point_approvals"), {
+                "action": "remove_item",
+                "activity_id": activity.pk,
+            })
+        self.assertFalse(PrayerStatus.objects.filter(user=self.student, date=today).exists())
+        self.assertFalse(StoryRead.objects.filter(user=self.student, level="beginner", sid="1").exists())
+        self.assertFalse(RamadanItemDone.objects.filter(user=self.student, school_year="2026", day=1).exists())
+
+    def test_removing_quran_activity_makes_reading_available_again(self):
+        self.client.force_login(self.student)
+        reading = DailyQuranReading.objects.create(
+            student=self.student,
+            portion_index=1,
+            completed_on=timezone.localdate(),
+        )
+        activity = StudentPointActivity.objects.create(
+            student=self.student,
+            category="quran",
+            source_key=str(reading.pk),
+            activity_date=reading.completed_on,
+            label_ar="ورد القرآن",
+            label_de="Koranlesung",
+            expires_at=timezone.now() + dt.timedelta(days=7),
+        )
+        self.client.post(reverse("parent_point_approvals"), {
+            "action": "remove_item",
+            "activity_id": activity.pk,
+        })
+        self.assertFalse(DailyQuranReading.objects.filter(pk=reading.pk).exists())
+
+
 class SchoolYearAccessTests(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
@@ -504,7 +677,7 @@ class LibraryTranslationTests(TestCase):
         self.assertTrue(first.json()["created"])
         self.assertFalse(second.json()["created"])
         self.assertEqual(StoryRead.objects.filter(user=student, level="books").count(), 1)
-        self.assertEqual(point_balance(student)["story_points"], 1)
+        self.assertEqual(point_balance(student)["story_points"], 0)
 
     def test_unknown_book_cannot_create_a_point(self):
         student = get_user_model().objects.create_user("invalid-book-reader", password="x")
@@ -588,7 +761,7 @@ class LibraryTranslationTests(TestCase):
         self.assertTrue(passed.json()["created"])
         self.assertFalse(repeated.json()["created"])
         self.assertEqual(StoryRead.objects.filter(user=student, level="advanced", sid="10").count(), 1)
-        self.assertEqual(point_balance(student)["story_points"], 1)
+        self.assertEqual(point_balance(student)["story_points"], 0)
 
     def test_quiz_story_cannot_be_completed_through_normal_read_endpoint(self):
         student = get_user_model().objects.create_user("quiz-bypass-reader", password="x")
@@ -642,7 +815,7 @@ class LibraryTranslationTests(TestCase):
         self.assertTrue(passed.json()["created"])
         self.assertFalse(repeated.json()["created"])
         self.assertEqual(StoryRead.objects.filter(user=student, level="advanced", sid="11").count(), 1)
-        self.assertEqual(point_balance(student)["story_points"], 1)
+        self.assertEqual(point_balance(student)["story_points"], 0)
 
     def test_yunus_story_has_bilingual_quiz_and_arabic_content(self):
         student = get_user_model().objects.create_user("yunus-reader", password="x")
@@ -683,7 +856,7 @@ class LibraryTranslationTests(TestCase):
         self.assertTrue(passed.json()["created"])
         self.assertFalse(repeated.json()["created"])
         self.assertEqual(StoryRead.objects.filter(user=student, level="advanced", sid="12").count(), 1)
-        self.assertEqual(point_balance(student)["story_points"], 1)
+        self.assertEqual(point_balance(student)["story_points"], 0)
 
     def test_yusuf_story_has_bilingual_quiz_and_arabic_content(self):
         student = get_user_model().objects.create_user("yusuf-reader", password="x")
@@ -728,7 +901,7 @@ class LibraryTranslationTests(TestCase):
         self.assertTrue(passed.json()["created"])
         self.assertFalse(repeated.json()["created"])
         self.assertEqual(StoryRead.objects.filter(user=student, level="advanced", sid="13").count(), 1)
-        self.assertEqual(point_balance(student)["story_points"], 1)
+        self.assertEqual(point_balance(student)["story_points"], 0)
 
     def test_maryam_story_has_bilingual_quiz_and_arabic_content(self):
         student = get_user_model().objects.create_user("maryam-reader", password="x")
@@ -778,7 +951,7 @@ class LibraryTranslationTests(TestCase):
         self.assertTrue(passed.json()["created"])
         self.assertFalse(repeated.json()["created"])
         self.assertEqual(StoryRead.objects.filter(user=student, level="advanced", sid="14").count(), 1)
-        self.assertEqual(point_balance(student)["story_points"], 1)
+        self.assertEqual(point_balance(student)["story_points"], 0)
 
 
 class AdminStatisticsTests(TestCase):
