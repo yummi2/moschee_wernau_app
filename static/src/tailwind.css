@@ -3175,8 +3175,8 @@ body.library-quiz-notice-open { overflow: hidden; }
   height: 2.75rem;
   place-items: center;
   border-radius: 999px;
-  background: #ffe3d6;
-  color: #a63f1f;
+  background: #17805e;
+  color: #fff;
 }
 
 html:not(.app-language-german) .activity-saved-popup-close { left: .75rem; right: auto; }
@@ -3345,9 +3345,11 @@ html.app-language-german .activity-saved-popup-close { right: .75rem; left: auto
 .parent-approval-pin-help { display: block; margin-block-start: .35rem; color: #64748b; font-size: .76rem; font-weight: 650; }
 .parent-approval-pin-error { margin-block-start: .55rem; padding: .6rem .75rem; border-radius: .75rem; background: #fff0ed; color: #9f2219; font-size: .8rem; font-weight: 800; line-height: 1.5; }
 
-.parent-pin-validation-dialog { width: min(calc(100% - 1.5rem), 25rem); margin: auto; padding: 1.25rem; border: 0; border-radius: 1.4rem; background: #fffdf8; color: #10231e; text-align: center; box-shadow: 0 24px 70px rgb(6 34 27 / 30%); }
+.parent-pin-validation-dialog { position: relative; width: min(calc(100% - 1.5rem), 25rem); margin: auto; padding: 1.25rem; border: 0; border-radius: 1.4rem; background: #fffdf8; color: #10231e; text-align: center; box-shadow: 0 24px 70px rgb(6 34 27 / 30%); }
 .parent-pin-validation-dialog::backdrop { background: rgb(6 34 27 / 52%); backdrop-filter: blur(4px); }
-.parent-pin-validation-close { display: grid; width: 2.75rem; height: 2.75rem; margin-inline-start: auto; place-items: center; border-radius: 999px; background: #ffe3d6; color: #a63f1f; }
+.parent-pin-validation-close { position: absolute; inset-block-start: .75rem; display: grid; width: 2.75rem; height: 2.75rem; place-items: center; border-radius: 999px; background: #17805e; color: #fff; }
+html:not(.app-language-german) .parent-pin-validation-close { left: .75rem; right: auto; }
+html.app-language-german .parent-pin-validation-close { right: .75rem; left: auto; }
 .parent-pin-validation-close svg { width: 1.2rem; height: 1.2rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
 .parent-pin-validation-icon { display: grid; width: 3.3rem; height: 3.3rem; margin: -.35rem auto .75rem; place-items: center; border-radius: 999px; background: #fff0c9; color: #93620d; font-size: 1.55rem; font-weight: 900; }
 .parent-pin-validation-dialog h2 { font-size: 1.15rem; font-weight: 900; line-height: 1.5; }
@@ -3355,7 +3357,7 @@ html.app-language-german .activity-saved-popup-close { right: .75rem; left: auto
 .parent-pin-validation-ok { width: 100%; min-height: 3rem; margin-block-start: 1rem; border-radius: .9rem; background: #0b4938; color: #fff; font-weight: 900; }
 .parent-pin-validation-close:focus-visible, .parent-pin-validation-ok:focus-visible { outline: 3px solid #17805e; outline-offset: 2px; }
 
-.parent-approval-empty { padding: clamp(2rem, 8vw, 4rem) 1rem; text-align: center; }
+.parent-approval-empty { grid-column: 1 / -1; width: 100%; padding: clamp(2rem, 8vw, 4rem) 1rem; text-align: center; }
 .parent-approval-empty svg { width: 3.5rem; height: 3.5rem; margin-inline: auto; padding: .8rem; border-radius: 999px; background: #e2f1ea; color: #0b4938; }
 .parent-approval-empty h2 { margin-block-start: .8rem; color: #10231e; font-size: 1.15rem; font-weight: 900; }
 .parent-approval-empty p { margin-block-start: .35rem; color: #64748b; font-weight: 650; }

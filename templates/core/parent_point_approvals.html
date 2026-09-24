@@ -55,6 +55,7 @@
               {% csrf_token %}
               <input type="hidden" name="action" value="remove_item">
               <input type="hidden" name="activity_id" value="{{ activity.pk }}">
+              <input type="hidden" name="ui_language" value="ar" data-parent-ui-language>
               <button type="submit" class="parent-approval-remove" aria-label="حذف / Entfernen">
                 <svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></svg>
                 <span data-app-ar="حذف" data-app-de="Entfernen">حذف</span>
@@ -67,6 +68,7 @@
           {% csrf_token %}
           <input type="hidden" name="action" value="confirm_day">
           <input type="hidden" name="date" value="{{ day.date|date:'Y-m-d' }}">
+          <input type="hidden" name="ui_language" value="ar" data-parent-ui-language>
           <label class="parent-approval-pin-label" for="parent-pin-{{ forloop.counter }}"
                  data-app-ar="الرقم السري للوالدين" data-app-de="Eltern-PIN">الرقم السري للوالدين</label>
           <input id="parent-pin-{{ forloop.counter }}" class="parent-approval-pin"
@@ -124,6 +126,12 @@
         event.preventDefault();
         invalidPinInput = pinInput;
         if (pinValidationDialog && !pinValidationDialog.open) pinValidationDialog.showModal();
+      });
+    });
+    document.querySelectorAll("[data-parent-ui-language]").forEach((languageInput) => {
+      languageInput.form?.addEventListener("submit", () => {
+        languageInput.value =
+          localStorage.getItem("registrationLanguage") === "de" ? "de" : "ar";
       });
     });
     pinValidationDialog?.querySelector("[data-parent-pin-validation-close]")?.addEventListener("click", closePinValidation);

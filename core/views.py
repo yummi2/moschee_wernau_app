@@ -1031,7 +1031,10 @@ def parent_point_approvals(request):
                 status="pending",
                 expires_at__gt=timezone.now(),
             ).update(status="confirmed", confirmed_at=timezone.now())
-            messages.success(request, "تم تأكيد الأنشطة وإضافة النقاط. / Die Aktivitäten wurden bestätigt und die Punkte gutgeschrieben.")
+            if request.POST.get("ui_language") == "de":
+                messages.success(request, "Die Aktivitäten wurden bestätigt und die Punkte gutgeschrieben.")
+            else:
+                messages.success(request, "تم تأكيد الأنشطة وإضافة النقاط.")
         elif action == "remove_item":
             try:
                 activity_id = int(request.POST.get("activity_id", ""))
@@ -1047,7 +1050,10 @@ def parent_point_approvals(request):
                 rollback_point_activity(activity)
                 activity.status = "rejected"
                 activity.save(update_fields=("status",))
-            messages.success(request, "تم حذف النشاط. / Die Aktivität wurde entfernt.")
+            if request.POST.get("ui_language") == "de":
+                messages.success(request, "Die Aktivität wurde entfernt.")
+            else:
+                messages.success(request, "تم حذف النشاط.")
         else:
             return HttpResponseBadRequest("Unknown action")
         return redirect("parent_point_approvals")

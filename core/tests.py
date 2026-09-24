@@ -466,26 +466,33 @@ class ParentPointApprovalTests(TestCase):
             "action": "confirm_day",
             "date": activity.activity_date.isoformat(),
             "pin": "1717",
+            "ui_language": "de",
         })
 
         activity.refresh_from_db()
         self.assertEqual(activity.status, "confirmed")
         self.assertEqual(point_balance(self.student)["assignment_points"], 1)
-        self.assertNotContains(self.client.get(reverse("parent_point_approvals")), "Eltern prüfen diese Aufgabe")
+        confirmed_page = self.client.get(reverse("parent_point_approvals"))
+        self.assertNotContains(confirmed_page, "Eltern prüfen diese Aufgabe")
+        self.assertContains(confirmed_page, "Die Aktivitäten wurden bestätigt und die Punkte gutgeschrieben.")
+        self.assertNotContains(confirmed_page, "تم تأكيد الأنشطة")
 
     def test_parent_can_remove_one_activity_without_awarding_point(self):
         self.complete_assignment()
         activity = StudentPointActivity.objects.get(student=self.student)
-        self.client.post(reverse("parent_point_approvals"), {
+        response = self.client.post(reverse("parent_point_approvals"), {
             "action": "remove_item",
             "activity_id": activity.pk,
-        })
+            "ui_language": "de",
+        }, follow=True)
         activity.refresh_from_db()
         self.assertEqual(activity.status, "rejected")
         self.assertFalse(AssignmentCompletion.objects.filter(
             user=self.student, assignment=self.assignment,
         ).exists())
         self.assertEqual(point_balance(self.student)["assignment_points"], 0)
+        self.assertContains(response, "Die Aktivität wurde entfernt.")
+        self.assertNotContains(response, "تم حذف النشاط")
 
         response = self.complete_assignment()
         self.assertTrue(response.json()["activity_saved"])
