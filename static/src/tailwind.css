@@ -3259,7 +3259,9 @@ html.app-language-german .activity-saved-popup-close { right: .75rem; left: auto
 .parent-approval-header p { color: #17805e; font-size: .78rem; font-weight: 900; }
 .parent-approval-header h1 { color: #10231e; font-size: clamp(1.55rem, 4vw, 2.2rem); font-weight: 900; line-height: 1.35; }
 .parent-approval-header div > span { color: #64748b; font-size: .85rem; font-weight: 650; line-height: 1.6; }
-.parent-pin-settings { display: flex; justify-content: flex-end; width: min(100%, 54rem); margin: .85rem auto 0; }
+.parent-pin-settings { display: flex; width: min(100%, 54rem); margin: .85rem auto 0; }
+html:not(.app-language-german) .parent-pin-settings { direction: rtl; justify-content: flex-start; }
+html.app-language-german .parent-pin-settings { direction: ltr; justify-content: flex-start; }
 .parent-pin-change-open { display: flex; align-items: center; gap: .45rem; min-height: 2.85rem; padding: .55rem .85rem; border: 1px solid rgb(23 128 94 / 24%); border-radius: .9rem; background: #e5f3ed; color: #0b4938; font-size: .8rem; font-weight: 900; }
 .parent-pin-change-open svg { width: 1.2rem; height: 1.2rem; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
 .parent-pin-change-open:focus-visible { outline: 3px solid #17805e; outline-offset: 2px; }

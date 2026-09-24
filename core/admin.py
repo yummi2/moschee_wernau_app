@@ -203,6 +203,16 @@ class ParentApprovalCredentialAdmin(admin.ModelAdmin):
     list_display = ("student", "updated_at")
     search_fields = ("student__username", "student__first_name", "student__last_name")
     readonly_fields = ("student", "pin_hash", "updated_at")
+    actions = ("reset_to_default_pin",)
+
+    @admin.action(description="Ausgewählte Eltern-PINs auf den Standard-PIN zurücksetzen")
+    def reset_to_default_pin(self, request, queryset):
+        reset_count = queryset.count()
+        queryset.delete()
+        self.message_user(
+            request,
+            f"{reset_count} Eltern-PIN(s) wurden auf den Standard-PIN zurückgesetzt.",
+        )
 
 
 class LiveCompetitionQuestionInline(admin.StackedInline):
