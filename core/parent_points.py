@@ -1,5 +1,8 @@
 import datetime as dt
 
+from django.conf import settings
+from django.contrib.auth.hashers import check_password, make_password
+from django.utils.crypto import constant_time_compare
 from django.utils import timezone
 from django.db import transaction
 
@@ -7,6 +10,7 @@ from .models import (
     AssignmentCompletion,
     DailyQuranReading,
     PrayerStatus,
+    ParentApprovalCredential,
     RamadanItemDone,
     StoryRead,
     StudentPointActivity,
@@ -14,6 +18,22 @@ from .models import (
 
 
 APPROVAL_WINDOW = dt.timedelta(days=7)
+
+
+def check_parent_pin(student, raw_pin):
+    try:
+        credential = student.parent_approval_credential
+    except ParentApprovalCredential.DoesNotExist:
+        configured_pin = str(settings.PARENT_APPROVAL_PIN).strip()
+        return constant_time_compare(str(raw_pin), configured_pin)
+    return check_password(str(raw_pin), credential.pin_hash)
+
+
+def set_parent_pin(student, raw_pin):
+    ParentApprovalCredential.objects.update_or_create(
+        student=student,
+        defaults={"pin_hash": make_password(str(raw_pin))},
+    )
 
 
 def queue_point_activity(*, student, category, source_key, activity_date, label_ar, label_de):

@@ -15,6 +15,13 @@
     </div>
   </header>
 
+  <div class="parent-pin-settings">
+    <button type="button" class="parent-pin-change-open" data-parent-pin-change-open>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 7a4 4 0 1 1-7.5 2H3v4h3v3h3v-3h2.5A4 4 0 0 1 15 7Z"/></svg>
+      <span data-app-ar="تغيير الرقم السري للوالدين" data-app-de="Eltern-PIN ändern">تغيير الرقم السري للوالدين</span>
+    </button>
+  </div>
+
   <div class="parent-approval-days">
     {% for day in approval_days %}
     <article class="parent-approval-day-card">
@@ -97,6 +104,39 @@
   </div>
 </section>
 
+<dialog class="parent-pin-change-dialog" data-parent-pin-change-dialog aria-labelledby="parent-pin-change-title">
+  <button type="button" class="parent-pin-change-close" data-parent-pin-change-close aria-label="إغلاق / Schließen">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+  </button>
+  <span class="parent-pin-change-icon" aria-hidden="true">
+    <svg viewBox="0 0 24 24"><path d="M15 7a4 4 0 1 1-7.5 2H3v4h3v3h3v-3h2.5A4 4 0 0 1 15 7Z"/></svg>
+  </span>
+  <h2 id="parent-pin-change-title" data-app-ar="تغيير الرقم السري" data-app-de="Eltern-PIN ändern">تغيير الرقم السري</h2>
+  <p data-app-ar="اختر رقمًا سريًا جديدًا مكوّنًا من أربعة أرقام."
+     data-app-de="Lege eine neue vierstellige Eltern-PIN fest.">اختر رقمًا سريًا جديدًا مكوّنًا من أربعة أرقام.</p>
+  {% if pin_change_error %}
+  <p class="parent-pin-change-error" role="alert"
+     {% if pin_change_error == 'current' %}data-app-ar="الرقم السري الحالي غير صحيح." data-app-de="Die bisherige PIN ist falsch."
+     {% elif pin_change_error == 'format' %}data-app-ar="يجب أن يتكوّن الرقم السري الجديد من أربعة أرقام." data-app-de="Die neue PIN muss genau vier Ziffern haben."
+     {% else %}data-app-ar="الرقمان السريان الجديدان غير متطابقين." data-app-de="Die beiden neuen PINs stimmen nicht überein."{% endif %}>
+     {% if pin_change_error == 'current' %}الرقم السري الحالي غير صحيح.{% elif pin_change_error == 'format' %}يجب أن يتكوّن الرقم السري الجديد من أربعة أرقام.{% else %}الرقمان السريان الجديدان غير متطابقين.{% endif %}
+  </p>
+  {% endif %}
+  <form method="post" class="parent-pin-change-form" novalidate>
+    {% csrf_token %}
+    <input type="hidden" name="action" value="change_pin">
+    <input type="hidden" name="ui_language" value="ar" data-parent-ui-language>
+    <p class="parent-pin-change-client-error" data-parent-pin-change-client-error role="alert" hidden></p>
+    <label for="current-parent-pin" data-app-ar="الرقم السري الحالي" data-app-de="Bisherige PIN">الرقم السري الحالي</label>
+    <input id="current-parent-pin" type="password" name="current_pin" inputmode="numeric" maxlength="4" autocomplete="current-password" required>
+    <label for="new-parent-pin" data-app-ar="الرقم السري الجديد" data-app-de="Neue PIN">الرقم السري الجديد</label>
+    <input id="new-parent-pin" type="password" name="new_pin" inputmode="numeric" maxlength="4" autocomplete="new-password" required>
+    <label for="repeat-parent-pin" data-app-ar="أعد إدخال الرقم السري الجديد" data-app-de="Neue PIN wiederholen">أعد إدخال الرقم السري الجديد</label>
+    <input id="repeat-parent-pin" type="password" name="repeat_pin" inputmode="numeric" maxlength="4" autocomplete="new-password" required>
+    <button type="submit" data-app-ar="حفظ الرقم السري الجديد" data-app-de="Neue PIN speichern">حفظ الرقم السري الجديد</button>
+  </form>
+</dialog>
+
 <dialog class="parent-pin-validation-dialog" data-parent-pin-validation aria-labelledby="parent-pin-validation-title">
   <button type="button" class="parent-pin-validation-close" data-parent-pin-validation-close aria-label="إغلاق / Schließen">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
@@ -113,6 +153,40 @@
 
 <script>
   (() => {
+    const pinChangeDialog = document.querySelector("[data-parent-pin-change-dialog]");
+    const pinChangeForm = pinChangeDialog?.querySelector(".parent-pin-change-form");
+    const pinChangeClientError = pinChangeDialog?.querySelector("[data-parent-pin-change-client-error]");
+    const showPinChangeError = (arabic, german, input) => {
+      if (!pinChangeClientError) return;
+      pinChangeClientError.dataset.appAr = arabic;
+      pinChangeClientError.dataset.appDe = german;
+      pinChangeClientError.textContent = localStorage.getItem("registrationLanguage") === "de" ? german : arabic;
+      pinChangeClientError.hidden = false;
+      input?.focus({ preventScroll: true });
+    };
+    pinChangeForm?.addEventListener("submit", (event) => {
+      const currentInput = pinChangeForm.elements.current_pin;
+      const newInput = pinChangeForm.elements.new_pin;
+      const repeatInput = pinChangeForm.elements.repeat_pin;
+      if (!/^[0-9]{4}$/.test(currentInput.value)) {
+        event.preventDefault();
+        showPinChangeError("يرجى إدخال الرقم السري الحالي المكوّن من أربعة أرقام.", "Bitte gib die bisherige vierstellige PIN vollständig ein.", currentInput);
+      } else if (!/^[0-9]{4}$/.test(newInput.value)) {
+        event.preventDefault();
+        showPinChangeError("يرجى إدخال رقم سري جديد مكوّن من أربعة أرقام.", "Bitte gib eine neue PIN mit genau vier Ziffern ein.", newInput);
+      } else if (newInput.value !== repeatInput.value) {
+        event.preventDefault();
+        showPinChangeError("الرقمان السريان الجديدان غير متطابقين.", "Die beiden neuen PINs stimmen nicht überein.", repeatInput);
+      }
+    });
+    pinChangeForm?.querySelectorAll("input[type='password']").forEach((input) => {
+      input.addEventListener("input", () => { if (pinChangeClientError) pinChangeClientError.hidden = true; });
+    });
+    document.querySelector("[data-parent-pin-change-open]")?.addEventListener("click", () => pinChangeDialog?.showModal());
+    pinChangeDialog?.querySelector("[data-parent-pin-change-close]")?.addEventListener("click", () => pinChangeDialog.close());
+    {% if pin_change_error %}
+    pinChangeDialog?.showModal();
+    {% endif %}
     const pinValidationDialog = document.querySelector("[data-parent-pin-validation]");
     let invalidPinInput = null;
     const closePinValidation = () => {

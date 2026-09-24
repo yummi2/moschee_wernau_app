@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Profile, Assignment, AssignmentCompletion, Absence, ClassRoom, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStatus, RamadanItemDone, QuizScore, TeacherPointAward, LiveCompetition, LiveCompetitionGame, LiveCompetitionParticipant, LiveCompetitionAnswer, DailyQuranReading, StudentPointActivity
 from .points import point_balances, student_users
-from .parent_points import expire_pending_activities, queue_point_activity, rollback_point_activity
+from .parent_points import check_parent_pin, expire_pending_activities, queue_point_activity, rollback_point_activity, set_parent_pin
 from .forms import ProfileForm
 from django.contrib import messages
 import calendar
@@ -1013,17 +1013,29 @@ def parent_point_approvals(request):
     expire_pending_activities(request.user)
     if request.method == "POST":
         action = request.POST.get("action")
-        if action == "confirm_day":
+        if action == "change_pin":
+            current_pin = request.POST.get("current_pin", "").strip()
+            new_pin = request.POST.get("new_pin", "").strip()
+            repeated_pin = request.POST.get("repeat_pin", "").strip()
+            language = "de" if request.POST.get("ui_language") == "de" else "ar"
+            if not check_parent_pin(request.user, current_pin):
+                return redirect(f"{reverse('parent_point_approvals')}?pin_change_error=current")
+            if not (new_pin.isdigit() and len(new_pin) == 4):
+                return redirect(f"{reverse('parent_point_approvals')}?pin_change_error=format")
+            if new_pin != repeated_pin:
+                return redirect(f"{reverse('parent_point_approvals')}?pin_change_error=mismatch")
+            set_parent_pin(request.user, new_pin)
+            messages.success(
+                request,
+                "Der Eltern-PIN wurde geändert." if language == "de" else "تم تغيير الرقم السري للوالدين.",
+            )
+        elif action == "confirm_day":
             try:
                 activity_date = dt.date.fromisoformat(request.POST.get("date", ""))
             except ValueError:
                 return HttpResponseBadRequest("Invalid date")
             entered_pin = request.POST.get("pin", "").strip()
-            configured_pin = str(settings.PARENT_APPROVAL_PIN).strip()
-            if not (configured_pin.isdigit() and len(configured_pin) == 4):
-                logger.error("PARENT_APPROVAL_PIN must contain exactly four digits.")
-                return HttpResponseForbidden("Parent PIN is not configured correctly.")
-            if entered_pin != configured_pin:
+            if not check_parent_pin(request.user, entered_pin):
                 return redirect(f"{reverse('parent_point_approvals')}?pin_error={activity_date.isoformat()}")
             StudentPointActivity.objects.filter(
                 student=request.user,
@@ -1073,6 +1085,7 @@ def parent_point_approvals(request):
     return render(request, "core/parent_point_approvals.html", {
         "approval_days": days,
         "pin_error_date": request.GET.get("pin_error", ""),
+        "pin_change_error": request.GET.get("pin_change_error", ""),
     })
 
 @login_required

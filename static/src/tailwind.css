@@ -3259,6 +3259,35 @@ html.app-language-german .activity-saved-popup-close { right: .75rem; left: auto
 .parent-approval-header p { color: #17805e; font-size: .78rem; font-weight: 900; }
 .parent-approval-header h1 { color: #10231e; font-size: clamp(1.55rem, 4vw, 2.2rem); font-weight: 900; line-height: 1.35; }
 .parent-approval-header div > span { color: #64748b; font-size: .85rem; font-weight: 650; line-height: 1.6; }
+.parent-pin-settings { display: flex; justify-content: flex-end; width: min(100%, 54rem); margin: .85rem auto 0; }
+.parent-pin-change-open { display: flex; align-items: center; gap: .45rem; min-height: 2.85rem; padding: .55rem .85rem; border: 1px solid rgb(23 128 94 / 24%); border-radius: .9rem; background: #e5f3ed; color: #0b4938; font-size: .8rem; font-weight: 900; }
+.parent-pin-change-open svg { width: 1.2rem; height: 1.2rem; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.parent-pin-change-open:focus-visible { outline: 3px solid #17805e; outline-offset: 2px; }
+
+.parent-pin-change-dialog { position: relative; width: min(calc(100% - 1.5rem), 27rem); max-height: 90dvh; margin: auto; padding: 1.25rem; border: 0; border-radius: 1.4rem; background: #fffdf8; color: #10231e; overflow-y: auto; text-align: center; box-shadow: 0 24px 70px rgb(6 34 27 / 30%); }
+.parent-pin-change-dialog::backdrop { background: rgb(6 34 27 / 52%); backdrop-filter: blur(4px); }
+.parent-pin-change-close { position: absolute; inset-block-start: .75rem; display: grid; width: 2.75rem; height: 2.75rem; place-items: center; border-radius: 999px; background: #17805e; color: #fff; }
+html:not(.app-language-german) .parent-pin-change-close { left: .75rem; right: auto; }
+html.app-language-german .parent-pin-change-close { right: .75rem; left: auto; }
+.parent-pin-change-close svg, .parent-pin-change-icon svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.parent-pin-change-close svg { width: 1.2rem; height: 1.2rem; }
+.parent-pin-change-icon { display: grid; width: 3.3rem; height: 3.3rem; margin: 0 auto .7rem; place-items: center; border-radius: 999px; background: #e2f1ea; color: #0b4938; }
+.parent-pin-change-icon svg { width: 1.7rem; height: 1.7rem; }
+.parent-pin-change-dialog h2 { font-size: 1.2rem; font-weight: 900; line-height: 1.5; }
+.parent-pin-change-dialog > p:not(.parent-pin-change-error) { margin-block-start: .35rem; color: #52645f; font-weight: 700; line-height: 1.65; }
+.parent-pin-change-error { margin-block-start: .7rem; padding: .65rem .75rem; border-radius: .8rem; background: #fff0ed; color: #9f2219; font-size: .8rem; font-weight: 850; line-height: 1.55; }
+.parent-pin-change-form { display: grid; gap: .45rem; margin-block-start: 1rem; text-align: start; }
+html:not(.app-language-german) .parent-pin-change-form { direction: rtl; text-align: right; }
+html.app-language-german .parent-pin-change-form { direction: ltr; text-align: left; }
+.parent-pin-change-form label { margin-block-start: .35rem; color: #203c34; font-size: .8rem; font-weight: 850; }
+.parent-pin-change-form input { width: 100%; min-height: 3rem; padding: .6rem .85rem; border: 1.5px solid rgb(23 128 94 / 30%); border-radius: .85rem; background: #fff; font-size: 1.15rem; font-weight: 900; letter-spacing: .4em; text-align: center; }
+.parent-pin-change-form input:focus { border-color: #17805e; outline: 3px solid rgb(23 128 94 / 14%); }
+.parent-pin-change-form button { min-height: 3.1rem; margin-block-start: .65rem; border-radius: .9rem; background: #0b4938; color: #fff; font-weight: 900; }
+.parent-pin-change-client-error { padding: .65rem .75rem; border-radius: .8rem; background: #fff0ed; color: #9f2219; font-size: .8rem; font-weight: 850; line-height: 1.55; text-align: start; }
+.parent-pin-change-client-error[hidden] { display: none; }
+
+html:not(.app-language-german) #messages { direction: rtl; text-align: right; }
+html.app-language-german #messages { direction: ltr; text-align: left; }
 
 .parent-approval-days {
   display: grid;
@@ -3366,6 +3395,7 @@ html.app-language-german .parent-pin-validation-close { right: .75rem; left: aut
   .parent-approval-page { width: calc(100% - .7rem); margin-inline: auto; padding: .85rem .35rem 6rem; }
   .parent-approval-header { align-items: flex-start; padding-inline: .4rem; }
   .parent-approval-header-icon { flex-basis: 3rem; width: 3rem; height: 3rem; }
+  .parent-pin-settings { padding-inline: .4rem; }
   .parent-approval-days { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; }
   .parent-approval-day-open { gap: .6rem; min-height: 9.5rem; padding: .75rem; }
   .parent-approval-day-date { padding-inline: .5rem; font-size: .78rem; }

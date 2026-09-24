@@ -25,6 +25,7 @@ from .models import (
     LiveCompetitionGame,
     LiveCompetitionAnswer,
     DailyQuranReading,
+    ParentApprovalCredential,
     StudentPointActivity,
 )
 from .points import point_balance
@@ -526,6 +527,38 @@ class ParentPointApprovalTests(TestCase):
         self.assertEqual(activity.status, "pending")
         self.assertEqual(point_balance(self.student)["assignment_points"], 0)
         self.assertContains(response, "Die PIN ist falsch")
+
+    def test_parent_can_change_pin_and_only_new_pin_confirms(self):
+        self.complete_assignment()
+        activity = StudentPointActivity.objects.get(student=self.student)
+        response = self.client.post(reverse("parent_point_approvals"), {
+            "action": "change_pin",
+            "current_pin": "1717",
+            "new_pin": "4826",
+            "repeat_pin": "4826",
+            "ui_language": "de",
+        }, follow=True)
+        credential = ParentApprovalCredential.objects.get(student=self.student)
+        self.assertNotEqual(credential.pin_hash, "4826")
+        self.assertContains(response, "Der Eltern-PIN wurde geändert.")
+
+        self.client.post(reverse("parent_point_approvals"), {
+            "action": "confirm_day",
+            "date": activity.activity_date.isoformat(),
+            "pin": "1717",
+            "ui_language": "de",
+        })
+        activity.refresh_from_db()
+        self.assertEqual(activity.status, "pending")
+
+        self.client.post(reverse("parent_point_approvals"), {
+            "action": "confirm_day",
+            "date": activity.activity_date.isoformat(),
+            "pin": "4826",
+            "ui_language": "de",
+        })
+        activity.refresh_from_db()
+        self.assertEqual(activity.status, "confirmed")
 
     def test_teacher_cannot_open_parent_approval_page(self):
         self.client.force_login(self.teacher)

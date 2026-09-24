@@ -138,6 +138,17 @@ class StudentPointActivity(models.Model):
         return f"{self.student} – {self.category}:{self.source_key} ({self.status})"
 
 
+class ParentApprovalCredential(models.Model):
+    student = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="parent_approval_credential"
+    )
+    pin_hash = models.CharField(max_length=128)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Eltern-PIN: {self.student}"
+
+
 class LiveCompetition(models.Model):
     title = models.CharField(max_length=180)
     is_active = models.BooleanField(default=True)
