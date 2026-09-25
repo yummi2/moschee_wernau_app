@@ -1203,7 +1203,7 @@ def about(request):
 
 
 def mosque_top10_ranking(school_year_ranges):
-    """Rank students who qualify in Ramadan, prayer, library and daily Quran by points."""
+    """Rank students who qualify in prayer, library and daily Quran by points."""
     if school_year_ranges["year"] != "2027":
         return []
 
@@ -1215,28 +1215,6 @@ def mosque_top10_ranking(school_year_ranges):
 
     def display_name(student):
         return student.get_full_name().strip() or student.username
-
-    ramadan_rows = (
-        RamadanItemDone.objects
-        .filter(user_id__in=student_ids, done=True, school_year="2027")
-        .values("user_id", "day")
-        .annotate(done_items=Count("item_key", distinct=True))
-    )
-    ramadan_totals = {}
-    for row in ramadan_rows:
-        total = ramadan_totals.setdefault(row["user_id"], {"days": 0, "items": 0})
-        done_items = min(row["done_items"], len(RAMADAN_ITEMS_ORDER))
-        total["items"] += done_items
-        if done_items >= len(RAMADAN_ITEMS_ORDER):
-            total["days"] += 1
-    ramadan_top_ids = set(sorted(
-        ramadan_totals,
-        key=lambda user_id: (
-            -ramadan_totals[user_id]["days"],
-            -ramadan_totals[user_id]["items"],
-            display_name(students_by_id[user_id]).casefold(),
-        ),
-    )[:10])
 
     prayer_rows = (
         PrayerStatus.objects
@@ -1304,7 +1282,7 @@ def mosque_top10_ranking(school_year_ranges):
         )[:10]
     }
 
-    eligible_ids = ramadan_top_ids & prayer_top_ids & library_top_ids & quran_top_ids
+    eligible_ids = prayer_top_ids & library_top_ids & quran_top_ids
     balances = point_balances(students)
     return [
         {

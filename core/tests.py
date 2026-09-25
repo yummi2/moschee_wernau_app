@@ -395,7 +395,7 @@ class StudentPointsTests(TestCase):
                 self.assertEqual(response.context["library_top10_rank"], 1)
                 self.assertContains(response, "Du bist unter den Top 10 in der Bibliothek")
 
-    def test_student_qualifying_in_all_rankings_gets_mosque_top10_message(self):
+    def test_student_qualifying_without_ramadan_gets_mosque_top10_message(self):
         StoryRead.objects.create(user=self.student, level="beginner", sid="1")
         for prayer in range(1, 6):
             PrayerStatus.objects.create(
@@ -403,14 +403,6 @@ class StudentPointsTests(TestCase):
                 date=dt.date(2026, 9, 8),
                 prayer=prayer,
                 prayed=True,
-            )
-        for item_key in RAMADAN_ITEMS_ORDER:
-            RamadanItemDone.objects.create(
-                user=self.student,
-                day=1,
-                item_key=item_key,
-                school_year="2027",
-                done=True,
             )
         self.client.force_login(self.student)
 
