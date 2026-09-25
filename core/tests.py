@@ -703,19 +703,24 @@ class SchoolYearAccessTests(TestCase):
             school_year="2026",
             checked=True,
         )
+
+        self.client.force_login(student)
+        session = self.client.session
+        session["school_year"] = "2027"
+        session.save()
+        inherited_2027 = self.client.get(reverse("home"), {"tab": "checklist"})
+        self.assertIn(item.pk, inherited_2027.context["checked_item_ids"])
+        self.assertContains(inherited_2027, "Symbol für beide Jahre", count=1)
+
         StudentChecklist.objects.create(
             student=student,
             item=item,
             school_year="2027",
             checked=False,
         )
-
-        self.client.force_login(student)
-        session = self.client.session
-        session["school_year"] = "2027"
-        session.save()
-        response_2027 = self.client.get(reverse("home"), {"tab": "checklist"})
-        self.assertNotIn(item.pk, response_2027.context["checked_item_ids"])
+        explicit_2027 = self.client.get(reverse("home"), {"tab": "checklist"})
+        self.assertNotIn(item.pk, explicit_2027.context["checked_item_ids"])
+        self.assertContains(explicit_2027, "Symbol für beide Jahre", count=1)
 
         session = self.client.session
         session["school_year"] = "2026"

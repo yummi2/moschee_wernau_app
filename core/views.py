@@ -380,6 +380,32 @@ def visible_items_for_student(student, school_year="2027"):
     return items.distinct().order_by('order', 'id')
 
 
+def checked_item_ids_for_year(student, school_year, item_ids):
+    """Use the previous year's state until a separate current-year state exists."""
+    item_ids = set(item_ids)
+    current_states = dict(
+        StudentChecklist.objects.filter(
+            student=student,
+            school_year=school_year,
+            item_id__in=item_ids,
+        ).values_list("item_id", "checked")
+    )
+    checked_ids = {
+        item_id for item_id, checked in current_states.items() if checked
+    }
+    if school_year == "2027":
+        inherited_item_ids = item_ids - current_states.keys()
+        checked_ids.update(
+            StudentChecklist.objects.filter(
+                student=student,
+                school_year="2026",
+                checked=True,
+                item_id__in=inherited_item_ids,
+            ).values_list("item_id", flat=True)
+        )
+    return checked_ids
+
+
 # --- Zeitfenster-Helfer ---
 def is_within_window_for_date(target_date: dt.date, now: dt.datetime | None = None) -> bool:
     """Erlaubt Markieren nur zwischen Freitag 10:00 und Samstag 10:00 rund um target_date."""
@@ -819,14 +845,11 @@ def home(request):
             request.user,
             school_year_ranges["year"],
         )
-        checked_ids = set(
-            StudentChecklist.objects
-            .filter(
-                student=request.user,
-                school_year=school_year_ranges["year"],
-                checked=True,
-            )
-            .values_list("item_id", flat=True)
+        checklist_item_ids = set(checklist_items.values_list("id", flat=True))
+        checked_ids = checked_item_ids_for_year(
+            request.user,
+            school_year_ranges["year"],
+            checklist_item_ids,
         )
         ctx.update({
             "checklist_items": checklist_items,
@@ -859,13 +882,12 @@ def home(request):
         else:
             # Schüler: Notizen an mich + eigene Checkliste
             items = visible_items_for_student(request.user, school_year_ranges["year"])
-            checked_ids = set(StudentChecklist.objects
-                              .filter(
-                                  student=request.user,
-                                  school_year=school_year_ranges["year"],
-                                  checked=True,
-                              )
-                              .values_list('item_id', flat=True))
+            item_ids = set(items.values_list("id", flat=True))
+            checked_ids = checked_item_ids_for_year(
+                request.user,
+                school_year_ranges["year"],
+                item_ids,
+            )
 
             notes_qs = (TeacherNote.objects
                         .filter(student=request.user)
@@ -2000,12 +2022,7 @@ def toggle_check(request):
     )
     obj.checked = checked
     obj.save()
-    done = StudentChecklist.objects.filter(
-        student=student,
-        school_year=selected_year,
-        checked=True,
-        item_id__in=vis_ids,
-    ).count()
+    done = len(checked_item_ids_for_year(student, selected_year, vis_ids))
     total = len(vis_ids)
     return JsonResponse({"ok": True, "done": done, "total": total})
 
