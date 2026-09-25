@@ -16,6 +16,7 @@ from .models import (
     AssignmentReminderDelivery,
     ClassRoom,
     ChecklistItem,
+    StudentChecklist,
     Profile,
     PrayerStatus,
     RamadanItemDone,
@@ -683,6 +684,44 @@ class SchoolYearAccessTests(TestCase):
         item.save(update_fields=("also_show_in_2027",))
         self.assertIn(item, visible_items_for_student(student, "2027"))
         self.assertIn(item, visible_items_for_student(student, "2026"))
+
+    def test_checklist_marks_are_separate_for_each_school_year(self):
+        student = self.make_user("yearly-checklist-student", dt.date(2026, 8, 1))
+        classroom = ClassRoom.objects.create(name="Klasse für beide Jahre")
+        classroom.students.add(student)
+        item = ChecklistItem.objects.create(
+            title="Symbol für beide Jahre",
+            also_show_in_2027=True,
+        )
+        ChecklistItem.objects.filter(pk=item.pk).update(
+            created_at=timezone.make_aware(dt.datetime(2026, 7, 1, 12, 0)),
+        )
+        item.classrooms.add(classroom)
+        StudentChecklist.objects.create(
+            student=student,
+            item=item,
+            school_year="2026",
+            checked=True,
+        )
+        StudentChecklist.objects.create(
+            student=student,
+            item=item,
+            school_year="2027",
+            checked=False,
+        )
+
+        self.client.force_login(student)
+        session = self.client.session
+        session["school_year"] = "2027"
+        session.save()
+        response_2027 = self.client.get(reverse("home"), {"tab": "checklist"})
+        self.assertNotIn(item.pk, response_2027.context["checked_item_ids"])
+
+        session = self.client.session
+        session["school_year"] = "2026"
+        session.save()
+        response_2026 = self.client.get(reverse("home"), {"tab": "checklist"})
+        self.assertIn(item.pk, response_2026.context["checked_item_ids"])
 
 
 class LibraryTranslationTests(TestCase):

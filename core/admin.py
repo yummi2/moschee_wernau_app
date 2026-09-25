@@ -41,8 +41,8 @@ class ChecklistItemAdmin(admin.ModelAdmin):
 
 @admin.register(StudentChecklist)
 class StudentChecklistAdmin(admin.ModelAdmin):
-    list_display = ('student', 'item', 'checked')
-    list_filter = ('checked',)
+    list_display = ('student', 'item', 'school_year', 'checked')
+    list_filter = ('school_year', 'checked')
     search_fields = ('student__username', 'item__title')
     list_display_links = ('student', 'item')
 

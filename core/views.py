@@ -821,7 +821,11 @@ def home(request):
         )
         checked_ids = set(
             StudentChecklist.objects
-            .filter(student=request.user, checked=True)
+            .filter(
+                student=request.user,
+                school_year=school_year_ranges["year"],
+                checked=True,
+            )
             .values_list("item_id", flat=True)
         )
         ctx.update({
@@ -856,7 +860,11 @@ def home(request):
             # Schüler: Notizen an mich + eigene Checkliste
             items = visible_items_for_student(request.user, school_year_ranges["year"])
             checked_ids = set(StudentChecklist.objects
-                              .filter(student=request.user, checked=True)
+                              .filter(
+                                  student=request.user,
+                                  school_year=school_year_ranges["year"],
+                                  checked=True,
+                              )
                               .values_list('item_id', flat=True))
 
             notes_qs = (TeacherNote.objects
@@ -1985,10 +1993,19 @@ def toggle_check(request):
     if item.id not in vis_ids:
         return HttpResponseForbidden("Item für diesen Schüler nicht sichtbar")
 
-    obj, _ = StudentChecklist.objects.get_or_create(student=student, item=item)
+    obj, _ = StudentChecklist.objects.get_or_create(
+        student=student,
+        item=item,
+        school_year=selected_year,
+    )
     obj.checked = checked
     obj.save()
-    done = StudentChecklist.objects.filter(student=student, checked=True, item_id__in=vis_ids).count()
+    done = StudentChecklist.objects.filter(
+        student=student,
+        school_year=selected_year,
+        checked=True,
+        item_id__in=vis_ids,
+    ).count()
     total = len(vis_ids)
     return JsonResponse({"ok": True, "done": done, "total": total})
 

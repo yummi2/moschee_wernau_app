@@ -365,12 +365,18 @@ class ChecklistItem(models.Model):
         return self.title
 
 class StudentChecklist(models.Model):
+    SCHOOL_YEAR_CHOICES = (
+        ("2026", "Schuljahr 2025/2026"),
+        ("2027", "Schuljahr 2026/2027"),
+    )
+
     student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='checkmarks')
     item    = models.ForeignKey(ChecklistItem, on_delete=models.CASCADE, related_name='checkmarks')
+    school_year = models.CharField(max_length=4, choices=SCHOOL_YEAR_CHOICES, default="2026")
     checked = models.BooleanField(default=False)
 
     class Meta:
-        unique_together = ('student', 'item')   
+        unique_together = ('student', 'item', 'school_year')
 
 class WeeklyBanner(models.Model):
     # wir halten nur die aktuell gültige URL
