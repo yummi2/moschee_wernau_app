@@ -9,12 +9,13 @@ from django.urls import reverse
 from django.utils import timezone
 
 from .school_years import can_switch_school_years
-from .views import selected_school_year_ranges, teaching_week_number, saturday_week_bounds
+from .views import selected_school_year_ranges, teaching_week_number, saturday_week_bounds, visible_items_for_student
 from .models import (
     Assignment,
     AssignmentCompletion,
     AssignmentReminderDelivery,
     ClassRoom,
+    ChecklistItem,
     Profile,
     PrayerStatus,
     RamadanItemDone,
@@ -663,6 +664,25 @@ class SchoolYearAccessTests(TestCase):
         self.assertFalse(can_switch_school_years(user))
         self.assertEqual(selected_school_year_ranges(request)["year"], "2027")
         self.assertEqual(request.session["school_year"], "2027")
+
+    def test_old_checklist_item_can_also_be_used_in_2027(self):
+        student = self.make_user("checklist-student", dt.date(2026, 8, 1))
+        classroom = ClassRoom.objects.create(name="Neue Klasse 2027")
+        classroom.students.add(student)
+        item = ChecklistItem.objects.create(title="Altes Symbol")
+        ChecklistItem.objects.filter(pk=item.pk).update(
+            created_at=timezone.make_aware(dt.datetime(2026, 7, 1, 12, 0)),
+        )
+        item.refresh_from_db()
+        item.classrooms.add(classroom)
+
+        self.assertNotIn(item, visible_items_for_student(student, "2027"))
+        self.assertIn(item, visible_items_for_student(student, "2026"))
+
+        item.also_show_in_2027 = True
+        item.save(update_fields=("also_show_in_2027",))
+        self.assertIn(item, visible_items_for_student(student, "2027"))
+        self.assertIn(item, visible_items_for_student(student, "2026"))
 
 
 class LibraryTranslationTests(TestCase):

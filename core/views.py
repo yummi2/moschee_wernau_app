@@ -371,7 +371,10 @@ def visible_items_for_student(student, school_year="2027"):
         Q(classrooms__isnull=True) | Q(classrooms__id__in=student_cls_ids)
     )
     if school_year == "2027":
-        items = items.filter(created_at__date__gte=SCHOOL_YEAR_CONTENT_CUTOFF)
+        items = items.filter(
+            Q(created_at__date__gte=SCHOOL_YEAR_CONTENT_CUTOFF)
+            | Q(also_show_in_2027=True)
+        )
     else:
         items = items.filter(created_at__date__lt=SCHOOL_YEAR_CONTENT_CUTOFF)
     return items.distinct().order_by('order', 'id')

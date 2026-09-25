@@ -31,8 +31,9 @@ class AbsenceAdmin(admin.ModelAdmin):
 
 @admin.register(ChecklistItem)
 class ChecklistItemAdmin(admin.ModelAdmin):
-    list_display = ('title', 'order')
-    list_editable = ('order',)
+    list_display = ('title', 'order', 'also_show_in_2027')
+    list_editable = ('order', 'also_show_in_2027')
+    list_filter = ('also_show_in_2027',)
     list_display_links = ('title',)
     search_fields = ('title',)
     ordering = ('order', 'id')

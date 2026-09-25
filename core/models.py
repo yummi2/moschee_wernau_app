@@ -350,6 +350,11 @@ class ChecklistItem(models.Model):
     title = models.CharField(max_length=200)
     order = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
+    also_show_in_2027 = models.BooleanField(
+        "Auch im Schuljahr 2026/2027 anzeigen",
+        default=False,
+        help_text="Alte Einträge bleiben in 2025/2026 erhalten und werden zusätzlich in 2026/2027 angezeigt.",
+    )
     # Sichtbarkeit: nur für diese Klassen. Wenn leer -> für alle Klassen sichtbar.
     classrooms = models.ManyToManyField('ClassRoom', blank=True, related_name='checklist_items')
 
