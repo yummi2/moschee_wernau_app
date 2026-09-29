@@ -103,6 +103,19 @@ STORIES = {
                     {"text": "<span class=\"library-letter-highlight\">ل</span>َيمُون", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790688010/ChatGPT-Bild_29._Sept._2026_15_04_43_jwfku5.png"},
                 ],
             },
+            "8": {
+                "title": "حرف التاء",
+                "title_de": "Der Buchstabe Tāʾ",
+                "body": [
+                    {"text": "هَا<span class=\"library-letter-highlight\">ت</span>ِفٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790703685/pexels-camera-1842202_1920_l0b2q7.jpg"},
+                    {"text": "<span class=\"library-letter-highlight\">ت</span>َاجٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790703771/pawing-crown-2526570_1920_dennjm.jpg"},
+                    {"text": "<span class=\"library-letter-highlight\">ت</span>ِمْسَاحٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790703778/miniformat65-nile-crocodile-245013_1920_bue7pm.jpg"},
+                    {"text": "فُسْ<span class=\"library-letter-highlight\">ت</span>َانٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790703786/Designer_1_g8z8gj.png"},
+                    {"text": "<span class=\"library-letter-highlight\">ت</span>ُفَّاحٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790703793/congerdesign-apple-1532055_1920_dpxgpi.jpg"},
+                    {"text": "<span class=\"library-letter-highlight\">ت</span>ُو<span class=\"library-letter-highlight\">ت</span>ُ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790703801/ulleo-raspberries-1495713_1920_j6r2ga.jpg"},
+                    {"text": "<span class=\"library-letter-highlight\">ت</span>َمْرٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790703809/alyerika-dates-10309519_kr3tcz.jpg"},
+                ],
+            },
         },
         "beginner": {
             "numbers": {

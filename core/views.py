@@ -2073,6 +2073,7 @@ def library(request):
             "5": "Der Buchstabe Dāl",
             "6": "Der Buchstabe Sīn",
             "7": "Der Buchstabe Lām",
+            "8": "Der Buchstabe Tāʾ",
         },
         "beginner": {
             "numbers": "Zahlen",
