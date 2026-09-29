@@ -154,11 +154,11 @@
 
             {% if current_image %}
             <img src="{{ current_image }}" alt="{{ story.title }}"
-                class="library-story-image {% if level == 'letters1' %}library-story-image--letters{% endif %}{% if level == 'beginner' and sid == '0' %} library-story-image--family{% endif %} w-1/2 h-48 object-contain rounded-xl mx-auto mb-6">
+                class="library-story-image {% if level == 'letters1' %}library-story-image--letters{% endif %}{% if level == 'beginner' and sid == '0' %} library-story-image--family{% endif %}{% if level == 'intermediate' and sid == '0' %} library-story-image--lesson{% endif %} w-1/2 h-48 object-contain rounded-xl mx-auto mb-6">
             {% endif %}
             <p class="library-story-text {% if level == 'beginner' or level == 'letters1' %}library-story-text--beginner{% endif %} text-xl leading-loose text-center whitespace-pre-line">{{ current_text|safe }}</p>
 
-            {% if level == "letters1" or level == "beginner" and sid != "0" %}
+            {% if level == "letters1" or level == "beginner" and sid != "0" or level == "intermediate" and sid == "0" %}
             <div class="mt-6 flex items-center justify-between" data-app-language-surface>
                 {% if prev_href %}
                 <a href="{{ prev_href }}" class="px-4 py-2 rounded-xl bg-gray-200 hover:bg-gray-300" data-app-ar="السابق" data-app-de="Zurück">السابق</a>
@@ -181,10 +181,12 @@
             {% if p == total %}
             <div id="story-read-action" class="library-read-action mt-8">
                 {% if level != "beginner" and level != "letters1" %}
+                {% if level != "intermediate" or sid != "0" %}
                 <button type="button" class="library-scroll-top" data-library-scroll-top
                     aria-label="العودة إلى أعلى القصة / Zurück zum Anfang der Geschichte">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 14 6-6 6 6"/></svg>
                 </button>
+                {% endif %}
                 {% endif %}
                 {% if request.user.is_authenticated %}
                 {% if already_read %}

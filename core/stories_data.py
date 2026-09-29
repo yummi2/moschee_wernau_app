@@ -180,6 +180,17 @@ STORIES = {
                 ]},
         },
         "intermediate": {
+            "0": {
+                "title": "أَسْمَاءُ الإِشَارَةِ",
+                "title_de": "Demonstrativpronomen",
+                "body": [
+                    {"text": "", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790696069/ChatGPT-Bild_29._Sept._2026_17_27_06_ju9qbf.png"},
+                    {"text": "", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790696065/ChatGPT-Bild_29._Sept._2026_17_28_21_zjmttr.png"},
+                    {"text": "", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790696061/ChatGPT-Bild_29._Sept._2026_17_32_15_nagwzq.png"},
+                    {"text": "", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790696057/ChatGPT-Bild_29._Sept._2026_17_32_57_aaosui.png"},
+                    {"text": "", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790696054/ChatGPT-Bild_29._Sept._2026_17_33_50_fq6vpf.png"},
+                ],
+            },
             "1": {
                 "title": "الحياءُ مِنَ اللهِ",
                 "body": [

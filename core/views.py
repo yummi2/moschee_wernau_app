@@ -2076,6 +2076,7 @@ def library(request):
             "1": "Satz 1", "2": "Satz 2", "3": "Satz 3", "4": "Satz 4",
         },
         "intermediate": {
+            "0": "Demonstrativpronomen",
             "1": "Schamhaftigkeit vor Allah",
             "2": "Layla und der Gehorsam gegenüber den Eltern",
             "3": "Umar und sein großzügiger Nachbar",

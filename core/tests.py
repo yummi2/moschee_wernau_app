@@ -722,6 +722,49 @@ class SchoolYearAccessTests(TestCase):
 
 
 class LibraryTranslationTests(TestCase):
+    @override_settings(PARENT_APPROVAL_PIN="1717")
+    def test_demonstratives_lesson_is_first_and_awards_parent_confirmed_point(self):
+        student = get_user_model().objects.create_user("demonstratives-reader", password="x")
+        self.client.force_login(student)
+
+        stories = self.client.get(reverse("library"), {"level": "intermediate"})
+        content = stories.content.decode()
+        first = self.client.get(
+            reverse("library"), {"level": "intermediate", "sid": "0", "p": "1"}
+        )
+        last = self.client.get(
+            reverse("library"), {"level": "intermediate", "sid": "0", "p": "5"}
+        )
+
+        self.assertLess(content.index("sid=0"), content.index("sid=1"))
+        self.assertContains(stories, 'data-app-ar="أَسْمَاءُ الإِشَارَةِ" data-app-de="Demonstrativpronomen"')
+        self.assertContains(first, "v1790696069/ChatGPT-Bild_29._Sept._2026_17_27_06_ju9qbf.png")
+        self.assertContains(first, 'data-app-de="Demonstrativpronomen"')
+        self.assertContains(first, 'data-app-ar="التالي" data-app-de="Weiter"')
+        self.assertContains(last, "v1790696054/ChatGPT-Bild_29._Sept._2026_17_33_50_fq6vpf.png")
+        self.assertContains(last, "5 / 5")
+        self.assertContains(last, 'data-app-ar="السابق" data-app-de="Zurück"')
+        self.assertContains(last, 'id="mark-read-btn"')
+
+        response = self.client.post(
+            reverse("mark_story_read"),
+            data='{"level":"intermediate","sid":"0"}',
+            content_type="application/json",
+        )
+        activity = StudentPointActivity.objects.get(
+            student=student, category="library", source_key="intermediate:0"
+        )
+        self.assertTrue(response.json()["activity_saved"])
+        self.assertEqual(point_balance(student)["story_points"], 0)
+
+        self.client.post(reverse("parent_point_approvals"), {
+            "action": "confirm_day",
+            "date": activity.activity_date.isoformat(),
+            "pin": "1717",
+            "ui_language": "de",
+        })
+        self.assertEqual(point_balance(student)["story_points"], 1)
+
     def test_family_card_comes_before_sentence_one_and_shows_only_its_image(self):
         student = get_user_model().objects.create_user("family-reader", password="x")
         self.client.force_login(student)
