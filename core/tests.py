@@ -778,6 +778,52 @@ class LibraryTranslationTests(TestCase):
         self.assertEqual(activity.status, "confirmed")
         self.assertEqual(point_balance(student)["story_points"], 1)
 
+    def test_letter_kaf_sequence_keeps_words_arabic_and_highlights_kaf(self):
+        student = get_user_model().objects.create_user("kaf-reader", password="x")
+        self.client.force_login(student)
+
+        stories = self.client.get(reverse("library"), {"level": "letters1"})
+        first = self.client.get(
+            reverse("library"), {"level": "letters1", "sid": "2", "p": "1"}
+        )
+        last = self.client.get(
+            reverse("library"), {"level": "letters1", "sid": "2", "p": "10"}
+        )
+
+        self.assertContains(stories, 'data-app-de="Der Buchstabe Kāf"')
+        self.assertContains(first, 'زُ<span class="library-letter-highlight">ك</span>َامٌ', html=True)
+        self.assertContains(first, "v1790691094/ChatGPT-Bild_29._Sept._2026_16_10_41_v1mpki.png")
+        self.assertContains(first, 'data-app-ar="التالي" data-app-de="Weiter"')
+        self.assertContains(last, 'سَمَ<span class="library-letter-highlight">ك</span>َة', html=True)
+        self.assertContains(last, "v1790691110/geraldrose-royal-gramma-basslet-8012082_f5l5ds.jpg")
+        self.assertContains(last, 'data-app-ar="السابق" data-app-de="Zurück"')
+        self.assertContains(last, 'id="mark-read-btn"')
+
+    @override_settings(PARENT_APPROVAL_PIN="1717")
+    def test_letter_kaf_awards_one_point_only_after_parent_confirmation(self):
+        student = get_user_model().objects.create_user("kaf-point-reader", password="x")
+        self.client.force_login(student)
+
+        response = self.client.post(
+            reverse("mark_story_read"),
+            data='{"level":"letters1","sid":"2"}',
+            content_type="application/json",
+        )
+        activity = StudentPointActivity.objects.get(
+            student=student, category="library", source_key="letters1:2"
+        )
+        self.assertTrue(response.json()["activity_saved"])
+        self.assertEqual(activity.status, "pending")
+        self.assertEqual(point_balance(student)["story_points"], 0)
+
+        self.client.post(reverse("parent_point_approvals"), {
+            "action": "confirm_day",
+            "date": activity.activity_date.isoformat(),
+            "pin": "1717",
+            "ui_language": "de",
+        })
+        self.assertEqual(point_balance(student)["story_points"], 1)
+
     def test_story_scroll_top_button_is_available_except_for_beginner_level(self):
         student = get_user_model().objects.create_user("story-scroll-reader", password="x")
         self.client.force_login(student)

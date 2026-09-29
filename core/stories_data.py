@@ -18,6 +18,22 @@ STORIES = {
                     {"text": "<span class=\"library-letter-highlight\">م</span>َوْز", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790687970/ChatGPT-Bild_29._Sept._2026_15_16_03_dqjcol.png"},
                 ],
             },
+            "2": {
+                "title": "حرف الكاف",
+                "title_de": "Der Buchstabe Kāf",
+                "body": [
+                    {"text": "زُ<span class=\"library-letter-highlight\">ك</span>َامٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790691094/ChatGPT-Bild_29._Sept._2026_16_10_41_v1mpki.png"},
+                    {"text": "مَ<span class=\"library-letter-highlight\">ك</span>ْتَبٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790691095/ChatGPT-Bild_29._Sept._2026_16_09_57_dmihdy.png"},
+                    {"text": "<span class=\"library-letter-highlight\">ك</span>ُرْسِيٌّ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790691095/ChatGPT-Bild_29._Sept._2026_16_08_28_encjog.png"},
+                    {"text": "<span class=\"library-letter-highlight\">ك</span>ِيسٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790691099/ChatGPT-Bild_29._Sept._2026_15_58_13_hkri6w.png"},
+                    {"text": "<span class=\"library-letter-highlight\">ك</span>ِتَابٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790691100/ChatGPT-Bild_29._Sept._2026_15_56_41_lup6by.png"},
+                    {"text": "<span class=\"library-letter-highlight\">ك</span>ُوب", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790691103/pexels-caffeine-1845314_pxspdy.jpg"},
+                    {"text": "دِي<span class=\"library-letter-highlight\">ك</span>ٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790691104/ChatGPT-Bild_29._Sept._2026_15_48_28_y5cqvs.png"},
+                    {"text": "<span class=\"library-letter-highlight\">ك</span>ُرَةٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790691107/noname_13-soccer-3471402_vqv1xg.jpg"},
+                    {"text": "<span class=\"library-letter-highlight\">ك</span>َلْبٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790691109/ChatGPT-Bild_29._Sept._2026_15_42_46_o8k8yo.png"},
+                    {"text": "سَمَ<span class=\"library-letter-highlight\">ك</span>َة", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790691110/geraldrose-royal-gramma-basslet-8012082_f5l5ds.jpg"},
+                ],
+            },
         },
         "beginner": {
             "1": {

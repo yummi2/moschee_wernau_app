@@ -2067,6 +2067,7 @@ def library(request):
     story_titles_de = {
         "letters1": {
             "1": "Der Buchstabe Mīm",
+            "2": "Der Buchstabe Kāf",
         },
         "beginner": {
             "1": "Satz 1", "2": "Satz 2", "3": "Satz 3", "4": "Satz 4",
