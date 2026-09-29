@@ -722,6 +722,62 @@ class SchoolYearAccessTests(TestCase):
 
 
 class LibraryTranslationTests(TestCase):
+    def test_letter_level_comes_before_beginner_and_keeps_arabic_labels(self):
+        levels = self.client.get(reverse("library"))
+        content = levels.content.decode()
+
+        self.assertLess(content.index("level=letters1"), content.index("level=beginner"))
+        self.assertContains(levels, 'data-app-de="Buchstabenstufe 1"')
+
+        stories = self.client.get(reverse("library"), {"level": "letters1"})
+        self.assertContains(stories, 'data-app-de="Der Buchstabe Mīm"')
+        self.assertContains(stories, '<span data-app-de-only hidden>Buchstabenstufe 1</span>', html=True)
+
+    def test_letter_mim_sequence_has_arabic_words_and_bilingual_navigation(self):
+        student = get_user_model().objects.create_user("letter-sequence-reader", password="x")
+        self.client.force_login(student)
+        first = self.client.get(
+            reverse("library"), {"level": "letters1", "sid": "1", "p": "1"}
+        )
+        last = self.client.get(
+            reverse("library"), {"level": "letters1", "sid": "1", "p": "11"}
+        )
+
+        self.assertContains(first, 'class="library-letter-highlight">م</span>')
+        self.assertContains(first, "v1790688072/ChatGPT-Bild_29._Sept._2026_15_19_56_gwbkg6.png")
+        self.assertContains(first, 'data-app-ar="التالي" data-app-de="Weiter"')
+        self.assertContains(last, 'class="library-letter-highlight">م</span>َوْز')
+        self.assertContains(last, 'data-app-ar="السابق" data-app-de="Zurück"')
+        self.assertContains(last, 'id="mark-read-btn"')
+
+    @override_settings(PARENT_APPROVAL_PIN="1717")
+    def test_letter_level_point_waits_for_parent_confirmation(self):
+        student = get_user_model().objects.create_user("letter-reader", password="x")
+        self.client.force_login(student)
+
+        response = self.client.post(
+            reverse("mark_story_read"),
+            data='{"level":"letters1","sid":"1"}',
+            content_type="application/json",
+        )
+        activity = StudentPointActivity.objects.get(
+            student=student, category="library", source_key="letters1:1"
+        )
+
+        self.assertTrue(response.json()["activity_saved"])
+        self.assertEqual(activity.status, "pending")
+        self.assertEqual(point_balance(student)["story_points"], 0)
+
+        self.client.post(reverse("parent_point_approvals"), {
+            "action": "confirm_day",
+            "date": activity.activity_date.isoformat(),
+            "pin": "1717",
+            "ui_language": "de",
+        })
+        activity.refresh_from_db()
+        self.assertEqual(activity.status, "confirmed")
+        self.assertEqual(point_balance(student)["story_points"], 1)
+
     def test_story_scroll_top_button_is_available_except_for_beginner_level(self):
         student = get_user_model().objects.create_user("story-scroll-reader", password="x")
         self.client.force_login(student)

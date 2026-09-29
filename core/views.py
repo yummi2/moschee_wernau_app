@@ -2023,8 +2023,8 @@ def library(request):
     level = request.GET.get("level")
     sid = request.GET.get("sid") 
     p_str = request.GET.get("p", "1")  
-    valid_levels = {"beginner": "المبتدئ", "intermediate": "المتوسط", "advanced": "المتقدم", "books": "الكتب"}
-    valid_levels_de = {"beginner": "Anfänger", "intermediate": "Mittelstufe", "advanced": "Fortgeschritten", "books": "Bücher"}
+    valid_levels = {"letters1": "مستوى الحرف 1", "beginner": "المبتدئ", "intermediate": "المتوسط", "advanced": "المتقدم", "books": "الكتب"}
+    valid_levels_de = {"letters1": "Buchstabenstufe 1", "beginner": "Anfänger", "intermediate": "Mittelstufe", "advanced": "Fortgeschritten", "books": "Bücher"}
     library_books = [
         {
             "id": "first_quran_reflection",
@@ -2065,6 +2065,9 @@ def library(request):
         },
     ]
     story_titles_de = {
+        "letters1": {
+            "1": "Der Buchstabe Mīm",
+        },
         "beginner": {
             "1": "Satz 1", "2": "Satz 2", "3": "Satz 3", "4": "Satz 4",
         },

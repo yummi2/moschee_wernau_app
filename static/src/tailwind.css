@@ -2557,6 +2557,24 @@ html.app-language-german .assignment-dialog-description {
   box-shadow: 0 10px 24px rgb(11 73 56 / 10%);
 }
 
+.library-story-image--letters {
+  width: min(100%, 28rem) !important;
+  height: clamp(15rem, 46vh, 27rem) !important;
+  object-fit: contain;
+}
+
+.library-story-image--letters + .library-story-text--beginner {
+  direction: rtl;
+  text-align: center;
+  color: #17221f;
+  font-weight: 900;
+}
+
+.library-letter-highlight {
+  color: #c9342f;
+  font-weight: 900;
+}
+
 .library-read-action {
   position: relative;
   width: 100%;
@@ -6743,9 +6761,23 @@ body.auth-page {
   overflow-wrap: anywhere;
 }
 
+.library-story-content > .library-story-image--letters + .library-story-text--beginner {
+  font-size: clamp(2.6rem, 5vw, 3.5rem);
+  font-weight: 900;
+}
+
 @media (max-width: 39.999rem) {
+  .library-story-image--letters {
+    width: min(100%, 22rem) !important;
+    height: clamp(13rem, 36dvh, 21rem) !important;
+  }
+
   .library-story-content > .library-story-text--beginner {
     width: min(100%, 20rem);
+  }
+
+  .library-story-content > .library-story-image--letters + .library-story-text--beginner {
+    font-size: clamp(2.35rem, 12vw, 3rem);
   }
 }
 

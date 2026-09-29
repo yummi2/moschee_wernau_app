@@ -1,5 +1,24 @@
 
 STORIES = {
+        "letters1": {
+            "1": {
+                "title": "حرف الميم",
+                "title_de": "Der Buchstabe Mīm",
+                "body": [
+                    {"text": "قَ<span class=\"library-letter-highlight\">م</span>َرٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790688072/ChatGPT-Bild_29._Sept._2026_15_19_56_gwbkg6.png"},
+                    {"text": "<span class=\"library-letter-highlight\">م</span>َطَرٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790688010/ChatGPT-Bild_29._Sept._2026_15_03_35_xxpkvk.png"},
+                    {"text": "لَيْ<span class=\"library-letter-highlight\">م</span>ُون", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790688010/ChatGPT-Bild_29._Sept._2026_15_04_43_jwfku5.png"},
+                    {"text": "خَاتَ<span class=\"library-letter-highlight\">م</span>ٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790688010/ChatGPT-Bild_29._Sept._2026_15_05_39_cxgxni.png"},
+                    {"text": "<span class=\"library-letter-highlight\">م</span>َدْرَسَةٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790688009/ChatGPT-Bild_29._Sept._2026_15_07_26_kk6yod.png"},
+                    {"text": "<span class=\"library-letter-highlight\">م</span>ُعَلِّ<span class=\"library-letter-highlight\">م</span>ٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790687972/ChatGPT-Bild_29._Sept._2026_15_10_31_opwnj5.png"},
+                    {"text": "<span class=\"library-letter-highlight\">م</span>ِقَصٌّ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790687971/ChatGPT-Bild_29._Sept._2026_15_11_59_evcszl.png"},
+                    {"text": "<span class=\"library-letter-highlight\">م</span>َاءٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790687971/ChatGPT-Bild_29._Sept._2026_15_13_12_cmleyx.png"},
+                    {"text": "<span class=\"library-letter-highlight\">م</span>ِيزَانٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790687971/ChatGPT-Bild_29._Sept._2026_15_13_53_ascxlo.png"},
+                    {"text": "قَلَ<span class=\"library-letter-highlight\">م</span>ٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790687970/ChatGPT-Bild_29._Sept._2026_15_17_56_qwyr08.png"},
+                    {"text": "<span class=\"library-letter-highlight\">م</span>َوْز", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790687970/ChatGPT-Bild_29._Sept._2026_15_16_03_dqjcol.png"},
+                ],
+            },
+        },
         "beginner": {
             "1": {
                 "title": "جملة 1",
