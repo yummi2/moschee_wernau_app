@@ -49,6 +49,20 @@ STORIES = {
                     {"text": "سَ<span class=\"library-letter-highlight\">ب</span>ُّورَةٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790692711/stocksnap-blackboard-2618793_uylrad.jpg"},
                 ],
             },
+            "4": {
+                "title": "حرف النون",
+                "title_de": "Der Buchstabe Nūn",
+                "body": [
+                    {"text": "<span class=\"library-letter-highlight\">ن</span>ُوْر", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790694888/ChatGPT-Bild_29._Sept._2026_17_10_01_venj5o.png"},
+                    {"text": "<span class=\"library-letter-highlight\">ن</span>ِيرَا<span class=\"library-letter-highlight\">ن</span>ٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790694886/ChatGPT-Bild_29._Sept._2026_17_11_09_rwmsjy.png"},
+                    {"text": "<span class=\"library-letter-highlight\">ن</span>ِسْرٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790694893/ChatGPT-Bild_29._Sept._2026_17_09_23_jtk7w2.png"},
+                    {"text": "تِي<span class=\"library-letter-highlight\">ن</span>ٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790694898/ChatGPT-Bild_29._Sept._2026_17_08_14_yr5qih.png"},
+                    {"text": "<span class=\"library-letter-highlight\">ن</span>ُجُومٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790694903/ronaldplett-milkyway-8190232_ndkwmr.jpg"},
+                    {"text": "<span class=\"library-letter-highlight\">ن</span>َحْلَةٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790694907/iupac-honey-bee-8320764_d3fjq0.jpg"},
+                    {"text": "سِ<span class=\"library-letter-highlight\">ن</span>ْجَابٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790694919/ChatGPT-Bild_29._Sept._2026_17_07_16_q9gt9v.png"},
+                    {"text": "<span class=\"library-letter-highlight\">ن</span>َارٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790694925/ChatGPT-Bild_29._Sept._2026_17_06_33_pnhxzi.png"},
+                ],
+            },
         },
         "beginner": {
             "0": {

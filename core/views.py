@@ -2069,6 +2069,7 @@ def library(request):
             "1": "Der Buchstabe Mīm",
             "2": "Der Buchstabe Kāf",
             "3": "Der Buchstabe Bāʾ",
+            "4": "Der Buchstabe Nūn",
         },
         "beginner": {
             "0": "Meine Familie",

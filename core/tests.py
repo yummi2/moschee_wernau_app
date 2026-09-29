@@ -916,6 +916,45 @@ class LibraryTranslationTests(TestCase):
         })
         self.assertEqual(point_balance(student)["story_points"], 1)
 
+    @override_settings(PARENT_APPROVAL_PIN="1717")
+    def test_letter_nun_sequence_and_parent_confirmed_point(self):
+        student = get_user_model().objects.create_user("nun-reader", password="x")
+        self.client.force_login(student)
+
+        stories = self.client.get(reverse("library"), {"level": "letters1"})
+        first = self.client.get(
+            reverse("library"), {"level": "letters1", "sid": "4", "p": "1"}
+        )
+        last = self.client.get(
+            reverse("library"), {"level": "letters1", "sid": "4", "p": "8"}
+        )
+        self.assertContains(stories, 'data-app-de="Der Buchstabe Nūn"')
+        self.assertContains(first, '<span class="library-letter-highlight">ن</span>ُوْر', html=True)
+        self.assertContains(first, 'data-app-ar="التالي" data-app-de="Weiter"')
+        self.assertContains(last, '<span class="library-letter-highlight">ن</span>َارٌ', html=True)
+        self.assertContains(last, "8 / 8")
+        self.assertContains(last, 'data-app-ar="السابق" data-app-de="Zurück"')
+        self.assertContains(last, 'id="mark-read-btn"')
+
+        response = self.client.post(
+            reverse("mark_story_read"),
+            data='{"level":"letters1","sid":"4"}',
+            content_type="application/json",
+        )
+        activity = StudentPointActivity.objects.get(
+            student=student, category="library", source_key="letters1:4"
+        )
+        self.assertTrue(response.json()["activity_saved"])
+        self.assertEqual(point_balance(student)["story_points"], 0)
+
+        self.client.post(reverse("parent_point_approvals"), {
+            "action": "confirm_day",
+            "date": activity.activity_date.isoformat(),
+            "pin": "1717",
+            "ui_language": "de",
+        })
+        self.assertEqual(point_balance(student)["story_points"], 1)
+
     def test_story_scroll_top_button_is_available_except_for_beginner_level(self):
         student = get_user_model().objects.create_user("story-scroll-reader", password="x")
         self.client.force_login(student)
