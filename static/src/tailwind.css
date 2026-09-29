@@ -2558,14 +2558,20 @@ html.app-language-german .assignment-dialog-description {
 }
 
 .library-story-image--letters {
-  width: min(100%, 28rem) !important;
-  height: clamp(15rem, 46vh, 27rem) !important;
+  width: min(100%, 23rem) !important;
+  height: clamp(12rem, 38vh, 22rem) !important;
   object-fit: contain;
 }
 
 .library-story-image--family {
   width: min(100%, 38rem) !important;
   height: clamp(20rem, 60vh, 38rem) !important;
+  object-fit: contain;
+}
+
+.library-story-image--colors {
+  width: min(100%, 25rem) !important;
+  height: clamp(13rem, 39vh, 24rem) !important;
   object-fit: contain;
 }
 
@@ -6773,9 +6779,16 @@ body.auth-page {
   overflow-wrap: anywhere;
 }
 
-.library-story-content > .library-story-image--letters + .library-story-text--beginner {
-  font-size: clamp(2.6rem, 5vw, 3.5rem);
+.library-story-content > .library-story-text--numbers {
+  font-size: clamp(4rem, 8vw, 5.75rem);
   font-weight: 900;
+  line-height: 1.7;
+}
+
+.library-story-content > .library-story-image--letters + .library-story-text--beginner {
+  font-size: clamp(4rem, 8vw, 5.75rem);
+  font-weight: 900;
+  line-height: 1.7;
 }
 
 @media (max-width: 39.999rem) {
@@ -6784,14 +6797,19 @@ body.auth-page {
     height: clamp(19rem, 52dvh, 31rem) !important;
   }
 
+  .library-story-image--colors {
+    width: min(100%, 18rem) !important;
+    height: clamp(10rem, 29dvh, 17rem) !important;
+  }
+
   .library-story-image--lesson {
     width: 100% !important;
     height: clamp(17rem, 46dvh, 28rem) !important;
   }
 
   .library-story-image--letters {
-    width: min(100%, 22rem) !important;
-    height: clamp(13rem, 36dvh, 21rem) !important;
+    width: min(100%, 18rem) !important;
+    height: clamp(10rem, 29dvh, 17rem) !important;
   }
 
   .library-story-content > .library-story-text--beginner {
@@ -6799,7 +6817,13 @@ body.auth-page {
   }
 
   .library-story-content > .library-story-image--letters + .library-story-text--beginner {
-    font-size: clamp(2.35rem, 12vw, 3rem);
+    font-size: clamp(4.3rem, 21vw, 5.6rem);
+    line-height: 1.6;
+  }
+
+  .library-story-content > .library-story-text--numbers {
+    font-size: clamp(4.3rem, 21vw, 5.6rem);
+    line-height: 1.6;
   }
 }
 

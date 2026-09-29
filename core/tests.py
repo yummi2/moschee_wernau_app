@@ -739,7 +739,8 @@ class LibraryTranslationTests(TestCase):
         self.assertContains(stories, 'data-app-ar="الألوان" data-app-de="Farben"')
         self.assertContains(first, "v1790713230/Image1_himpk6.jpg")
         self.assertContains(first, 'data-app-de="Farben"')
-        self.assertContains(first, "library-story-image--family")
+        self.assertContains(first, "library-story-image--colors")
+        self.assertNotContains(first, "library-story-image--family")
         self.assertContains(first, 'data-app-ar="التالي" data-app-de="Weiter"')
         self.assertNotContains(first, 'id="mark-read-btn"')
         self.assertContains(last, "v1790713016/Image_zwr6o0.jpg")
@@ -784,6 +785,7 @@ class LibraryTranslationTests(TestCase):
         self.assertContains(stories, 'data-app-ar="الأرقام" data-app-de="Zahlen"')
         self.assertContains(first, "v1790701295/Gemini_Generated_Image_iouzyoiouzyoiouz_itxgay.jpg")
         self.assertContains(first, "وَاحِدٌ")
+        self.assertContains(first, "library-story-text--numbers")
         self.assertContains(first, 'data-app-ar="التالي" data-app-de="Weiter"')
         self.assertContains(last, "v1790701300/Gemini_Generated_Image_1inkrt1inkrt1ink_kpwoih.jpg")
         self.assertContains(last, "عَشَرَةٌ")
@@ -811,20 +813,20 @@ class LibraryTranslationTests(TestCase):
         self.assertEqual(point_balance(student)["story_points"], 1)
 
     @override_settings(PARENT_APPROVAL_PIN="1717")
-    def test_demonstratives_lesson_is_first_and_awards_parent_confirmed_point(self):
+    def test_demonstratives_lesson_is_in_beginner_and_awards_parent_confirmed_point(self):
         student = get_user_model().objects.create_user("demonstratives-reader", password="x")
         self.client.force_login(student)
 
-        stories = self.client.get(reverse("library"), {"level": "intermediate"})
+        stories = self.client.get(reverse("library"), {"level": "beginner"})
         content = stories.content.decode()
         first = self.client.get(
-            reverse("library"), {"level": "intermediate", "sid": "0", "p": "1"}
+            reverse("library"), {"level": "beginner", "sid": "demonstratives", "p": "1"}
         )
         last = self.client.get(
-            reverse("library"), {"level": "intermediate", "sid": "0", "p": "5"}
+            reverse("library"), {"level": "beginner", "sid": "demonstratives", "p": "5"}
         )
 
-        self.assertLess(content.index("sid=0"), content.index("sid=1"))
+        self.assertLess(content.index("sid=demonstratives"), content.index("sid=numbers"))
         self.assertContains(stories, 'data-app-ar="أَسْمَاءُ الإِشَارَةِ" data-app-de="Demonstrativpronomen"')
         self.assertContains(first, "v1790696069/ChatGPT-Bild_29._Sept._2026_17_27_06_ju9qbf.png")
         self.assertContains(first, 'data-app-de="Demonstrativpronomen"')
@@ -836,11 +838,11 @@ class LibraryTranslationTests(TestCase):
 
         response = self.client.post(
             reverse("mark_story_read"),
-            data='{"level":"intermediate","sid":"0"}',
+            data='{"level":"beginner","sid":"demonstratives"}',
             content_type="application/json",
         )
         activity = StudentPointActivity.objects.get(
-            student=student, category="library", source_key="intermediate:0"
+            student=student, category="library", source_key="beginner:demonstratives"
         )
         self.assertTrue(response.json()["activity_saved"])
         self.assertEqual(point_balance(student)["story_points"], 0)
@@ -975,6 +977,15 @@ class LibraryTranslationTests(TestCase):
         self.assertContains(last, "v1790691110/geraldrose-royal-gramma-basslet-8012082_f5l5ds.jpg")
         self.assertContains(last, 'data-app-ar="السابق" data-app-de="Zurück"')
         self.assertContains(last, 'id="mark-read-btn"')
+
+        book = self.client.get(
+            reverse("library"), {"level": "letters1", "sid": "2", "p": "5"}
+        )
+        cup = self.client.get(
+            reverse("library"), {"level": "letters1", "sid": "2", "p": "6"}
+        )
+        self.assertContains(book, "v1790714250/pexels-book-1868068_1920_mhucfv.jpg")
+        self.assertContains(cup, "v1790714573/iamnotperfect-cup-2315565_1920_a0grza.jpg")
 
     @override_settings(PARENT_APPROVAL_PIN="1717")
     def test_letter_kaf_awards_one_point_only_after_parent_confirmation(self):
@@ -1257,6 +1268,10 @@ class LibraryTranslationTests(TestCase):
         self.assertContains(stories, 'data-app-de="Der Buchstabe Fāʾ"')
         self.assertContains(first, 'مِ<span class="library-letter-highlight">ف</span>ْتَاحٌ')
         self.assertContains(first, 'data-app-ar="التالي" data-app-de="Weiter"')
+        bird = self.client.get(
+            reverse("library"), {"level": "letters1", "sid": "9", "p": "3"}
+        )
+        self.assertContains(bird, "v1790714591/12019-kingfisher-2046453_1920_hvlgei.jpg")
         self.assertContains(last, '<span class="library-letter-highlight">ف</span>َرَاشَةٌ')
         self.assertContains(last, "7 / 7")
         self.assertContains(last, 'data-app-ar="السابق" data-app-de="Zurück"')

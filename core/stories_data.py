@@ -26,8 +26,8 @@ STORIES = {
                     {"text": "مَ<span class=\"library-letter-highlight\">ك</span>ْتَبٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790691095/ChatGPT-Bild_29._Sept._2026_16_09_57_dmihdy.png"},
                     {"text": "<span class=\"library-letter-highlight\">ك</span>ُرْسِيٌّ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790691095/ChatGPT-Bild_29._Sept._2026_16_08_28_encjog.png"},
                     {"text": "<span class=\"library-letter-highlight\">ك</span>ِيسٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790691099/ChatGPT-Bild_29._Sept._2026_15_58_13_hkri6w.png"},
-                    {"text": "<span class=\"library-letter-highlight\">ك</span>ِتَابٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790691100/ChatGPT-Bild_29._Sept._2026_15_56_41_lup6by.png"},
-                    {"text": "<span class=\"library-letter-highlight\">ك</span>ُوب", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790691103/pexels-caffeine-1845314_pxspdy.jpg"},
+                    {"text": "<span class=\"library-letter-highlight\">ك</span>ِتَابٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790714250/pexels-book-1868068_1920_mhucfv.jpg"},
+                    {"text": "<span class=\"library-letter-highlight\">ك</span>ُوب", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790714573/iamnotperfect-cup-2315565_1920_a0grza.jpg"},
                     {"text": "دِي<span class=\"library-letter-highlight\">ك</span>ٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790691104/ChatGPT-Bild_29._Sept._2026_15_48_28_y5cqvs.png"},
                     {"text": "<span class=\"library-letter-highlight\">ك</span>ُرَةٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790691107/noname_13-soccer-3471402_vqv1xg.jpg"},
                     {"text": "<span class=\"library-letter-highlight\">ك</span>َلْبٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790691109/ChatGPT-Bild_29._Sept._2026_15_42_46_o8k8yo.png"},
@@ -122,7 +122,7 @@ STORIES = {
                 "body": [
                     {"text": "مِ<span class=\"library-letter-highlight\">ف</span>ْتَاحٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790704759/kaboompics-key-791641_1920_nodvrh.jpg"},
                     {"text": "<span class=\"library-letter-highlight\">ف</span>َرَاوِلَةٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790712929/jhenning-fresh-strawberries-7191555_1920_l9wkus.jpg"},
-                    {"text": "عُص<span class=\"library-letter-highlight\">ف</span>ُور", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790704775/kieutruongphoto-bird-4062359_1920_zaijnp.jpg"},
+                    {"text": "عُص<span class=\"library-letter-highlight\">ف</span>ُور", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790714591/12019-kingfisher-2046453_1920_hvlgei.jpg"},
                     {"text": "<span class=\"library-letter-highlight\">ف</span>َأر", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790704783/alexas_fotos-mouse-1708347_1920_trh5u3.jpg"},
                     {"text": "خَرُو<span class=\"library-letter-highlight\">ف</span>", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790712921/saipano-sheep-9674601_1920_o5cf2o.jpg"},
                     {"text": "تِلْ<span class=\"library-letter-highlight\">ف</span>َازٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790712997/alehandra13-tv-set-4308538_1920_vocvw9.jpg"},
@@ -147,6 +147,17 @@ STORIES = {
                     {"text": "", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790713035/10Image_gqjuxx.jpg"},
                     {"text": "", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790713025/11Image_vvqhth.jpg"},
                     {"text": "", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790713016/Image_zwr6o0.jpg"},
+                ],
+            },
+            "demonstratives": {
+                "title": "أَسْمَاءُ الإِشَارَةِ",
+                "title_de": "Demonstrativpronomen",
+                "body": [
+                    {"text": "", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790696069/ChatGPT-Bild_29._Sept._2026_17_27_06_ju9qbf.png"},
+                    {"text": "", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790696065/ChatGPT-Bild_29._Sept._2026_17_28_21_zjmttr.png"},
+                    {"text": "", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790696061/ChatGPT-Bild_29._Sept._2026_17_32_15_nagwzq.png"},
+                    {"text": "", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790696057/ChatGPT-Bild_29._Sept._2026_17_32_57_aaosui.png"},
+                    {"text": "", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790696054/ChatGPT-Bild_29._Sept._2026_17_33_50_fq6vpf.png"},
                 ],
             },
             "numbers": {
@@ -280,17 +291,6 @@ STORIES = {
                 ]},
         },
         "intermediate": {
-            "0": {
-                "title": "أَسْمَاءُ الإِشَارَةِ",
-                "title_de": "Demonstrativpronomen",
-                "body": [
-                    {"text": "", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790696069/ChatGPT-Bild_29._Sept._2026_17_27_06_ju9qbf.png"},
-                    {"text": "", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790696065/ChatGPT-Bild_29._Sept._2026_17_28_21_zjmttr.png"},
-                    {"text": "", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790696061/ChatGPT-Bild_29._Sept._2026_17_32_15_nagwzq.png"},
-                    {"text": "", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790696057/ChatGPT-Bild_29._Sept._2026_17_32_57_aaosui.png"},
-                    {"text": "", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790696054/ChatGPT-Bild_29._Sept._2026_17_33_50_fq6vpf.png"},
-                ],
-            },
             "1": {
                 "title": "الحياءُ مِنَ اللهِ",
                 "body": [
