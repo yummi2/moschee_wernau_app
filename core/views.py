@@ -2074,6 +2074,7 @@ def library(request):
             "6": "Der Buchstabe Sīn",
         },
         "beginner": {
+            "numbers": "Zahlen",
             "0": "Meine Familie",
             "1": "Satz 1", "2": "Satz 2", "3": "Satz 3", "4": "Satz 4",
         },

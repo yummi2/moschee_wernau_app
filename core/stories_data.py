@@ -93,6 +93,22 @@ STORIES = {
             },
         },
         "beginner": {
+            "numbers": {
+                "title": "الأرقام",
+                "title_de": "Zahlen",
+                "body": [
+                    {"text": "وَاحِدٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790701295/Gemini_Generated_Image_iouzyoiouzyoiouz_itxgay.jpg"},
+                    {"text": "إِثْنَانِ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790701354/Gemini_Generated_Image_56jad956jad956ja_pp4j07.jpg"},
+                    {"text": "ثَلَاثَةٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790701342/Gemini_Generated_Image_j10nd1j10nd1j10n_djz3th.jpg"},
+                    {"text": "أَرْبَعَةٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790701335/Gemini_Generated_Image_utf82tutf82tutf8_dgno8c.jpg"},
+                    {"text": "خَمْسَةٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790701323/Gemini_Generated_Image_g9d5jvg9d5jvg9d5_sqs5wh.jpg"},
+                    {"text": "سِتَّةٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790701329/Gemini_Generated_Image_7loff57loff57lof_fmleqs.jpg"},
+                    {"text": "سَبْعَةٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790701317/Gemini_Generated_Image_bckw32bckw32bckw_uwbti9.jpg"},
+                    {"text": "ثَمَانِيَةٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790701311/Gemini_Generated_Image_9ro5c69ro5c69ro5_kjhrhf.jpg"},
+                    {"text": "تِسْعَةٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790701305/Gemini_Generated_Image_4u3yyr4u3yyr4u3y_lcolsz.jpg"},
+                    {"text": "عَشَرَةٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790701300/Gemini_Generated_Image_1inkrt1inkrt1ink_kpwoih.jpg"},
+                ],
+            },
             "0": {
                 "title": "أسرتي",
                 "title_de": "Meine Familie",

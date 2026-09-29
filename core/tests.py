@@ -723,6 +723,50 @@ class SchoolYearAccessTests(TestCase):
 
 class LibraryTranslationTests(TestCase):
     @override_settings(PARENT_APPROVAL_PIN="1717")
+    def test_numbers_lesson_is_first_and_awards_parent_confirmed_point(self):
+        student = get_user_model().objects.create_user("numbers-reader", password="x")
+        self.client.force_login(student)
+
+        stories = self.client.get(reverse("library"), {"level": "beginner"})
+        content = stories.content.decode()
+        first = self.client.get(
+            reverse("library"), {"level": "beginner", "sid": "numbers", "p": "1"}
+        )
+        last = self.client.get(
+            reverse("library"), {"level": "beginner", "sid": "numbers", "p": "10"}
+        )
+
+        self.assertLess(content.index("sid=numbers"), content.index("sid=0"))
+        self.assertContains(stories, 'data-app-ar="الأرقام" data-app-de="Zahlen"')
+        self.assertContains(first, "v1790701295/Gemini_Generated_Image_iouzyoiouzyoiouz_itxgay.jpg")
+        self.assertContains(first, "وَاحِدٌ")
+        self.assertContains(first, 'data-app-ar="التالي" data-app-de="Weiter"')
+        self.assertContains(last, "v1790701300/Gemini_Generated_Image_1inkrt1inkrt1ink_kpwoih.jpg")
+        self.assertContains(last, "عَشَرَةٌ")
+        self.assertContains(last, "10 / 10")
+        self.assertContains(last, 'data-app-ar="السابق" data-app-de="Zurück"')
+        self.assertContains(last, 'id="mark-read-btn"')
+
+        response = self.client.post(
+            reverse("mark_story_read"),
+            data='{"level":"beginner","sid":"numbers"}',
+            content_type="application/json",
+        )
+        activity = StudentPointActivity.objects.get(
+            student=student, category="library", source_key="beginner:numbers"
+        )
+        self.assertTrue(response.json()["activity_saved"])
+        self.assertEqual(point_balance(student)["story_points"], 0)
+
+        self.client.post(reverse("parent_point_approvals"), {
+            "action": "confirm_day",
+            "date": activity.activity_date.isoformat(),
+            "pin": "1717",
+            "ui_language": "de",
+        })
+        self.assertEqual(point_balance(student)["story_points"], 1)
+
+    @override_settings(PARENT_APPROVAL_PIN="1717")
     def test_demonstratives_lesson_is_first_and_awards_parent_confirmed_point(self):
         student = get_user_model().objects.create_user("demonstratives-reader", password="x")
         self.client.force_login(student)
