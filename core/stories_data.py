@@ -91,6 +91,18 @@ STORIES = {
                     {"text": "<span class=\"library-letter-highlight\">س</span>َاعَة", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790700285/ChatGPT-Bild_29._Sept._2026_18_32_48_xxqid4.png"},
                 ],
             },
+            "7": {
+                "title": "حرف اللام",
+                "title_de": "Der Buchstabe Lām",
+                "body": [
+                    {"text": "بَا<span class=\"library-letter-highlight\">ل</span>ُون", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790702540/gemini-2.5-flash-image_erstell_mir_ein_bild_mit_baloons_wie_das_hier-0_xoagdj.jpg"},
+                    {"text": "<span class=\"library-letter-highlight\">ل</span>ُعبَة", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790702546/Gemini_Generated_Image_epjqasepjqasepjq_zfy6gw.jpg"},
+                    {"text": "<span class=\"library-letter-highlight\">ل</span>َاصِق", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790702552/Gemini_Generated_Image_ahsza5ahsza5ahsz_iyjqhi.jpg"},
+                    {"text": "فِي<span class=\"library-letter-highlight\">ل</span>ٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790702560/Gemini_Generated_Image_4ygxzm4ygxzm4ygx_cl9qzy.jpg"},
+                    {"text": "دَ<span class=\"library-letter-highlight\">ل</span>ُو", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790698937/ChatGPT-Bild_29._Sept._2026_18_20_10_ykkhgo.png"},
+                    {"text": "<span class=\"library-letter-highlight\">ل</span>َيمُون", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790688010/ChatGPT-Bild_29._Sept._2026_15_04_43_jwfku5.png"},
+                ],
+            },
         },
         "beginner": {
             "numbers": {
