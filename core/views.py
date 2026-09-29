@@ -2187,7 +2187,8 @@ def library(request):
         })
 
     sentences = []
-    for s_id, s_data in STORIES.get(level, {}).items():
+    story_items = list(STORIES.get(level, {}).items())
+    for s_id, s_data in story_items:
         href = f"{reverse('library')}?level={level}&sid={s_id}"
         sentences.append({
             "title": s_data["title"],

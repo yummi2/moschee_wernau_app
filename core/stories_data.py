@@ -122,7 +122,7 @@ STORIES = {
                 "body": [
                     {"text": "مِ<span class=\"library-letter-highlight\">ف</span>ْتَاحٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790704759/kaboompics-key-791641_1920_nodvrh.jpg"},
                     {"text": "<span class=\"library-letter-highlight\">ف</span>َرَاوِلَةٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790712929/jhenning-fresh-strawberries-7191555_1920_l9wkus.jpg"},
-                    {"text": "عُص<span class=\"library-letter-highlight\">ف</span>ُور", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790714591/12019-kingfisher-2046453_1920_hvlgei.jpg"},
+                    {"text": "عُص<span class=\"library-letter-highlight\">ف</span>ُور", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790715946/nicman-hummingbird-2139279_1920_ct6hv3.jpg"},
                     {"text": "<span class=\"library-letter-highlight\">ف</span>َأر", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790704783/alexas_fotos-mouse-1708347_1920_trh5u3.jpg"},
                     {"text": "خَرُو<span class=\"library-letter-highlight\">ف</span>", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790712921/saipano-sheep-9674601_1920_o5cf2o.jpg"},
                     {"text": "تِلْ<span class=\"library-letter-highlight\">ف</span>َازٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790712997/alehandra13-tv-set-4308538_1920_vocvw9.jpg"},
@@ -149,17 +149,6 @@ STORIES = {
                     {"text": "", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790713016/Image_zwr6o0.jpg"},
                 ],
             },
-            "demonstratives": {
-                "title": "أَسْمَاءُ الإِشَارَةِ",
-                "title_de": "Demonstrativpronomen",
-                "body": [
-                    {"text": "", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790696069/ChatGPT-Bild_29._Sept._2026_17_27_06_ju9qbf.png"},
-                    {"text": "", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790696065/ChatGPT-Bild_29._Sept._2026_17_28_21_zjmttr.png"},
-                    {"text": "", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790696061/ChatGPT-Bild_29._Sept._2026_17_32_15_nagwzq.png"},
-                    {"text": "", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790696057/ChatGPT-Bild_29._Sept._2026_17_32_57_aaosui.png"},
-                    {"text": "", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790696054/ChatGPT-Bild_29._Sept._2026_17_33_50_fq6vpf.png"},
-                ],
-            },
             "numbers": {
                 "title": "الأرقام",
                 "title_de": "Zahlen",
@@ -184,6 +173,17 @@ STORIES = {
                         "text": "",
                         "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790694032/ChatGPT-Bild_29._Sept._2026_16_38_10_s4opuw.png",
                     },
+                ],
+            },
+            "demonstratives": {
+                "title": "أَسْمَاءُ الإِشَارَةِ",
+                "title_de": "Demonstrativpronomen",
+                "body": [
+                    {"text": "", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790696069/ChatGPT-Bild_29._Sept._2026_17_27_06_ju9qbf.png"},
+                    {"text": "", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790696065/ChatGPT-Bild_29._Sept._2026_17_28_21_zjmttr.png"},
+                    {"text": "", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790696061/ChatGPT-Bild_29._Sept._2026_17_32_15_nagwzq.png"},
+                    {"text": "", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790696057/ChatGPT-Bild_29._Sept._2026_17_32_57_aaosui.png"},
+                    {"text": "", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790696054/ChatGPT-Bild_29._Sept._2026_17_33_50_fq6vpf.png"},
                 ],
             },
             "1": {

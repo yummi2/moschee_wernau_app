@@ -845,7 +845,8 @@ class LibraryTranslationTests(TestCase):
             reverse("library"), {"level": "beginner", "sid": "demonstratives", "p": "5"}
         )
 
-        self.assertLess(content.index("sid=demonstratives"), content.index("sid=numbers"))
+        self.assertLess(content.index("sid=0"), content.index("sid=demonstratives"))
+        self.assertLess(content.index("sid=demonstratives"), content.index("sid=1"))
         self.assertContains(stories, 'data-app-ar="أَسْمَاءُ الإِشَارَةِ" data-app-de="Demonstrativpronomen"')
         self.assertContains(first, "v1790696069/ChatGPT-Bild_29._Sept._2026_17_27_06_ju9qbf.png")
         self.assertContains(first, 'data-app-de="Demonstrativpronomen"')
@@ -1290,7 +1291,7 @@ class LibraryTranslationTests(TestCase):
         bird = self.client.get(
             reverse("library"), {"level": "letters1", "sid": "9", "p": "3"}
         )
-        self.assertContains(bird, "v1790714591/12019-kingfisher-2046453_1920_hvlgei.jpg")
+        self.assertContains(bird, "v1790715946/nicman-hummingbird-2139279_1920_ct6hv3.jpg")
         self.assertContains(last, '<span class="library-letter-highlight">ف</span>َرَاشَةٌ')
         self.assertContains(last, "7 / 7")
         self.assertContains(last, 'data-app-ar="السابق" data-app-de="Zurück"')
