@@ -2077,6 +2077,7 @@ def library(request):
             "9": "Der Buchstabe Fāʾ",
         },
         "beginner": {
+            "colors": "Farben",
             "numbers": "Zahlen",
             "0": "Meine Familie",
             "1": "Satz 1", "2": "Satz 2", "3": "Satz 3", "4": "Satz 4",

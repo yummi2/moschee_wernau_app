@@ -154,7 +154,7 @@
 
             {% if current_image %}
             <img src="{{ current_image }}" alt="{{ story.title }}"
-                class="library-story-image {% if level == 'letters1' %}library-story-image--letters{% endif %}{% if level == 'beginner' and sid == '0' %} library-story-image--family{% endif %}{% if level == 'intermediate' and sid == '0' %} library-story-image--lesson{% endif %} w-1/2 h-48 object-contain rounded-xl mx-auto mb-6">
+                class="library-story-image {% if level == 'letters1' %}library-story-image--letters{% endif %}{% if level == 'beginner' and sid == '0' or level == 'beginner' and sid == 'colors' %} library-story-image--family{% endif %}{% if level == 'intermediate' and sid == '0' %} library-story-image--lesson{% endif %} w-1/2 h-48 object-contain rounded-xl mx-auto mb-6">
             {% endif %}
             <p class="library-story-text {% if level == 'beginner' or level == 'letters1' %}library-story-text--beginner{% endif %} text-xl leading-loose text-center whitespace-pre-line">{{ current_text|safe }}</p>
 
