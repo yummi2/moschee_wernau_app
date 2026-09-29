@@ -80,6 +80,17 @@ STORIES = {
                     {"text": "<span class=\"library-letter-highlight\">د</span>ِيكٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790698986/ChatGPT-Bild_29._Sept._2026_15_48_28_ztx8m7.png"},
                 ],
             },
+            "6": {
+                "title": "حرف السين",
+                "title_de": "Der Buchstabe Sīn",
+                "body": [
+                    {"text": "كَرَا<span class=\"library-letter-highlight\">س</span>ِيّّ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790700262/Gemini_Generated_Image_bg2nsdbg2nsdbg2n_rjznrj.jpg"},
+                    {"text": "<span class=\"library-letter-highlight\">س</span>ُور", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790700267/Gemini_Generated_Image_w3bvtsw3bvtsw3bv_afsfxg.jpg"},
+                    {"text": "<span class=\"library-letter-highlight\">س</span>ُلَحْفَاة", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790700273/ChatGPT-Bild_29._Sept._2026_18_37_50_wwkzg3.png"},
+                    {"text": "رَأْ<span class=\"library-letter-highlight\">س</span>", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790700279/ChatGPT-Bild_29._Sept._2026_18_37_07_tim3jx.png"},
+                    {"text": "<span class=\"library-letter-highlight\">س</span>َاعَة", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790700285/ChatGPT-Bild_29._Sept._2026_18_32_48_xxqid4.png"},
+                ],
+            },
         },
         "beginner": {
             "0": {
