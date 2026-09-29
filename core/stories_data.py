@@ -116,6 +116,19 @@ STORIES = {
                     {"text": "<span class=\"library-letter-highlight\">ت</span>َمْرٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790703809/alyerika-dates-10309519_kr3tcz.jpg"},
                 ],
             },
+            "9": {
+                "title": "حرف الفاء",
+                "title_de": "Der Buchstabe Fāʾ",
+                "body": [
+                    {"text": "مِ<span class=\"library-letter-highlight\">ف</span>ْتَاحٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790704759/kaboompics-key-791641_1920_nodvrh.jpg"},
+                    {"text": "<span class=\"library-letter-highlight\">ف</span>َرَاوِلَةٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790704767/ritae-strawberries-1445849_1920_qqctdk.jpg"},
+                    {"text": "عُص<span class=\"library-letter-highlight\">ف</span>ُور", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790704775/kieutruongphoto-bird-4062359_1920_zaijnp.jpg"},
+                    {"text": "<span class=\"library-letter-highlight\">ف</span>َأر", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790704783/alexas_fotos-mouse-1708347_1920_trh5u3.jpg"},
+                    {"text": "خِرْ<span class=\"library-letter-highlight\">ف</span>َانٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790704800/alexas_fotos-sheep-1642874_1920_k4rlac.jpg"},
+                    {"text": "تِلْ<span class=\"library-letter-highlight\">ف</span>َازٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790704809/alehandra13-tv-set-4308538_1920_w3wnnn.jpg"},
+                    {"text": "<span class=\"library-letter-highlight\">ف</span>َرَاشَةٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790704816/jillwellington-insect-1278820_1920_tf0rxl.jpg"},
+                ],
+            },
         },
         "beginner": {
             "numbers": {

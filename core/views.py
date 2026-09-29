@@ -2074,6 +2074,7 @@ def library(request):
             "6": "Der Buchstabe Sīn",
             "7": "Der Buchstabe Lām",
             "8": "Der Buchstabe Tāʾ",
+            "9": "Der Buchstabe Fāʾ",
         },
         "beginner": {
             "numbers": "Zahlen",
