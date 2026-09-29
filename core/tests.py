@@ -722,6 +722,25 @@ class SchoolYearAccessTests(TestCase):
 
 
 class LibraryTranslationTests(TestCase):
+    def test_final_story_page_has_bilingual_back_to_library_button(self):
+        student = get_user_model().objects.create_user("library-back-reader", password="x")
+        self.client.force_login(student)
+
+        final_page = self.client.get(
+            reverse("library"), {"level": "beginner", "sid": "numbers", "p": "10"}
+        )
+        first_page = self.client.get(
+            reverse("library"), {"level": "beginner", "sid": "numbers", "p": "1"}
+        )
+        books = self.client.get(reverse("library"), {"level": "books"})
+
+        self.assertContains(final_page, 'class="library-back-button"')
+        self.assertContains(final_page, 'data-app-ar="العودة إلى المكتبة"')
+        self.assertContains(final_page, 'data-app-de="Zurück zur Bibliothek"')
+        self.assertContains(final_page, f'{reverse("library")}?level=beginner')
+        self.assertNotContains(first_page, 'class="library-back-button"')
+        self.assertNotContains(books, 'class="library-back-button"')
+
     @override_settings(PARENT_APPROVAL_PIN="1717")
     def test_colors_card_is_first_and_awards_parent_confirmed_point(self):
         student = get_user_model().objects.create_user("colors-reader", password="x")

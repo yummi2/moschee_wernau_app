@@ -2599,6 +2599,33 @@ html.app-language-german .assignment-dialog-description {
   text-align: center;
 }
 
+.library-back-button {
+  display: flex;
+  width: fit-content;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  margin: 0.8rem auto 0;
+  padding: 0.65rem 1.15rem;
+  border: 1px solid #0b4938;
+  border-radius: 999px;
+  color: #0b4938;
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: normal;
+  transition: background-color 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.library-back-button:hover,
+.library-back-button:focus-visible {
+  background: #0b4938;
+  color: #fff;
+}
+
+.library-back-button:active {
+  transform: scale(0.98);
+}
+
 .library-read-button {
   display: inline-flex;
   min-width: 6rem;

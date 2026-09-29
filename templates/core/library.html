@@ -208,6 +208,12 @@
                     سجّل الدخول لوضع علامة "تمت القراءة"
                 </a>
                 {% endif %}
+                {% if level != "books" %}
+                <a href="{% url 'library' %}?level={{ level }}" class="library-back-button"
+                    data-app-ar="العودة إلى المكتبة" data-app-de="Zurück zur Bibliothek">
+                    العودة إلى المكتبة
+                </a>
+                {% endif %}
             </div>
             {% endif %}
 
