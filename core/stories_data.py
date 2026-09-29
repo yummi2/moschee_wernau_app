@@ -63,6 +63,23 @@ STORIES = {
                     {"text": "<span class=\"library-letter-highlight\">ن</span>َارٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790694925/ChatGPT-Bild_29._Sept._2026_17_06_33_pnhxzi.png"},
                 ],
             },
+            "5": {
+                "title": "حرف الدال",
+                "title_de": "Der Buchstabe Dāl",
+                "body": [
+                    {"text": "كَنَ<span class=\"library-letter-highlight\">د</span>َا", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790698932/ChatGPT-Bild_29._Sept._2026_18_20_32_b58cno.png"},
+                    {"text": "<span class=\"library-letter-highlight\">د</span>َلْوٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790698937/ChatGPT-Bild_29._Sept._2026_18_20_10_ykkhgo.png"},
+                    {"text": "مُهَنْ<span class=\"library-letter-highlight\">د</span>ِسٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790698942/ChatGPT-Bild_29._Sept._2026_18_20_05_zplrcz.png"},
+                    {"text": "<span class=\"library-letter-highlight\">د</span>َائِرَةٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790698947/ChatGPT-Bild_29._Sept._2026_17_56_42_wjbkgy.png"},
+                    {"text": "أَسَ<span class=\"library-letter-highlight\">د</span>ٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790698952/alexas_fotos-lion-3317670_1920_hw7qoy.jpg"},
+                    {"text": "<span class=\"library-letter-highlight\">د</span>ُو<span class=\"library-letter-highlight\">د</span>َةٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790698958/iglobalweb-earth-worm-2562572_wsixyg.jpg"},
+                    {"text": "<span class=\"library-letter-highlight\">د</span>ُبٌّ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790698963/ChatGPT-Bild_29._Sept._2026_17_54_21_mmus72.png"},
+                    {"text": "يَ<span class=\"library-letter-highlight\">د</span>ٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790698968/ChatGPT-Bild_29._Sept._2026_17_53_20_hzglwe.png"},
+                    {"text": "مَائِ<span class=\"library-letter-highlight\">د</span>َةٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790698973/ChatGPT-Bild_29._Sept._2026_17_52_29_nv9k32.png"},
+                    {"text": "<span class=\"library-letter-highlight\">د</span>َجَاجَةٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790698979/ChatGPT-Bild_29._Sept._2026_17_51_20_rmcbtv.png"},
+                    {"text": "<span class=\"library-letter-highlight\">د</span>ِيكٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790698986/ChatGPT-Bild_29._Sept._2026_15_48_28_ztx8m7.png"},
+                ],
+            },
         },
         "beginner": {
             "0": {
