@@ -722,6 +722,52 @@ class SchoolYearAccessTests(TestCase):
 
 
 class LibraryTranslationTests(TestCase):
+    def test_family_card_comes_before_sentence_one_and_shows_only_its_image(self):
+        student = get_user_model().objects.create_user("family-reader", password="x")
+        self.client.force_login(student)
+
+        stories = self.client.get(reverse("library"), {"level": "beginner"})
+        content = stories.content.decode()
+        detail = self.client.get(
+            reverse("library"), {"level": "beginner", "sid": "0"}
+        )
+
+        self.assertLess(content.index("sid=0"), content.index("sid=1"))
+        self.assertContains(stories, 'data-app-ar="أسرتي" data-app-de="Meine Familie"')
+        self.assertContains(detail, "v1790694032/ChatGPT-Bild_29._Sept._2026_16_38_10_s4opuw.png")
+        self.assertContains(detail, 'data-app-de="Meine Familie"')
+        self.assertContains(detail, "library-story-image--family")
+        self.assertContains(detail, "1 / 1")
+        self.assertContains(detail, 'id="mark-read-btn"')
+        self.assertNotContains(detail, 'data-app-de="Zurück"')
+        self.assertNotContains(detail, 'data-app-de="Weiter"')
+        self.assertNotContains(detail, "library-letter-highlight")
+
+    @override_settings(PARENT_APPROVAL_PIN="1717")
+    def test_family_card_point_waits_for_parent_confirmation(self):
+        student = get_user_model().objects.create_user("family-point-reader", password="x")
+        self.client.force_login(student)
+        response = self.client.post(
+            reverse("mark_story_read"),
+            data='{"level":"beginner","sid":"0"}',
+            content_type="application/json",
+        )
+        activity = StudentPointActivity.objects.get(
+            student=student, category="library", source_key="beginner:0"
+        )
+
+        self.assertTrue(response.json()["activity_saved"])
+        self.assertEqual(activity.status, "pending")
+        self.assertEqual(point_balance(student)["story_points"], 0)
+
+        self.client.post(reverse("parent_point_approvals"), {
+            "action": "confirm_day",
+            "date": activity.activity_date.isoformat(),
+            "pin": "1717",
+            "ui_language": "de",
+        })
+        self.assertEqual(point_balance(student)["story_points"], 1)
+
     def test_letter_level_comes_before_beginner_and_keeps_arabic_labels(self):
         levels = self.client.get(reverse("library"))
         content = levels.content.decode()
@@ -812,6 +858,52 @@ class LibraryTranslationTests(TestCase):
         activity = StudentPointActivity.objects.get(
             student=student, category="library", source_key="letters1:2"
         )
+        self.assertTrue(response.json()["activity_saved"])
+        self.assertEqual(activity.status, "pending")
+        self.assertEqual(point_balance(student)["story_points"], 0)
+
+        self.client.post(reverse("parent_point_approvals"), {
+            "action": "confirm_day",
+            "date": activity.activity_date.isoformat(),
+            "pin": "1717",
+            "ui_language": "de",
+        })
+        self.assertEqual(point_balance(student)["story_points"], 1)
+
+    def test_letter_baa_sequence_has_nine_pages_and_parent_approval_action(self):
+        student = get_user_model().objects.create_user("baa-reader", password="x")
+        self.client.force_login(student)
+
+        stories = self.client.get(reverse("library"), {"level": "letters1"})
+        first = self.client.get(
+            reverse("library"), {"level": "letters1", "sid": "3", "p": "1"}
+        )
+        last = self.client.get(
+            reverse("library"), {"level": "letters1", "sid": "3", "p": "9"}
+        )
+
+        self.assertContains(stories, 'data-app-de="Der Buchstabe Bāʾ"')
+        self.assertContains(first, 'كَ<span class="library-letter-highlight">ب</span>َا<span class="library-letter-highlight">ب</span>ٌ', html=True)
+        self.assertContains(first, "v1790692656/ChatGPT-Bild_29._Sept._2026_16_36_57_e53k6n.png")
+        self.assertContains(first, 'data-app-ar="التالي" data-app-de="Weiter"')
+        self.assertContains(last, 'سَ<span class="library-letter-highlight">ب</span>ُّورَةٌ', html=True)
+        self.assertContains(last, "9 / 9")
+        self.assertContains(last, 'data-app-ar="السابق" data-app-de="Zurück"')
+        self.assertContains(last, 'id="mark-read-btn"')
+
+    @override_settings(PARENT_APPROVAL_PIN="1717")
+    def test_letter_baa_awards_one_point_only_after_parent_confirmation(self):
+        student = get_user_model().objects.create_user("baa-point-reader", password="x")
+        self.client.force_login(student)
+        response = self.client.post(
+            reverse("mark_story_read"),
+            data='{"level":"letters1","sid":"3"}',
+            content_type="application/json",
+        )
+        activity = StudentPointActivity.objects.get(
+            student=student, category="library", source_key="letters1:3"
+        )
+
         self.assertTrue(response.json()["activity_saved"])
         self.assertEqual(activity.status, "pending")
         self.assertEqual(point_balance(student)["story_points"], 0)

@@ -2563,6 +2563,12 @@ html.app-language-german .assignment-dialog-description {
   object-fit: contain;
 }
 
+.library-story-image--family {
+  width: min(100%, 38rem) !important;
+  height: clamp(20rem, 60vh, 38rem) !important;
+  object-fit: contain;
+}
+
 .library-story-image--letters + .library-story-text--beginner {
   direction: rtl;
   text-align: center;
@@ -6767,6 +6773,11 @@ body.auth-page {
 }
 
 @media (max-width: 39.999rem) {
+  .library-story-image--family {
+    width: 100% !important;
+    height: clamp(19rem, 52dvh, 31rem) !important;
+  }
+
   .library-story-image--letters {
     width: min(100%, 22rem) !important;
     height: clamp(13rem, 36dvh, 21rem) !important;

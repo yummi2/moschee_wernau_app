@@ -34,8 +34,33 @@ STORIES = {
                     {"text": "سَمَ<span class=\"library-letter-highlight\">ك</span>َة", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790691110/geraldrose-royal-gramma-basslet-8012082_f5l5ds.jpg"},
                 ],
             },
+            "3": {
+                "title": "حرف الباء",
+                "title_de": "Der Buchstabe Bāʾ",
+                "body": [
+                    {"text": "كَ<span class=\"library-letter-highlight\">ب</span>َا<span class=\"library-letter-highlight\">ب</span>ٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790692656/ChatGPT-Bild_29._Sept._2026_16_36_57_e53k6n.png"},
+                    {"text": "طَ<span class=\"library-letter-highlight\">ب</span>ِي<span class=\"library-letter-highlight\">ب</span>ٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790692659/ChatGPT-Bild_29._Sept._2026_16_34_04_rclneh.png"},
+                    {"text": "<span class=\"library-letter-highlight\">ب</span>ُومَةٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790692663/ChatGPT-Bild_29._Sept._2026_16_33_23_nixflz.png"},
+                    {"text": "<span class=\"library-letter-highlight\">ب</span>َا<span class=\"library-letter-highlight\">ب</span>ٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790692695/ChatGPT-Bild_29._Sept._2026_16_32_36_f8ujhl.png"},
+                    {"text": "<span class=\"library-letter-highlight\">ب</span>ِنْتٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790693320/ChatGPT-Bild_29._Sept._2026_16_48_09_h285xg.png"},
+                    {"text": "<span class=\"library-letter-highlight\">ب</span>ُرْتُقَالٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790692702/ChatGPT-Bild_29._Sept._2026_16_30_50_hldwzu.png"},
+                    {"text": "حَلِي<span class=\"library-letter-highlight\">ب</span>ٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790692706/ChatGPT-Bild_29._Sept._2026_16_29_30_jzoxkc.png"},
+                    {"text": "<span class=\"library-letter-highlight\">ب</span>َطَّةٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790692710/ChatGPT-Bild_29._Sept._2026_16_27_49_paynj2.png"},
+                    {"text": "سَ<span class=\"library-letter-highlight\">ب</span>ُّورَةٌ", "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790692711/stocksnap-blackboard-2618793_uylrad.jpg"},
+                ],
+            },
         },
         "beginner": {
+            "0": {
+                "title": "أسرتي",
+                "title_de": "Meine Familie",
+                "body": [
+                    {
+                        "text": "",
+                        "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1790694032/ChatGPT-Bild_29._Sept._2026_16_38_10_s4opuw.png",
+                    },
+                ],
+            },
             "1": {
                 "title": "جملة 1",
                 "body": [
