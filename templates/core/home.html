@@ -155,15 +155,15 @@
                 </section>
                 {% endif %}
 
-                {% if active_tab == "home" and ramadan_top10_rank or active_tab == "home" and prayer_top10_months or active_tab == "home" and library_top10_rank %}
+                {% if active_tab == "home" and ramadan_top10_rank or active_tab == "home" and prayer_top10_months or active_tab == "home" and library_top10_rank or active_tab == "home" and mosque_top10 %}
                 <section class="student-achievements" data-home-overview-only aria-label="الإنجازات">
                     {% if mosque_top10 %}
                     <article class="student-achievement student-achievement--mosque">
                         <span class="student-achievement-mark" aria-hidden="true">★</span>
                         <div>
                             <strong data-app-ar="أنت من أفضل 10 طلاب في المسجد" data-app-de="Du bist unter den Top 10 der Moschee">أنت من أفضل 10 طلاب في المسجد</strong>
-                            <small data-app-ar="تميز في الصلاة والمكتبة وورد القرآن اليومي وبنك النقاط"
-                                   data-app-de="Auszeichnung für Gebet, Bibliothek, täglichen Koran und Punktebank">تميز في الصلاة والمكتبة وورد القرآن اليومي وبنك النقاط</small>
+                            <small data-app-ar="لأنك من الطلاب العشرة الأوائل في بنك النقاط"
+                                   data-app-de="Weil du zu den ersten zehn Schülern der Punktebank gehörst">لأنك من الطلاب العشرة الأوائل في بنك النقاط</small>
                         </div>
                     </article>
                     {% endif %}

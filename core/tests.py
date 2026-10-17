@@ -508,25 +508,14 @@ class StudentPointsTests(TestCase):
                 self.assertEqual(response.context["library_top10_rank"], 1)
                 self.assertContains(response, "Du bist unter den Top 10 in der Bibliothek")
 
-    def test_student_qualifying_without_ramadan_gets_mosque_top10_message(self):
-        StoryRead.objects.create(user=self.student, level="beginner", sid="1")
-        for prayer in range(1, 6):
-            PrayerStatus.objects.create(
-                user=self.student,
-                date=dt.date(2026, 9, 8),
-                prayer=prayer,
-                prayed=True,
-            )
+    def test_points_bank_top10_student_gets_mosque_top10_message(self):
+        TeacherPointAward.objects.create(
+            student=self.student,
+            teacher=self.teacher,
+            points=1,
+        )
         self.client.force_login(self.student)
 
-        response_without_quran = self.client.get(reverse("home"), {"tab": "home"})
-        self.assertFalse(response_without_quran.context["mosque_top10"])
-
-        DailyQuranReading.objects.create(
-            student=self.student,
-            portion_index=1,
-            completed_on=dt.date(2026, 9, 8),
-        )
         response = self.client.get(reverse("home"), {"tab": "home"})
 
         self.assertTrue(response.context["mosque_top10"])
@@ -537,7 +526,7 @@ class StudentPointsTests(TestCase):
         self.assertEqual(teacher_response.context["mosque_ranking"][0]["user"], self.student)
         self.assertContains(teacher_response, "Top 10 der Moschee")
 
-    def test_mosque_top10_also_requires_a_top10_points_balance(self):
+    def test_mosque_top10_uses_the_first_ten_points_bank_places(self):
         StoryRead.objects.create(user=self.student, level="beginner", sid="1")
         DailyQuranReading.objects.create(
             student=self.student,
@@ -1829,14 +1818,17 @@ class AdminStatisticsTests(TestCase):
         self.assertNotContains(response, "points-table-panel")
         self.assertNotContains(response, "points-history-panel")
 
-    def test_mosque_top10_card_is_visible_in_2027_even_when_empty(self):
+    def test_mosque_top10_card_matches_points_bank_in_2027(self):
         self.client.force_login(self.admin)
 
         response = self.client.get(reverse("admin_statistics"))
 
         self.assertTrue(response.context["show_points_bank"])
         self.assertContains(response, "Top 10 der Moschee")
-        self.assertContains(response, "Noch kein Schüler ist in den Top 10 der Moschee")
+        self.assertEqual(
+            [entry["user"] for entry in response.context["mosque_ranking"]],
+            [row["user"] for row in response.context["point_ranking"][:10]],
+        )
         self.assertContains(response, 'data-dashboard-tab="homework"')
         self.assertContains(response, 'data-dashboard-tab="points"')
         self.assertContains(response, 'data-dashboard-tab="mosque"')

@@ -1203,111 +1203,29 @@ def about(request):
 
 
 def mosque_top10_ranking(school_year_ranges):
-    """Rank students who are Top 10 in prayer, library, daily Quran and points."""
+    """Return the first ten students from the points-bank ranking."""
     if school_year_ranges["year"] != "2027":
         return []
 
     students = list(student_users().select_related("profile"))
-    student_ids = [student.id for student in students]
-    students_by_id = {student.id: student for student in students}
-    if not student_ids:
+    if not students:
         return []
 
     def display_name(student):
         return student.get_full_name().strip() or student.username
 
-    prayer_rows = (
-        PrayerStatus.objects
-        .filter(
-            user_id__in=student_ids,
-            prayed=True,
-            date__range=(school_year_ranges["prayer_start"], school_year_ranges["prayer_end"]),
-        )
-        .values("user_id", "date__year", "date__month")
-        .annotate(total=Count("id"))
-    )
-    prayer_months = {}
-    for row in prayer_rows:
-        prayer_months.setdefault((row["date__year"], row["date__month"]), []).append(row)
-    prayer_top_ids = set()
-    for rows in prayer_months.values():
-        prayer_top_ids.update(
-            row["user_id"]
-            for row in sorted(
-                rows,
-                key=lambda row: (
-                    -row["total"],
-                    display_name(students_by_id[row["user_id"]]).casefold(),
-                ),
-            )[:10]
-        )
-
-    library_rows = list(
-        StoryRead.objects
-        .filter(user_id__in=student_ids)
-        .values("user_id")
-        .annotate(total=Count("id"))
-    )
-    library_top_ids = {
-        row["user_id"]
-        for row in sorted(
-            library_rows,
-            key=lambda row: (
-                -row["total"],
-                display_name(students_by_id[row["user_id"]]).casefold(),
-            ),
-        )[:10]
-    }
-
-    quran_rows = list(
-        DailyQuranReading.objects
-        .filter(
-            student_id__in=student_ids,
-            completed_on__range=(
-                school_year_ranges["prayer_start"],
-                school_year_ranges["prayer_end"],
-            ),
-        )
-        .values("student_id")
-        .annotate(total=Count("id"))
-    )
-    quran_top_ids = {
-        row["student_id"]
-        for row in sorted(
-            quran_rows,
-            key=lambda row: (
-                -row["total"],
-                display_name(students_by_id[row["student_id"]]).casefold(),
-            ),
-        )[:10]
-    }
-
     balances = point_balances(students)
-    ranked_by_points = [
-        student.id
+    return [
+        {
+            "user": student,
+            "name": display_name(student),
+            "total_points": balances[student.id]["total_points"],
+        }
         for student in sorted(
             students,
             key=lambda student: (
                 -balances[student.id]["total_points"],
                 display_name(student).casefold(),
-            ),
-        )
-        if balances[student.id]["total_points"] > 0
-    ]
-    points_top_ids = set(ranked_by_points[:10])
-
-    eligible_ids = prayer_top_ids & library_top_ids & quran_top_ids & points_top_ids
-    return [
-        {
-            "user": students_by_id[user_id],
-            "name": display_name(students_by_id[user_id]),
-            "total_points": balances[user_id]["total_points"],
-        }
-        for user_id in sorted(
-            eligible_ids,
-            key=lambda user_id: (
-                -balances[user_id]["total_points"],
-                display_name(students_by_id[user_id]).casefold(),
             ),
         )[:10]
     ]
