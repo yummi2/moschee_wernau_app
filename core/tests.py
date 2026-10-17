@@ -146,6 +146,58 @@ class TeacherNoteLinkTests(TestCase):
         self.assertContains(response, 'href="https://example.com/lernseite"')
         self.assertContains(response, 'data-app-de="Link öffnen"')
 
+    def test_admin_sees_all_notes_separated_by_selected_school_year(self):
+        administrator = get_user_model().objects.create_user(
+            "notes-admin", password="x", is_staff=True,
+        )
+        get_user_model().objects.filter(pk=administrator.pk).update(
+            date_joined=timezone.make_aware(dt.datetime(2026, 8, 1, 12, 0)),
+        )
+        administrator.refresh_from_db()
+        first_teacher = get_user_model().objects.create_user("notes-teacher-1", password="x")
+        second_teacher = get_user_model().objects.create_user("notes-teacher-2", password="x")
+        student = get_user_model().objects.create_user("notes-student", password="x")
+        first_current_note = TeacherNote.objects.create(
+            teacher=first_teacher,
+            student=student,
+            body="Aktuelle Notiz eines Lehrers",
+        )
+        admin_current_note = TeacherNote.objects.create(
+            teacher=administrator,
+            student=student,
+            body="Aktuelle Notiz des Admins",
+        )
+        old_note = TeacherNote.objects.create(
+            teacher=second_teacher,
+            student=student,
+            body="Notiz aus dem Vorjahr",
+        )
+        TeacherNote.objects.filter(pk=first_current_note.pk).update(
+            created_at=timezone.make_aware(dt.datetime(2026, 9, 5, 12, 0)),
+        )
+        TeacherNote.objects.filter(pk=admin_current_note.pk).update(
+            created_at=timezone.make_aware(dt.datetime(2027, 7, 31, 12, 0)),
+        )
+        TeacherNote.objects.filter(pk=old_note.pk).update(
+            created_at=timezone.make_aware(dt.datetime(2026, 8, 31, 12, 0)),
+        )
+
+        self.client.force_login(administrator)
+        response_2027 = self.client.get(reverse("home"), {"tab": "notes"})
+
+        self.assertContains(response_2027, "Aktuelle Notiz eines Lehrers")
+        self.assertContains(response_2027, "Aktuelle Notiz des Admins")
+        self.assertNotContains(response_2027, "Notiz aus dem Vorjahr")
+
+        session = self.client.session
+        session["school_year"] = "2026"
+        session.save()
+        response_2026 = self.client.get(reverse("home"), {"tab": "notes"})
+
+        self.assertContains(response_2026, "Notiz aus dem Vorjahr")
+        self.assertNotContains(response_2026, "Aktuelle Notiz eines Lehrers")
+        self.assertNotContains(response_2026, "Aktuelle Notiz des Admins")
+
 
 class TeachingWeekNumberTests(TestCase):
     def test_first_two_weeks_of_2027_school_year_are_numbered(self):

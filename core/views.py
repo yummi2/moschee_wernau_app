@@ -856,7 +856,30 @@ def home(request):
             "checked_item_ids": checked_ids,
         })
 
-        if is_user_teacher(request.user):
+        if has_admin_role:
+            # Admins see notes from every teacher, separated by the selected school year.
+            notes_qs = TeacherNote.objects.all()
+            if school_year_ranges["year"] == "2027":
+                notes_qs = notes_qs.filter(
+                    created_at__date__range=(
+                        dt.date(2026, 9, 1),
+                        dt.date(2027, 7, 31),
+                    ),
+                )
+            else:
+                notes_qs = notes_qs.filter(created_at__date__lt=dt.date(2026, 9, 1))
+
+            ctx.update({
+                "is_teacher": True,
+                "teacher_notes": notes_qs.select_related(
+                    "teacher", "student", "classroom",
+                ).order_by("-created_at")[:30],
+                "active_date": active_date,
+                "week_days": week_days,
+                "weekly_prayers": weekly_prayers,
+            })
+
+        elif is_user_teacher(request.user):
             # Lehrer: eigene Notizen (optional per ?student filtern)
             sel_id = request.GET.get('student')
             selected_student = None
