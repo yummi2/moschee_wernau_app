@@ -1203,7 +1203,7 @@ def about(request):
 
 
 def mosque_top10_ranking(school_year_ranges):
-    """Rank students who qualify in prayer, library and daily Quran by points."""
+    """Rank students who are Top 10 in prayer, library, daily Quran and points."""
     if school_year_ranges["year"] != "2027":
         return []
 
@@ -1282,8 +1282,21 @@ def mosque_top10_ranking(school_year_ranges):
         )[:10]
     }
 
-    eligible_ids = prayer_top_ids & library_top_ids & quran_top_ids
     balances = point_balances(students)
+    ranked_by_points = [
+        student.id
+        for student in sorted(
+            students,
+            key=lambda student: (
+                -balances[student.id]["total_points"],
+                display_name(student).casefold(),
+            ),
+        )
+        if balances[student.id]["total_points"] > 0
+    ]
+    points_top_ids = set(ranked_by_points[:10])
+
+    eligible_ids = prayer_top_ids & library_top_ids & quran_top_ids & points_top_ids
     return [
         {
             "user": students_by_id[user_id],

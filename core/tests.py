@@ -31,7 +31,7 @@ from .models import (
     ParentApprovalCredential,
     StudentPointActivity,
 )
-from .points import point_balance
+from .points import point_balance, point_balances
 from .ramadan_data import RAMADAN_ITEMS_ORDER
 
 
@@ -480,6 +480,49 @@ class StudentPointsTests(TestCase):
         teacher_response = self.client.get(reverse("home"))
         self.assertEqual(teacher_response.context["mosque_ranking"][0]["user"], self.student)
         self.assertContains(teacher_response, "Top 10 der Moschee")
+
+    def test_mosque_top10_also_requires_a_top10_points_balance(self):
+        StoryRead.objects.create(user=self.student, level="beginner", sid="1")
+        DailyQuranReading.objects.create(
+            student=self.student,
+            portion_index=1,
+            completed_on=dt.date(2026, 9, 8),
+        )
+        for prayer in range(1, 6):
+            PrayerStatus.objects.create(
+                user=self.student,
+                date=dt.date(2026, 9, 8),
+                prayer=prayer,
+                prayed=True,
+            )
+
+        for position in range(10):
+            higher_points_student = get_user_model().objects.create_user(
+                f"higher-points-{position}",
+                password="x",
+            )
+            TeacherPointAward.objects.create(
+                student=higher_points_student,
+                teacher=self.teacher,
+                points=position + 20,
+            )
+
+        self.client.force_login(self.student)
+        response = self.client.get(reverse("home"), {"tab": "home"})
+
+        balances = point_balances()
+        ranked_point_ids = sorted(
+            balances,
+            key=lambda user_id: -balances[user_id]["total_points"],
+        )[:10]
+        self.assertNotIn(self.student.id, ranked_point_ids)
+        self.assertFalse(
+            response.context["mosque_top10"],
+            msg={
+                "student_points": balances[self.student.id]["total_points"],
+                "ranked_point_ids": ranked_point_ids,
+            },
+        )
 
 
 @override_settings(PARENT_APPROVAL_PIN="1717")
