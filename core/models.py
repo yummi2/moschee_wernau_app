@@ -391,6 +391,7 @@ class TeacherNote(models.Model):
     student   = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notes_received")
     classroom = models.ForeignKey("ClassRoom", on_delete=models.SET_NULL, null=True, blank=True)
     body      = models.TextField()
+    link      = models.URLField("Link", blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

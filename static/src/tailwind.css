@@ -2008,6 +2008,33 @@ html.app-language-german [data-home-panel="assignments"] .assignment-scroll-fill
   letter-spacing: normal;
 }
 
+.note-card-link {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  min-height: 2.45rem;
+  margin-block-start: 0.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border: 1px solid rgb(23 128 94 / 28%);
+  border-radius: 0.8rem;
+  background: #0b4938;
+  padding: 0.45rem 0.8rem;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 800;
+  line-height: 1.5;
+  text-decoration: none;
+  transition: transform 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+}
+
+.note-card-link:hover {
+  background: #17805e;
+  box-shadow: 0 7px 16px rgb(11 73 56 / 18%);
+  transform: translateY(-1px);
+}
+
 .notes-empty {
   display: grid;
   min-height: 13rem;

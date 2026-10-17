@@ -118,8 +118,8 @@ class WeeklyBannerAdmin(admin.ModelAdmin):
 
 @admin.register(TeacherNote)
 class TeacherNoteAdmin(admin.ModelAdmin):
-    list_display = ("student", "teacher", "classroom", "created_at", "short_body")
-    search_fields = ("student__username", "teacher__username", "body")
+    list_display = ("student", "teacher", "classroom", "created_at", "short_body", "link")
+    search_fields = ("student__username", "teacher__username", "body", "link")
     list_filter = ("teacher", "classroom", "created_at")
     exclude = ("teacher",)
     date_hierarchy = "created_at"

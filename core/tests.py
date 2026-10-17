@@ -30,6 +30,7 @@ from .models import (
     DailyQuranReading,
     ParentApprovalCredential,
     StudentPointActivity,
+    TeacherNote,
 )
 from .points import point_balance, point_balances
 from .ramadan_data import RAMADAN_ITEMS_ORDER
@@ -125,6 +126,25 @@ class AssignmentAdminClassroomTests(TestCase):
             self.classroom_queryset_for(administrator).order_by("id"),
             [self.own_classroom, self.other_classroom],
         )
+
+
+class TeacherNoteLinkTests(TestCase):
+    def test_student_note_displays_optional_link(self):
+        teacher = get_user_model().objects.create_user("note-link-teacher", password="x")
+        student = get_user_model().objects.create_user("note-link-student", password="x")
+        TeacherNote.objects.create(
+            teacher=teacher,
+            student=student,
+            body="Bitte diese Seite öffnen.",
+            link="https://example.com/lernseite",
+        )
+
+        self.client.force_login(student)
+        response = self.client.get(reverse("home"), {"tab": "notes"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'href="https://example.com/lernseite"')
+        self.assertContains(response, 'data-app-de="Link öffnen"')
 
 
 class TeachingWeekNumberTests(TestCase):
