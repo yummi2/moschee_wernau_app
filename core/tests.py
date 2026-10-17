@@ -2,6 +2,7 @@ import datetime as dt
 import json
 
 from django.contrib.auth import get_user_model
+from django.contrib.admin.sites import AdminSite
 from django.core import mail
 from django.core.management import call_command
 from django.test import RequestFactory, TestCase, override_settings
@@ -32,6 +33,62 @@ from .models import (
 )
 from .points import point_balance
 from .ramadan_data import RAMADAN_ITEMS_ORDER
+
+
+class AssignmentAdminClassroomTests(TestCase):
+    def setUp(self):
+        from .admin import AssignmentAdmin
+
+        self.assignment_admin = AssignmentAdmin(Assignment, AdminSite())
+        self.factory = RequestFactory()
+        self.own_classroom = ClassRoom.objects.create(name="Eigene Klasse")
+        self.other_classroom = ClassRoom.objects.create(name="Andere Klasse")
+
+    def classroom_queryset_for(self, user):
+        request = self.factory.get("/admin/core/assignment/add/")
+        request.user = user
+        db_field = Assignment._meta.get_field("classroom")
+        return self.assignment_admin.formfield_for_foreignkey(
+            db_field,
+            request,
+        ).queryset
+
+    def test_teacher_only_sees_assigned_classrooms(self):
+        teacher = get_user_model().objects.create_user(
+            username="assignment-teacher",
+            password="test-password",
+            is_staff=True,
+        )
+        self.own_classroom.teachers.add(teacher)
+
+        self.assertQuerySetEqual(
+            self.classroom_queryset_for(teacher),
+            [self.own_classroom],
+        )
+
+    def test_superuser_sees_all_classrooms(self):
+        administrator = get_user_model().objects.create_superuser(
+            username="assignment-admin",
+            email="admin@example.com",
+            password="test-password",
+        )
+
+        self.assertQuerySetEqual(
+            self.classroom_queryset_for(administrator).order_by("id"),
+            [self.own_classroom, self.other_classroom],
+        )
+
+    def test_staff_admin_without_teacher_role_sees_all_classrooms(self):
+        administrator = get_user_model().objects.create_user(
+            username="assignment-staff-admin",
+            password="test-password",
+            is_staff=True,
+        )
+
+        self.assertQuerySetEqual(
+            self.classroom_queryset_for(administrator).order_by("id"),
+            [self.own_classroom, self.other_classroom],
+        )
 
 
 class TeachingWeekNumberTests(TestCase):

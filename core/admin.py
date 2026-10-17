@@ -17,8 +17,22 @@ class AssignmentAdmin(admin.ModelAdmin):
     "link")
     list_filter = ("classroom",)
     search_fields = ("title","link")
+
+    @staticmethod
+    def _is_teacher_account(user):
+        profile = getattr(user, "profile", None)
+        return not user.is_superuser and (
+            bool(profile and profile.is_teacher)
+            or ClassRoom.objects.filter(teachers=user).exists()
+        )
     
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "classroom" and self._is_teacher_account(request.user):
+            kwargs["queryset"] = (
+                ClassRoom.objects.filter(teachers=request.user)
+                .distinct()
+                .order_by("name")
+            )
         if db_field.name == "created_by":
             # Nur Benutzer aus der Gruppe "Lehrer" anzeigen
             kwargs["queryset"] = User.objects.filter(groups__name="Lehrer")
