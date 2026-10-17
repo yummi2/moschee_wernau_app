@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import ClassRoom, Assignment, Absence, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStatus, RamadanItemDone, QuizScore, Profile, TeacherPointAward, LiveCompetition, LiveCompetitionQuestion, LiveCompetitionGame, LiveCompetitionParticipant, LiveCompetitionAnswer, DailyQuranReading, StudentPointActivity, ParentApprovalCredential
 from django.contrib.auth import get_user_model
 from django.db.models import Q
-from .views import STORIES
+from .views import STORIES, SCHOOL_YEAR_CONTENT_CUTOFF
 
 User = get_user_model()
 @admin.register(ClassRoom)
@@ -30,6 +30,10 @@ class AssignmentAdmin(admin.ModelAdmin):
         if db_field.name == "classroom" and self._is_teacher_account(request.user):
             kwargs["queryset"] = (
                 ClassRoom.objects.filter(teachers=request.user)
+                .filter(
+                    Q(assignments__created_at__date__gte=SCHOOL_YEAR_CONTENT_CUTOFF)
+                    | Q(assignments__isnull=True)
+                )
                 .distinct()
                 .order_by("name")
             )

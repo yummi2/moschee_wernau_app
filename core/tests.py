@@ -66,6 +66,42 @@ class AssignmentAdminClassroomTests(TestCase):
             [self.own_classroom],
         )
 
+    def test_teacher_does_not_see_own_classroom_with_only_old_assignments(self):
+        teacher = get_user_model().objects.create_user(
+            username="assignment-current-year-teacher",
+            password="test-password",
+            is_staff=True,
+        )
+        current_classroom = ClassRoom.objects.create(name="Aktuelle Klasse")
+        empty_current_classroom = ClassRoom.objects.create(name="Neue Klasse ohne Aufgabe")
+        old_classroom = ClassRoom.objects.create(name="Klasse aus dem Vorjahr")
+        current_classroom.teachers.add(teacher)
+        empty_current_classroom.teachers.add(teacher)
+        old_classroom.teachers.add(teacher)
+
+        current_assignment = Assignment.objects.create(
+            classroom=current_classroom,
+            title="Aktuelle Aufgabe",
+            created_by=teacher,
+        )
+        old_assignment = Assignment.objects.create(
+            classroom=old_classroom,
+            title="Alte Aufgabe",
+            created_by=teacher,
+        )
+        Assignment.objects.filter(pk=current_assignment.pk).update(
+            created_at=timezone.make_aware(dt.datetime(2026, 9, 1, 12, 0)),
+        )
+        Assignment.objects.filter(pk=old_assignment.pk).update(
+            created_at=timezone.make_aware(dt.datetime(2026, 7, 1, 12, 0)),
+        )
+
+        self.assertQuerySetEqual(
+            self.classroom_queryset_for(teacher),
+            [current_classroom, empty_current_classroom],
+            ordered=False,
+        )
+
     def test_superuser_sees_all_classrooms(self):
         administrator = get_user_model().objects.create_superuser(
             username="assignment-admin",
