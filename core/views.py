@@ -2045,6 +2045,13 @@ def library(request):
             "5": "Khalid und der Gast",
             "6": "Yusuf und das richtige Verhalten unterwegs",
             "7": "Maryam und die Tischmanieren",
+            "8": "Die Geschichte vom Friedensgruß und vom Speisen",
+            "9": "Das Geheimnis des kleinen Lächelns",
+            "10": "Das Geheimnis des wahren Muslims",
+            "11": "Ein kleiner Welpe im Park",
+            "12": "Das Geheimnis von Allahs Hilfe",
+            "13": "Das Geheimnis der Rettung",
+            "14": "Die Ehre der Vergebung und Toleranz",
         },
         "advanced": {
             "1": "Die rechtgeleiteten Kalifen",

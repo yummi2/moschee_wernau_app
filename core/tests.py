@@ -919,6 +919,307 @@ class SchoolYearAccessTests(TestCase):
 
 
 class LibraryTranslationTests(TestCase):
+    @override_settings(PARENT_APPROVAL_PIN="1717")
+    def test_forgiveness_story_waits_for_parent_confirmation_before_point(self):
+        student = get_user_model().objects.create_user("forgiveness-reader", password="x")
+        self.client.force_login(student)
+
+        stories = self.client.get(reverse("library"), {"level": "intermediate"})
+        detail = self.client.get(
+            reverse("library"), {"level": "intermediate", "sid": "14"}
+        )
+
+        self.assertContains(stories, 'data-app-de="Die Ehre der Vergebung und Toleranz"')
+        self.assertContains(stories, "شَرَفُ العَفْوِ وَالتَّسَامُحِ")
+        self.assertContains(detail, "Screenshot_2026-10-18_112018_cbnf2m.png")
+        self.assertContains(detail, "وَمَا زَادَ اللهُ عَبْدًا بِعَفْوٍ")
+        self.assertContains(detail, 'data-app-de="Erledigt"')
+
+        response = self.client.post(
+            reverse("mark_story_read"),
+            data='{"level":"intermediate","sid":"14"}',
+            content_type="application/json",
+        )
+        self.assertTrue(response.json()["activity_saved"])
+
+        activity = StudentPointActivity.objects.get(
+            student=student,
+            category="library",
+            source_key="intermediate:14",
+        )
+        self.assertEqual(activity.status, "pending")
+        self.assertEqual(point_balance(student)["story_points"], 0)
+
+        self.client.post(reverse("parent_point_approvals"), {
+            "action": "confirm_day",
+            "date": activity.activity_date.isoformat(),
+            "pin": "1717",
+            "ui_language": "de",
+        })
+
+        activity.refresh_from_db()
+        self.assertEqual(activity.status, "confirmed")
+        self.assertEqual(point_balance(student)["story_points"], 1)
+
+    @override_settings(PARENT_APPROVAL_PIN="1717")
+    def test_salvation_story_waits_for_parent_confirmation_before_point(self):
+        student = get_user_model().objects.create_user("salvation-reader", password="x")
+        self.client.force_login(student)
+
+        stories = self.client.get(reverse("library"), {"level": "intermediate"})
+        detail = self.client.get(
+            reverse("library"), {"level": "intermediate", "sid": "13"}
+        )
+
+        self.assertContains(stories, 'data-app-de="Das Geheimnis der Rettung"')
+        self.assertContains(stories, "سِرُّ النَّجَاةِ")
+        self.assertContains(detail, "Screenshot_2026-10-18_112006_ecaobd.png")
+        self.assertContains(detail, "عَلَيْكُمْ بِالصِّدْقِ")
+        self.assertContains(detail, 'data-app-de="Erledigt"')
+
+        response = self.client.post(
+            reverse("mark_story_read"),
+            data='{"level":"intermediate","sid":"13"}',
+            content_type="application/json",
+        )
+        self.assertTrue(response.json()["activity_saved"])
+
+        activity = StudentPointActivity.objects.get(
+            student=student,
+            category="library",
+            source_key="intermediate:13",
+        )
+        self.assertEqual(activity.status, "pending")
+        self.assertEqual(point_balance(student)["story_points"], 0)
+
+        self.client.post(reverse("parent_point_approvals"), {
+            "action": "confirm_day",
+            "date": activity.activity_date.isoformat(),
+            "pin": "1717",
+            "ui_language": "de",
+        })
+
+        activity.refresh_from_db()
+        self.assertEqual(activity.status, "confirmed")
+        self.assertEqual(point_balance(student)["story_points"], 1)
+
+    @override_settings(PARENT_APPROVAL_PIN="1717")
+    def test_allahs_help_story_waits_for_parent_confirmation_before_point(self):
+        student = get_user_model().objects.create_user("allahs-help-reader", password="x")
+        self.client.force_login(student)
+
+        stories = self.client.get(reverse("library"), {"level": "intermediate"})
+        detail = self.client.get(
+            reverse("library"), {"level": "intermediate", "sid": "12"}
+        )
+
+        self.assertContains(stories, 'data-app-de="Das Geheimnis von Allahs Hilfe"')
+        self.assertContains(stories, "سِرُّ عَوْنِ اللهِ")
+        self.assertContains(detail, "Screenshot_2026-10-18_111956_f3qyvz.png")
+        self.assertContains(detail, "وَاللهُ فِي عَوْنِ العَبْدِ")
+        self.assertContains(detail, 'data-app-de="Erledigt"')
+
+        response = self.client.post(
+            reverse("mark_story_read"),
+            data='{"level":"intermediate","sid":"12"}',
+            content_type="application/json",
+        )
+        self.assertTrue(response.json()["activity_saved"])
+
+        activity = StudentPointActivity.objects.get(
+            student=student,
+            category="library",
+            source_key="intermediate:12",
+        )
+        self.assertEqual(activity.status, "pending")
+        self.assertEqual(point_balance(student)["story_points"], 0)
+
+        self.client.post(reverse("parent_point_approvals"), {
+            "action": "confirm_day",
+            "date": activity.activity_date.isoformat(),
+            "pin": "1717",
+            "ui_language": "de",
+        })
+
+        activity.refresh_from_db()
+        self.assertEqual(activity.status, "confirmed")
+        self.assertEqual(point_balance(student)["story_points"], 1)
+
+    @override_settings(PARENT_APPROVAL_PIN="1717")
+    def test_small_puppy_story_waits_for_parent_confirmation_before_point(self):
+        student = get_user_model().objects.create_user("small-puppy-reader", password="x")
+        self.client.force_login(student)
+
+        stories = self.client.get(reverse("library"), {"level": "intermediate"})
+        detail = self.client.get(
+            reverse("library"), {"level": "intermediate", "sid": "11"}
+        )
+
+        self.assertContains(stories, 'data-app-de="Ein kleiner Welpe im Park"')
+        self.assertContains(stories, "جِرْوٌ صَغِيرٌ فِي الحَدِيقَةِ")
+        self.assertContains(detail, "Screenshot_2026-10-18_111946_pkrvwz.png")
+        self.assertContains(detail, "إِنَّ اللهَ رَفِيقٌ يُحِبُّ الرِّفْقَ")
+        self.assertContains(detail, 'data-app-de="Erledigt"')
+
+        response = self.client.post(
+            reverse("mark_story_read"),
+            data='{"level":"intermediate","sid":"11"}',
+            content_type="application/json",
+        )
+        self.assertTrue(response.json()["activity_saved"])
+
+        activity = StudentPointActivity.objects.get(
+            student=student,
+            category="library",
+            source_key="intermediate:11",
+        )
+        self.assertEqual(activity.status, "pending")
+        self.assertEqual(point_balance(student)["story_points"], 0)
+
+        self.client.post(reverse("parent_point_approvals"), {
+            "action": "confirm_day",
+            "date": activity.activity_date.isoformat(),
+            "pin": "1717",
+            "ui_language": "de",
+        })
+
+        activity.refresh_from_db()
+        self.assertEqual(activity.status, "confirmed")
+        self.assertEqual(point_balance(student)["story_points"], 1)
+
+    @override_settings(PARENT_APPROVAL_PIN="1717")
+    def test_true_muslim_story_waits_for_parent_confirmation_before_point(self):
+        student = get_user_model().objects.create_user("true-muslim-reader", password="x")
+        self.client.force_login(student)
+
+        stories = self.client.get(reverse("library"), {"level": "intermediate"})
+        detail = self.client.get(
+            reverse("library"), {"level": "intermediate", "sid": "10"}
+        )
+
+        self.assertContains(stories, 'data-app-de="Das Geheimnis des wahren Muslims"')
+        self.assertContains(stories, "سِرُّ المُسْلِمِ الحَقِيقِيِّ")
+        self.assertContains(detail, "Screenshot_2026-10-18_111934_bg529x.png")
+        self.assertContains(detail, "المُسْلِمُ مَنْ سَلِمَ المُسْلِمُونَ")
+        self.assertContains(detail, 'data-app-de="Erledigt"')
+
+        response = self.client.post(
+            reverse("mark_story_read"),
+            data='{"level":"intermediate","sid":"10"}',
+            content_type="application/json",
+        )
+        self.assertTrue(response.json()["activity_saved"])
+
+        activity = StudentPointActivity.objects.get(
+            student=student,
+            category="library",
+            source_key="intermediate:10",
+        )
+        self.assertEqual(activity.status, "pending")
+        self.assertEqual(point_balance(student)["story_points"], 0)
+
+        self.client.post(reverse("parent_point_approvals"), {
+            "action": "confirm_day",
+            "date": activity.activity_date.isoformat(),
+            "pin": "1717",
+            "ui_language": "de",
+        })
+
+        activity.refresh_from_db()
+        self.assertEqual(activity.status, "confirmed")
+        self.assertEqual(point_balance(student)["story_points"], 1)
+
+    @override_settings(PARENT_APPROVAL_PIN="1717")
+    def test_small_smile_story_waits_for_parent_confirmation_before_point(self):
+        student = get_user_model().objects.create_user("small-smile-reader", password="x")
+        self.client.force_login(student)
+
+        stories = self.client.get(reverse("library"), {"level": "intermediate"})
+        detail = self.client.get(
+            reverse("library"), {"level": "intermediate", "sid": "9"}
+        )
+
+        self.assertContains(stories, 'data-app-de="Das Geheimnis des kleinen Lächelns"')
+        self.assertContains(stories, "سِرُّ الِابْتِسَامَةِ الصَّغِيرَةِ")
+        self.assertContains(detail, "Screenshot_2026-10-18_111924_wfzdj3.png")
+        self.assertContains(detail, "تَبَسُّمُكَ فِي وَجْهِ أَخِيكَ")
+        self.assertContains(detail, 'data-app-de="Erledigt"')
+
+        response = self.client.post(
+            reverse("mark_story_read"),
+            data='{"level":"intermediate","sid":"9"}',
+            content_type="application/json",
+        )
+        self.assertTrue(response.json()["activity_saved"])
+
+        activity = StudentPointActivity.objects.get(
+            student=student,
+            category="library",
+            source_key="intermediate:9",
+        )
+        self.assertEqual(activity.status, "pending")
+        self.assertEqual(point_balance(student)["story_points"], 0)
+
+        self.client.post(reverse("parent_point_approvals"), {
+            "action": "confirm_day",
+            "date": activity.activity_date.isoformat(),
+            "pin": "1717",
+            "ui_language": "de",
+        })
+
+        activity.refresh_from_db()
+        self.assertEqual(activity.status, "confirmed")
+        self.assertEqual(point_balance(student)["story_points"], 1)
+
+    @override_settings(PARENT_APPROVAL_PIN="1717")
+    def test_salam_and_food_story_waits_for_parent_confirmation_before_point(self):
+        student = get_user_model().objects.create_user("salam-food-reader", password="x")
+        self.client.force_login(student)
+
+        stories = self.client.get(reverse("library"), {"level": "intermediate"})
+        detail = self.client.get(
+            reverse("library"), {"level": "intermediate", "sid": "8"}
+        )
+
+        self.assertContains(
+            stories,
+            'data-app-ar="قِصَّةُ السَّلَامِ وَالطَّعَامِ" '
+            'data-app-de="Die Geschichte vom Friedensgruß und vom Speisen"',
+        )
+        self.assertContains(
+            detail,
+            "https://res.cloudinary.com/drlpkuf9q/image/upload/v1792314965/"
+            "Screenshot_2026-10-18_111054_teltao.png",
+        )
+        self.assertContains(detail, "أَبُو أَحْمَدَ")
+        self.assertContains(detail, 'data-app-de="Erledigt"')
+
+        response = self.client.post(
+            reverse("mark_story_read"),
+            data='{"level":"intermediate","sid":"8"}',
+            content_type="application/json",
+        )
+
+        self.assertTrue(response.json()["activity_saved"])
+        activity = StudentPointActivity.objects.get(
+            student=student,
+            category="library",
+            source_key="intermediate:8",
+        )
+        self.assertEqual(activity.status, "pending")
+        self.assertEqual(point_balance(student)["story_points"], 0)
+
+        self.client.post(reverse("parent_point_approvals"), {
+            "action": "confirm_day",
+            "date": activity.activity_date.isoformat(),
+            "pin": "1717",
+            "ui_language": "de",
+        })
+
+        activity.refresh_from_db()
+        self.assertEqual(activity.status, "confirmed")
+        self.assertEqual(point_balance(student)["story_points"], 1)
+
     def test_final_story_page_has_bilingual_back_to_library_button(self):
         student = get_user_model().objects.create_user("library-back-reader", password="x")
         self.client.force_login(student)
