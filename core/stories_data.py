@@ -526,7 +526,7 @@ STORIES = {
 عَنْ عَبْدِ اللَّهِ بْنِ عَمْرٍو رَضِيَ اللَّهُ عَنْهُمَا، أَنَّ رَجُلًا سَأَلَ النَّبِيَّ ﷺ: «أَيُّ الإِسْلَامِ خَيْرٌ؟» قَالَ: «تُطْعِمُ الطَّعَامَ، وَتَقْرَأُ السَّلَامَ عَلَى مَنْ عَرَفْتَ وَمَنْ لَمْ تَعْرِفْ».
 
 (رَوَاهُ البُخَارِيُّ وَمُسْلِمٌ)""",
-                        "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1792314965/Screenshot_2026-10-18_111054_teltao.png",
+                        "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/Screenshot_2026-10-18_111054_teltao.png?refresh=20261018",
                     },
                 ],
             },
@@ -556,7 +556,7 @@ STORIES = {
 «تَبَسُّمُكَ فِي وَجْهِ أَخِيكَ لَكَ صَدَقَةٌ»
 
 (رَوَاهُ التِّرْمِذِيُّ)""",
-                        "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1792315258/Screenshot_2026-10-18_111924_wfzdj3.png",
+                        "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/Screenshot_2026-10-18_111924_wfzdj3.png?refresh=20261018",
                     },
                 ],
             },
@@ -586,7 +586,7 @@ STORIES = {
 «المُسْلِمُ مَنْ سَلِمَ المُسْلِمُونَ مِنْ لِسَانِهِ وَيَدِهِ»
 
 (رَوَاهُ البُخَارِيُّ وَمُسْلِمٌ)""",
-                        "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1792315259/Screenshot_2026-10-18_111934_bg529x.png",
+                        "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/Screenshot_2026-10-18_111934_bg529x.png?refresh=20261018",
                     },
                 ],
             },
@@ -618,7 +618,7 @@ STORIES = {
 «إِنَّ اللهَ رَفِيقٌ يُحِبُّ الرِّفْقَ، وَيُعْطِي عَلَى الرِّفْقِ مَا لَا يُعْطِي عَلَى العُنْفِ، وَمَا لَا يُعْطِي عَلَى مَا سِوَاهُ»
 
 (رَوَاهُ مُسْلِمٌ)""",
-                        "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1792315259/Screenshot_2026-10-18_111946_pkrvwz.png",
+                        "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/Screenshot_2026-10-18_111946_pkrvwz.png?refresh=20261018",
                     },
                 ],
             },
@@ -648,7 +648,7 @@ STORIES = {
 «وَاللهُ فِي عَوْنِ العَبْدِ مَا كَانَ العَبْدُ فِي عَوْنِ أَخِيهِ»
 
 (رَوَاهُ مُسْلِمٌ)""",
-                        "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1792315259/Screenshot_2026-10-18_111956_f3qyvz.png",
+                        "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/Screenshot_2026-10-18_111956_f3qyvz.png?refresh=20261018",
                     },
                 ],
             },
@@ -680,7 +680,7 @@ STORIES = {
 «عَلَيْكُمْ بِالصِّدْقِ، فَإِنَّ الصِّدْقَ يَهْدِي إِلَى الْبِرِّ، وَإِنَّ الْبِرَّ يَهْدِي إِلَى الْجَنَّةِ، وَمَا يَزَالُ الرَّجُلُ يَصْدُقُ وَيَتَحَرَّى الصِّدْقَ حَتَّى يُكْتَبَ عِنْدَ اللهِ صِدِّيقًا»
 
 (رَوَاهُ البُخَارِيُّ وَمُسْلِمٌ)""",
-                        "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1792315259/Screenshot_2026-10-18_112006_ecaobd.png",
+                        "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/Screenshot_2026-10-18_112006_ecaobd.png?refresh=20261018",
                     },
                 ],
             },
@@ -708,7 +708,7 @@ STORIES = {
 «وَمَا زَادَ اللهُ عَبْدًا بِعَفْوٍ إِلَّا عِزًّا»
 
 (رَوَاهُ مُسْلِمٌ)""",
-                        "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/v1792315260/Screenshot_2026-10-18_112018_cbnf2m.png",
+                        "image": "https://res.cloudinary.com/drlpkuf9q/image/upload/Screenshot_2026-10-18_112018_cbnf2m.png?refresh=20261018",
                     },
                 ],
             },

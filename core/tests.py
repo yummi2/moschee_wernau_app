@@ -1195,8 +1195,8 @@ class LibraryTranslationTests(TestCase):
         )
         self.assertContains(
             detail,
-            "https://res.cloudinary.com/drlpkuf9q/image/upload/v1792314965/"
-            "Screenshot_2026-10-18_111054_teltao.png",
+            "https://res.cloudinary.com/drlpkuf9q/image/upload/"
+            "Screenshot_2026-10-18_111054_teltao.png?refresh=20261018",
         )
         self.assertContains(detail, "أَبُو أَحْمَدَ")
         self.assertContains(detail, 'data-app-de="Erledigt"')
