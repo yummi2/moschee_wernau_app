@@ -10,6 +10,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from .school_years import can_switch_school_years
+from .context_processors import library_updates_are_new
 from .views import selected_school_year_ranges, teaching_week_number, saturday_week_bounds, visible_items_for_student
 from .models import (
     Assignment,
@@ -919,6 +920,10 @@ class SchoolYearAccessTests(TestCase):
 
 
 class LibraryTranslationTests(TestCase):
+    def test_library_new_badge_expires_automatically(self):
+        self.assertTrue(library_updates_are_new(dt.date(2026, 11, 1)))
+        self.assertFalse(library_updates_are_new(dt.date(2026, 11, 2)))
+
     @override_settings(PARENT_APPROVAL_PIN="1717")
     def test_forgiveness_story_waits_for_parent_confirmation_before_point(self):
         student = get_user_model().objects.create_user("forgiveness-reader", password="x")
@@ -934,6 +939,8 @@ class LibraryTranslationTests(TestCase):
         self.assertContains(detail, "Screenshot_2026-10-18_112018_cbnf2m.png")
         self.assertContains(detail, "وَمَا زَادَ اللهُ عَبْدًا بِعَفْوٍ")
         self.assertContains(detail, 'data-app-de="Erledigt"')
+        self.assertContains(detail, 'data-app-de="Zur Elternbestätigung"')
+        self.assertContains(detail, reverse("parent_point_approvals"))
 
         response = self.client.post(
             reverse("mark_story_read"),

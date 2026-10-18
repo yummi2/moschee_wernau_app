@@ -25,6 +25,9 @@
                 class="library-level-card group block rounded-2xl bg-white shadow transition p-3 h-full">
                 <div class="flex flex-col h-full text-right">
                     <h4 class="library-level-title text-lg font-bold text-blue-600 mb-1" data-app-ar="المتوسط" data-app-de="Mittelstufe">المتوسط</h4>
+                    {% if show_library_new_badge %}
+                    <span class="library-new-badge library-new-badge--level" data-app-ar="جديد" data-app-de="Neu">جديد</span>
+                    {% endif %}
                 </div>
             </a>
             <a href="{% url 'library' %}?level=advanced"

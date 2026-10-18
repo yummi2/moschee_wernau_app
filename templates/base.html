@@ -50,7 +50,7 @@
       }
     } catch (_) {}
   </script>
-  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20260929-301">  <style>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}?v=20261018-303">  <style>
   .act-grid{
     display: grid;
     gap: 12px;
@@ -141,6 +141,9 @@
       <a href="{% url 'library' %}" class="app-nav-link app-mobile-top {% if request.resolver_match.url_name == 'library' %}is-active{% endif %}">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11v16H6.5A2.5 2.5 0 0 0 4 21.5v-16ZM20 5.5A2.5 2.5 0 0 0 17.5 3H13v16h4.5a2.5 2.5 0 0 1 2.5 2.5v-16Z"/></svg>
         <span data-app-ar="مكتبتي" data-app-de="Meine Bibliothek">مكتبتي</span>
+        {% if show_library_new_badge %}
+        <span class="library-new-badge library-new-badge--nav" data-app-ar="جديد" data-app-de="Neu">جديد</span>
+        {% endif %}
       </a>
 
       {% if request.session.school_year == "2026" %}
@@ -337,6 +340,12 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>
       <strong id="activity-saved-title" data-app-ar="تم حفظ تغييراتك" data-app-de="Deine Änderungen wurden gespeichert">تم حفظ تغييراتك</strong>
       <p data-app-ar="النقاط بانتظار تأكيد الوالدين" data-app-de="Die Punkte warten auf die Bestätigung der Eltern.">النقاط بانتظار تأكيد الوالدين</p>
+      {% if user.is_authenticated and not user.is_staff and not user|is_teacher_account %}
+      <a href="{% url 'parent_point_approvals' %}" class="activity-saved-parent-link"
+         data-app-ar="الانتقال إلى تأكيد الوالدين" data-app-de="Zur Elternbestätigung">
+        الانتقال إلى تأكيد الوالدين
+      </a>
+      {% endif %}
     </div>
   </dialog>
 

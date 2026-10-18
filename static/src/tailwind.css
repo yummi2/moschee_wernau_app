@@ -2422,9 +2422,51 @@ button.prayer-status:focus-visible {
 }
 
 .library-level-card {
+  position: relative;
   border: 1px solid #f2e4c8;
   text-decoration: none;
   transition: transform 200ms ease, border-color 200ms ease, background 200ms ease, box-shadow 200ms ease;
+}
+
+.library-new-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  min-height: 1.45rem;
+  border: 1px solid rgb(255 255 255 / 45%);
+  border-radius: 999px;
+  padding: 0.12rem 0.5rem;
+  background: #dc2626;
+  color: #fff;
+  font-family: "Tajawal", sans-serif;
+  font-size: 0.68rem;
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: normal;
+  white-space: nowrap;
+  box-shadow: 0 4px 10px rgb(185 28 28 / 24%);
+}
+
+.library-new-badge--nav {
+  flex: none;
+  margin-inline-start: auto;
+}
+
+.app-sidebar .app-nav-link .library-new-badge--nav {
+  border-color: #fecaca !important;
+  background: #dc2626 !important;
+  color: #fff !important;
+  box-shadow: 0 4px 12px rgb(127 29 29 / 30%) !important;
+}
+
+.library-new-badge--level {
+  position: absolute;
+  inset-block-start: 0.65rem;
+  inset-inline-end: 0.65rem;
+  border-color: #fecaca !important;
+  background: #dc2626 !important;
+  color: #fff !important;
 }
 
 .library-level-title {
@@ -3303,6 +3345,40 @@ html.app-language-german .activity-saved-popup-close { right: .75rem; left: auto
   font-weight: 700;
   line-height: 1.7;
 }
+
+.activity-saved-parent-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 3rem;
+  margin-block-start: 1rem;
+  border-radius: .9rem;
+  padding: .65rem 1rem;
+  background: linear-gradient(135deg, #0b4938, #17805e);
+  color: #fff;
+  font-family: "Tajawal", sans-serif;
+  font-weight: 850;
+  line-height: 1.5;
+  letter-spacing: normal;
+  text-align: center;
+  text-decoration: none;
+  box-shadow: 0 8px 20px rgb(11 73 56 / 22%);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.activity-saved-parent-link:hover {
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 11px 24px rgb(11 73 56 / 28%);
+}
+
+.activity-saved-parent-link:focus-visible {
+  outline: 3px solid #d29b3f;
+  outline-offset: 3px;
+}
+
+.activity-saved-parent-link:active { transform: scale(.98); }
 
 .parent-approval-page {
   width: 100%;
