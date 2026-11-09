@@ -543,6 +543,24 @@ class StudentPointsTests(TestCase):
         self.assertEqual(response.context["student_point_rank"], 2)
         self.assertEqual(response.context["student_point_count"], 2)
 
+    def test_students_with_equal_points_share_the_same_points_bank_rank(self):
+        alphabetically_first = get_user_model().objects.create_user("aaa-student", password="x")
+        TeacherPointAward.objects.create(
+            student=alphabetically_first,
+            teacher=self.teacher,
+            points=75,
+        )
+        TeacherPointAward.objects.create(
+            student=self.student,
+            teacher=self.teacher,
+            points=75,
+        )
+        self.client.force_login(self.student)
+
+        response = self.client.get(reverse("home"))
+
+        self.assertEqual(response.context["student_point_rank"], 1)
+
     def test_library_top10_position_is_visible_in_both_school_year_views(self):
         StoryRead.objects.create(user=self.student, level="beginner", sid="1")
         get_user_model().objects.filter(pk=self.student.pk).update(
@@ -2193,6 +2211,46 @@ class AdminStatisticsTests(TestCase):
         self.assertContains(response, 'data-dashboard-tab="points"')
         self.assertContains(response, 'data-dashboard-tab="mosque"')
         self.assertContains(response, 'data-dashboard-panel="mosque"')
+
+    def test_equal_results_share_a_rank_in_every_top_list(self):
+        for student in (self.first_student, self.second_student):
+            TeacherPointAward.objects.create(
+                student=student,
+                teacher=self.admin,
+                points=75,
+            )
+            RamadanItemDone.objects.create(
+                user=student,
+                day=1,
+                item_key="quran",
+                school_year="2027",
+                done=True,
+            )
+            PrayerStatus.objects.create(
+                user=student,
+                date=timezone.localdate(),
+                prayer=1,
+                prayed=True,
+            )
+            StoryRead.objects.create(user=student, level="beginner", sid="1")
+
+        self.client.force_login(self.admin)
+        response = self.client.get(reverse("admin_statistics"))
+
+        for context_name in (
+            "point_ranking",
+            "mosque_ranking",
+            "ramadan_ranking",
+            "prayer_ranking",
+            "library_ranking",
+        ):
+            with self.subTest(context_name=context_name):
+                ranks = {
+                    row["user"].id: row["rank"]
+                    for row in response.context[context_name]
+                }
+                self.assertEqual(ranks[self.first_student.id], 1)
+                self.assertEqual(ranks[self.second_student.id], 1)
 
     def test_student_home_keeps_ramadan_and_monthly_prayer_top10_achievements(self):
         RamadanItemDone.objects.create(

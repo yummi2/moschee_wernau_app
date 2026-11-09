@@ -126,7 +126,7 @@
         <tbody>
           {% for entry in point_ranking %}
           <tr>
-            <td data-label-ar="الترتيب" data-label-de="Platz"><bdi dir="ltr">{{ forloop.counter }}</bdi></td>
+            <td data-label-ar="الترتيب" data-label-de="Platz"><bdi dir="ltr">{{ entry.rank }}</bdi></td>
             <td class="points-student-name" data-label-ar="الطالب" data-label-de="Schüler"><strong>{{ entry.name }}</strong></td>
             <td data-label-ar="الواجبات" data-label-de="Hausaufgaben"><bdi dir="ltr">{{ entry.assignment_points }}</bdi></td>
             <td data-label-ar="الصلاة" data-label-de="Gebet"><bdi dir="ltr">{{ entry.prayer_points }}</bdi></td>
@@ -233,7 +233,7 @@
       <ol class="admin-ranking-list">
         {% for entry in mosque_ranking %}
         <li>
-          <span class="admin-rank-number">{{ forloop.counter }}</span>
+          <span class="admin-rank-number">{{ entry.rank }}</span>
           <span class="admin-rank-student"><strong>{{ entry.name }}</strong></span>
           <span class="admin-rank-score">
             <bdi dir="ltr">{{ entry.total_points }}</bdi>
@@ -271,7 +271,7 @@
       <ol class="admin-ranking-list">
         {% for entry in ramadan_ranking %}
         <li>
-          <span class="admin-rank-number">{{ forloop.counter }}</span>
+          <span class="admin-rank-number">{{ entry.rank }}</span>
           <span class="admin-rank-student">
             <strong>{{ entry.name }}</strong>
             <small data-app-ar="{{ entry.completed_days }} يوم مكتمل" data-app-de="{{ entry.completed_days }} vollständige Tage">{{ entry.completed_days }} يوم مكتمل</small>
@@ -317,7 +317,7 @@
       <ol class="admin-ranking-list">
         {% for entry in prayer_ranking %}
         <li>
-          <span class="admin-rank-number">{{ forloop.counter }}</span>
+          <span class="admin-rank-number">{{ entry.rank }}</span>
           <span class="admin-rank-student"><strong>{{ entry.name }}</strong></span>
           <span class="admin-rank-score">
             <bdi dir="ltr">{{ entry.completed_prayers }}</bdi>
@@ -344,7 +344,7 @@
       <ol class="admin-ranking-list">
         {% for entry in library_ranking %}
         <li>
-          <span class="admin-rank-number">{{ forloop.counter }}</span>
+          <span class="admin-rank-number">{{ entry.rank }}</span>
           <span class="admin-rank-student"><strong>{{ entry.name }}</strong></span>
           <span class="admin-rank-score">
             <bdi dir="ltr">{{ entry.read_items }}</bdi>
