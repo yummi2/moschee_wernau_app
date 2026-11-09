@@ -962,7 +962,7 @@ def home(request):
                     (row["user"].get_full_name().strip() or row["user"].username).casefold(),
                 ),
             )
-            assign_competition_ranks(point_ranking, lambda row: row["total_points"])
+            assign_dense_ranks(point_ranking, lambda row: row["total_points"])
             ctx["point_balance"] = all_balances.get(request.user.id)
             ctx["student_point_rank"] = next(
                 (row["rank"] for row in point_ranking if row["user"].id == request.user.id),
@@ -1226,14 +1226,14 @@ def about(request):
     return render(request, "core/about.html")
 
 
-def assign_competition_ranks(rows, score_key):
-    """Add 1, 1, 3 style ranks to an already sorted list of result rows."""
+def assign_dense_ranks(rows, score_key):
+    """Add gap-free 1, 1, 2 style ranks to an already sorted result list."""
     previous_score = object()
     current_rank = 0
-    for position, row in enumerate(rows, start=1):
+    for row in rows:
         score = score_key(row)
-        if position == 1 or score != previous_score:
-            current_rank = position
+        if current_rank == 0 or score != previous_score:
+            current_rank += 1
             previous_score = score
         row["rank"] = current_rank
     return rows
@@ -1271,7 +1271,7 @@ def mosque_top10_ranking(school_year_ranges):
             ),
         )
     ]
-    assign_competition_ranks(ranking, lambda row: row["total_points"])
+    assign_dense_ranks(ranking, lambda row: row["total_points"])
     return top_ten_places(ranking)
 
 
@@ -1337,7 +1337,7 @@ def student_top10_achievements(user, school_year_ranges):
                 ranking_name(row["user_id"]),
             ),
         )
-        assign_competition_ranks(
+        assign_dense_ranks(
             ranked_ramadan,
             lambda row: (row["days"], row["items"]),
         )
@@ -1366,7 +1366,7 @@ def student_top10_achievements(user, school_year_ranges):
             rows,
             key=lambda row: (-row["total"], ranking_name(row["user_id"])),
         )
-        assign_competition_ranks(ranked_month, lambda row: row["total"])
+        assign_dense_ranks(ranked_month, lambda row: row["total"])
         ranked_month = top_ten_places(ranked_month)
         user_row = next(
             (row for row in ranked_month if row["user_id"] == user.id),
@@ -1386,7 +1386,7 @@ def student_top10_achievements(user, school_year_ranges):
         library_rows,
         key=lambda row: (-row["total"], ranking_name(row["user_id"])),
     )
-    assign_competition_ranks(ranked_library, lambda row: row["total"])
+    assign_dense_ranks(ranked_library, lambda row: row["total"])
     ranked_library = top_ten_places(ranked_library)
     library_rank = next(
         (row["rank"] for row in ranked_library if row["user_id"] == user.id),
@@ -1509,7 +1509,7 @@ def admin_statistics(request):
         ),
         key=lambda row: (-row["completed_days"], -row["completed_items"], row["name"].casefold()),
     )
-    assign_competition_ranks(
+    assign_dense_ranks(
         ramadan_ranking,
         lambda row: (row["completed_days"], row["completed_items"]),
     )
@@ -1527,7 +1527,7 @@ def admin_statistics(request):
         ),
         key=lambda row: (-row["completed_prayers"], row["name"].casefold()),
     )
-    assign_competition_ranks(prayer_ranking, lambda row: row["completed_prayers"])
+    assign_dense_ranks(prayer_ranking, lambda row: row["completed_prayers"])
     prayer_ranking = top_ten_places(prayer_ranking)
 
     library_ranking = sorted(
@@ -1542,7 +1542,7 @@ def admin_statistics(request):
         ),
         key=lambda row: (-row["read_items"], row["name"].casefold()),
     )
-    assign_competition_ranks(library_ranking, lambda row: row["read_items"])
+    assign_dense_ranks(library_ranking, lambda row: row["read_items"])
     library_ranking = top_ten_places(library_ranking)
 
     show_assignment_tracking = school_year_ranges["year"] == "2027"
@@ -1595,7 +1595,7 @@ def admin_statistics(request):
         )
         for row in point_ranking:
             row["name"] = student_name(row["user"])
-        assign_competition_ranks(point_ranking, lambda row: row["total_points"])
+        assign_dense_ranks(point_ranking, lambda row: row["total_points"])
 
     mosque_ranking = mosque_top10_ranking(school_year_ranges)
 

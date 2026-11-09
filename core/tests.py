@@ -11,7 +11,7 @@ from django.utils import timezone
 
 from .school_years import can_switch_school_years
 from .context_processors import library_updates_are_new
-from .views import selected_school_year_ranges, teaching_week_number, saturday_week_bounds, visible_items_for_student
+from .views import assign_dense_ranks, selected_school_year_ranges, teaching_week_number, saturday_week_bounds, visible_items_for_student
 from .models import (
     Assignment,
     AssignmentCompletion,
@@ -560,6 +560,16 @@ class StudentPointsTests(TestCase):
         response = self.client.get(reverse("home"))
 
         self.assertEqual(response.context["student_point_rank"], 1)
+
+    def test_dense_ranking_continues_after_three_students_tied_at_place_ten(self):
+        rows = [{"score": score} for score in range(100, 91, -1)]
+        rows.extend([{"score": 75}, {"score": 75}, {"score": 75}])
+        rows.append({"score": 60})
+
+        assign_dense_ranks(rows, lambda row: row["score"])
+
+        self.assertEqual([row["rank"] for row in rows[9:12]], [10, 10, 10])
+        self.assertEqual(rows[12]["rank"], 11)
 
     def test_library_top10_position_is_visible_in_both_school_year_views(self):
         StoryRead.objects.create(user=self.student, level="beginner", sid="1")
