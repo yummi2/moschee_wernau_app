@@ -124,51 +124,48 @@ def attendance_api(request):
     if not settings.ATTENDANCE_API_ENABLED or (control and not control.enabled):
         return _attendance_api_response(request, payload, {"detail": "Attendance API is disabled."}, 503)
 
-    expected_fields = {"date", "classroom_id", "absent_student_ids"}
+    expected_fields = {"date", "name"}
     if not isinstance(payload, dict) or set(payload) != expected_fields:
         return _attendance_api_response(
             request, payload,
-            {"detail": "Required fields: date, classroom_id, absent_student_ids."},
+            {"detail": "Required fields: name, date."},
             400,
         )
     try:
         attendance_date = dt.date.fromisoformat(payload["date"])
-        classroom_id = int(payload["classroom_id"])
-        absent_ids = payload["absent_student_ids"]
-        if not isinstance(absent_ids, list) or any(type(student_id) is not int for student_id in absent_ids):
+        student_name = payload["name"].strip()
+        if not student_name:
             raise ValueError
-        absent_ids = set(absent_ids)
-    except (TypeError, ValueError):
+    except (AttributeError, TypeError, ValueError):
         return _attendance_api_response(request, payload, {"detail": "Invalid field values."}, 400)
 
-    try:
-        classroom = ClassRoom.objects.get(pk=classroom_id)
-    except ClassRoom.DoesNotExist:
-        return _attendance_api_response(request, payload, {"detail": "Classroom not found."}, 404)
-
-    student_ids = set(classroom.students.filter(is_staff=False).values_list("id", flat=True))
-    unknown_ids = sorted(absent_ids - student_ids)
-    if unknown_ids:
+    normalized_name = student_name.casefold()
+    matching_students = list(
+        User.objects.filter(is_staff=False, username__iexact=student_name)
+    )
+    if not matching_students:
+        matching_students = [
+            student for student in User.objects.filter(is_staff=False)
+            if student.get_full_name().strip().casefold() == normalized_name
+        ]
+    if not matching_students:
+        return _attendance_api_response(request, payload, {"detail": "Student not found."}, 404)
+    if len(matching_students) > 1:
         return _attendance_api_response(
             request, payload,
-            {"detail": "Some students do not belong to this classroom.", "student_ids": unknown_ids},
-            400,
+            {"detail": "Student name is not unique. Use the username."},
+            409,
         )
 
-    with transaction.atomic():
-        Absence.objects.filter(user_id__in=student_ids, date=attendance_date).delete()
-        Absence.objects.bulk_create(
-            [Absence(user_id=student_id, date=attendance_date) for student_id in absent_ids],
-            ignore_conflicts=True,
-        )
+    student = matching_students[0]
+    absence, created = Absence.objects.get_or_create(user=student, date=attendance_date)
 
     return _attendance_api_response(request, payload, {
         "ok": True,
         "date": attendance_date.isoformat(),
-        "classroom_id": classroom.pk,
-        "class": classroom.name,
-        "absent_student_ids": sorted(absent_ids),
-        "present_student_ids": sorted(student_ids - absent_ids),
+        "name": student.get_full_name().strip() or student.username,
+        "username": student.username,
+        "created": created,
     }, 200)
 
 LIVE_COMPETITION_TEAM_NAMES = {

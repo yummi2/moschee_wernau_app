@@ -123,20 +123,20 @@ class HomeworkStatusApiTests(TestCase):
 @override_settings(ATTENDANCE_API_KEY="attendance-test-key", ATTENDANCE_API_ENABLED=True)
 class AttendanceApiTests(TestCase):
     def setUp(self):
-        self.first_student = get_user_model().objects.create_user(username="attendance-one")
-        self.second_student = get_user_model().objects.create_user(username="attendance-two")
-        self.outsider = get_user_model().objects.create_user(username="attendance-outsider")
-        self.classroom = ClassRoom.objects.create(name="Testklasse Anwesenheit")
-        self.classroom.students.add(self.first_student, self.second_student)
+        self.first_student = get_user_model().objects.create_user(
+            username="attendance-one", first_name="Amina", last_name="Mustermann"
+        )
+        self.second_student = get_user_model().objects.create_user(
+            username="attendance-two", first_name="Bilal", last_name="Beispiel"
+        )
         self.url = reverse("attendance_api")
         self.headers = {"X-API-Key": "attendance-test-key"}
         self.attendance_date = dt.date(2026, 11, 7)
 
-    def post_attendance(self, absent_ids, **extra):
+    def post_attendance(self, name="Amina Mustermann", **extra):
         payload = {
             "date": self.attendance_date.isoformat(),
-            "classroom_id": self.classroom.pk,
-            "absent_student_ids": absent_ids,
+            "name": name,
             **extra,
         }
         return self.client.post(
@@ -147,8 +147,8 @@ class AttendanceApiTests(TestCase):
             secure=True,
         )
 
-    def test_saves_absent_students_and_returns_remaining_students_as_present(self):
-        response = self.post_attendance([self.first_student.pk])
+    def test_saves_absence_using_full_name(self):
+        response = self.post_attendance()
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(Absence.objects.filter(
@@ -157,39 +157,42 @@ class AttendanceApiTests(TestCase):
         self.assertFalse(Absence.objects.filter(
             user=self.second_student, date=self.attendance_date
         ).exists())
-        self.assertEqual(response.json()["present_student_ids"], [self.second_student.pk])
+        self.assertEqual(response.json()["name"], "Amina Mustermann")
         self.assertTrue(AttendanceApiLog.objects.get().successful)
 
-    def test_second_request_replaces_only_that_class_attendance(self):
-        Absence.objects.create(user=self.outsider, date=self.attendance_date)
-        self.post_attendance([self.first_student.pk])
-        response = self.post_attendance([self.second_student.pk])
+    def test_accepts_username_and_is_idempotent(self):
+        first_response = self.post_attendance("attendance-one")
+        second_response = self.post_attendance("attendance-one")
 
-        self.assertEqual(response.status_code, 200)
-        self.assertFalse(Absence.objects.filter(
-            user=self.first_student, date=self.attendance_date
-        ).exists())
-        self.assertTrue(Absence.objects.filter(
-            user=self.second_student, date=self.attendance_date
-        ).exists())
-        self.assertTrue(Absence.objects.filter(
-            user=self.outsider, date=self.attendance_date
-        ).exists())
+        self.assertEqual(first_response.status_code, 200)
+        self.assertTrue(first_response.json()["created"])
+        self.assertFalse(second_response.json()["created"])
+        self.assertEqual(Absence.objects.count(), 1)
 
-    def test_rejects_student_from_another_class_without_changing_absences(self):
-        response = self.post_attendance([self.outsider.pk])
+    def test_rejects_unknown_student_without_changing_absences(self):
+        response = self.post_attendance("Nicht Vorhanden")
 
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 404)
         self.assertFalse(Absence.objects.exists())
         self.assertFalse(AttendanceApiLog.objects.get().successful)
+
+    def test_rejects_ambiguous_full_name_and_allows_username(self):
+        get_user_model().objects.create_user(
+            username="another-amina", first_name="Amina", last_name="Mustermann"
+        )
+        ambiguous_response = self.post_attendance("Amina Mustermann")
+        username_response = self.post_attendance("attendance-one")
+
+        self.assertEqual(ambiguous_response.status_code, 409)
+        self.assertEqual(username_response.status_code, 200)
+        self.assertEqual(Absence.objects.count(), 1)
 
     def test_rejects_wrong_key(self):
         response = self.client.post(
             self.url,
             data=json.dumps({
                 "date": self.attendance_date.isoformat(),
-                "classroom_id": self.classroom.pk,
-                "absent_student_ids": [],
+                "name": "Amina Mustermann",
             }),
             content_type="application/json",
             headers={"X-API-Key": "wrong"},
@@ -200,7 +203,7 @@ class AttendanceApiTests(TestCase):
 
     def test_can_be_disabled_from_admin_control(self):
         AttendanceApiControl.objects.update_or_create(pk=1, defaults={"enabled": False})
-        response = self.post_attendance([])
+        response = self.post_attendance()
         self.assertEqual(response.status_code, 503)
         self.assertFalse(Absence.objects.exists())
 
