@@ -26,6 +26,7 @@ from .stories_data import STORIES
 from .fiqh_questions import FIQH_QUESTIONS_ADVANCED
 from .ramadan_translations import FIQH_QUESTIONS_DE, ISLAM_QUESTIONS_DE
 import math
+import secrets
 from .islam_questions import ISLAM_QUESTIONS
 from .drawing_links import DRAWING_LINKS_VIEW, DRAWING_LINKS_DOWNLOAD
 from django.db.models import Count, Max
@@ -39,6 +40,49 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 
 logger = logging.getLogger(__name__)
+
+
+@require_GET
+def homework_status_api(request):
+    """Return teacher/class pairs that have no assignment since Saturday."""
+    configured_key = settings.HOMEWORK_STATUS_API_KEY
+    supplied_key = request.headers.get("X-API-Key", "")
+    if not configured_key:
+        return JsonResponse({"detail": "API key is not configured."}, status=503)
+    if not supplied_key or not secrets.compare_digest(supplied_key, configured_key):
+        return JsonResponse({"detail": "Invalid API key."}, status=403)
+
+    now = timezone.localtime()
+    week_start = now.date() - dt.timedelta(days=(now.weekday() - 5) % 7)
+    week_start_at = timezone.make_aware(
+        dt.datetime.combine(week_start, dt.time.min),
+        timezone.get_current_timezone(),
+    )
+    uploaded_pairs = set(
+        Assignment.objects.filter(created_at__gte=week_start_at, created_at__lte=now)
+        .values_list("created_by_id", "classroom_id")
+    )
+
+    missing = []
+    classrooms = (
+        ClassRoom.objects.filter(
+            Q(assignments__created_at__date__gte=SCHOOL_YEAR_CONTENT_CUTOFF)
+            | Q(assignments__isnull=True)
+        )
+        .distinct()
+        .prefetch_related("teachers")
+        .order_by("name", "id")
+    )
+    for classroom in classrooms:
+        for teacher in classroom.teachers.all():
+            if (teacher.pk, classroom.pk) in uploaded_pairs:
+                continue
+            missing.append({
+                "teacher": teacher.get_full_name().strip() or teacher.username,
+                "class": classroom.name,
+            })
+    missing.sort(key=lambda row: (row["teacher"].casefold(), row["class"].casefold()))
+    return JsonResponse({"week_start": week_start.isoformat(), "missing": missing})
 
 LIVE_COMPETITION_TEAM_NAMES = {
     "A": "دعاة المستقبل",

@@ -37,6 +37,83 @@ from .points import point_balance, point_balances
 from .ramadan_data import RAMADAN_ITEMS_ORDER
 
 
+@override_settings(HOMEWORK_STATUS_API_KEY="test-homework-key")
+class HomeworkStatusApiTests(TestCase):
+    def setUp(self):
+        self.teacher_with_homework = get_user_model().objects.create_user(
+            username="teacher-with", first_name="Amal", last_name="Lehrerin"
+        )
+        self.teacher_without_homework = get_user_model().objects.create_user(
+            username="teacher-without", first_name="Bilal", last_name="Lehrer"
+        )
+        self.classroom = ClassRoom.objects.create(name="Arabisch 1")
+        self.classroom.teachers.add(self.teacher_with_homework, self.teacher_without_homework)
+
+        assignment = Assignment.objects.create(
+            classroom=self.classroom,
+            title="Aktuelle Aufgabe",
+            created_by=self.teacher_with_homework,
+        )
+        now = timezone.localtime()
+        this_week = now.date() - dt.timedelta(days=(now.weekday() - 5) % 7)
+        Assignment.objects.filter(pk=assignment.pk).update(
+            created_at=timezone.make_aware(
+                dt.datetime.combine(this_week, dt.time(hour=9)),
+                timezone.get_current_timezone(),
+            )
+        )
+
+    def test_rejects_missing_or_wrong_api_key(self):
+        url = reverse("homework_status_api")
+        self.assertEqual(self.client.get(url).status_code, 403)
+        self.assertEqual(
+            self.client.get(url, headers={"X-API-Key": "wrong"}).status_code,
+            403,
+        )
+
+    def test_returns_only_teacher_class_pairs_without_homework_this_week(self):
+        response = self.client.get(
+            reverse("homework_status_api"),
+            headers={"X-API-Key": "test-homework-key"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json()["missing"],
+            [{"teacher": "Bilal Lehrer", "class": "Arabisch 1"}],
+        )
+
+    @override_settings(HOMEWORK_STATUS_API_KEY="")
+    def test_reports_missing_server_configuration(self):
+        response = self.client.get(
+            reverse("homework_status_api"),
+            headers={"X-API-Key": "anything"},
+        )
+        self.assertEqual(response.status_code, 503)
+
+    def test_ignores_classrooms_that_only_belong_to_the_previous_year(self):
+        old_classroom = ClassRoom.objects.create(name="Alte Klasse")
+        old_classroom.teachers.add(self.teacher_without_homework)
+        old_assignment = Assignment.objects.create(
+            classroom=old_classroom,
+            title="Alte Aufgabe",
+            created_by=self.teacher_without_homework,
+        )
+        Assignment.objects.filter(pk=old_assignment.pk).update(
+            created_at=timezone.make_aware(
+                dt.datetime(2026, 7, 1, 9), timezone.get_current_timezone()
+            )
+        )
+
+        response = self.client.get(
+            reverse("homework_status_api"),
+            headers={"X-API-Key": "test-homework-key"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("Alte Klasse", str(response.json()["missing"]))
+
+
 class AssignmentAdminClassroomTests(TestCase):
     def setUp(self):
         from .admin import AssignmentAdmin

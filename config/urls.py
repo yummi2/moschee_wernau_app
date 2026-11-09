@@ -23,6 +23,7 @@ from core import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/homework-status/', views.homework_status_api, name='homework_status_api'),
     path('', home, name='home'),
     path('school-year/', views.school_year, name='school_year'),
     path('accounts/login/', views.SchoolLoginView.as_view(), name='login'),
