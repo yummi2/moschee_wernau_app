@@ -25,6 +25,10 @@ DJANGO_DB_PATH = os.environ.get("DJANGO_DB_PATH", str(BASE_DIR / "db.sqlite3"))
 SECRET_KEY = os.environ.get("SECRET_KEY", "dev-insecure-key-only-local")
 PARENT_APPROVAL_PIN = os.environ.get("PARENT_APPROVAL_PIN", "1717").strip()
 HOMEWORK_STATUS_API_KEY = os.environ.get("HOMEWORK_STATUS_API_KEY", "").strip()
+ATTENDANCE_API_KEY = os.environ.get("ATTENDANCE_API_KEY", "").strip()
+ATTENDANCE_API_ENABLED = os.environ.get("ATTENDANCE_API_ENABLED", "true").strip().lower() in {
+    "1", "true", "yes", "on",
+}
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True

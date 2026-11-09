@@ -16,6 +16,9 @@ from .models import (
     Assignment,
     AssignmentCompletion,
     AssignmentReminderDelivery,
+    Absence,
+    AttendanceApiControl,
+    AttendanceApiLog,
     ClassRoom,
     ChecklistItem,
     StudentChecklist,
@@ -65,9 +68,9 @@ class HomeworkStatusApiTests(TestCase):
 
     def test_rejects_missing_or_wrong_api_key(self):
         url = reverse("homework_status_api")
-        self.assertEqual(self.client.get(url).status_code, 403)
+        self.assertEqual(self.client.get(url, secure=True).status_code, 403)
         self.assertEqual(
-            self.client.get(url, headers={"X-API-Key": "wrong"}).status_code,
+            self.client.get(url, headers={"X-API-Key": "wrong"}, secure=True).status_code,
             403,
         )
 
@@ -75,6 +78,7 @@ class HomeworkStatusApiTests(TestCase):
         response = self.client.get(
             reverse("homework_status_api"),
             headers={"X-API-Key": "test-homework-key"},
+            secure=True,
         )
 
         self.assertEqual(response.status_code, 200)
@@ -88,6 +92,7 @@ class HomeworkStatusApiTests(TestCase):
         response = self.client.get(
             reverse("homework_status_api"),
             headers={"X-API-Key": "anything"},
+            secure=True,
         )
         self.assertEqual(response.status_code, 503)
 
@@ -108,10 +113,96 @@ class HomeworkStatusApiTests(TestCase):
         response = self.client.get(
             reverse("homework_status_api"),
             headers={"X-API-Key": "test-homework-key"},
+            secure=True,
         )
 
         self.assertEqual(response.status_code, 200)
         self.assertNotIn("Alte Klasse", str(response.json()["missing"]))
+
+
+@override_settings(ATTENDANCE_API_KEY="attendance-test-key", ATTENDANCE_API_ENABLED=True)
+class AttendanceApiTests(TestCase):
+    def setUp(self):
+        self.first_student = get_user_model().objects.create_user(username="attendance-one")
+        self.second_student = get_user_model().objects.create_user(username="attendance-two")
+        self.outsider = get_user_model().objects.create_user(username="attendance-outsider")
+        self.classroom = ClassRoom.objects.create(name="Testklasse Anwesenheit")
+        self.classroom.students.add(self.first_student, self.second_student)
+        self.url = reverse("attendance_api")
+        self.headers = {"X-API-Key": "attendance-test-key"}
+        self.attendance_date = dt.date(2026, 11, 7)
+
+    def post_attendance(self, absent_ids, **extra):
+        payload = {
+            "date": self.attendance_date.isoformat(),
+            "classroom_id": self.classroom.pk,
+            "absent_student_ids": absent_ids,
+            **extra,
+        }
+        return self.client.post(
+            self.url,
+            data=json.dumps(payload),
+            content_type="application/json",
+            headers=self.headers,
+            secure=True,
+        )
+
+    def test_saves_absent_students_and_returns_remaining_students_as_present(self):
+        response = self.post_attendance([self.first_student.pk])
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(Absence.objects.filter(
+            user=self.first_student, date=self.attendance_date
+        ).exists())
+        self.assertFalse(Absence.objects.filter(
+            user=self.second_student, date=self.attendance_date
+        ).exists())
+        self.assertEqual(response.json()["present_student_ids"], [self.second_student.pk])
+        self.assertTrue(AttendanceApiLog.objects.get().successful)
+
+    def test_second_request_replaces_only_that_class_attendance(self):
+        Absence.objects.create(user=self.outsider, date=self.attendance_date)
+        self.post_attendance([self.first_student.pk])
+        response = self.post_attendance([self.second_student.pk])
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(Absence.objects.filter(
+            user=self.first_student, date=self.attendance_date
+        ).exists())
+        self.assertTrue(Absence.objects.filter(
+            user=self.second_student, date=self.attendance_date
+        ).exists())
+        self.assertTrue(Absence.objects.filter(
+            user=self.outsider, date=self.attendance_date
+        ).exists())
+
+    def test_rejects_student_from_another_class_without_changing_absences(self):
+        response = self.post_attendance([self.outsider.pk])
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(Absence.objects.exists())
+        self.assertFalse(AttendanceApiLog.objects.get().successful)
+
+    def test_rejects_wrong_key(self):
+        response = self.client.post(
+            self.url,
+            data=json.dumps({
+                "date": self.attendance_date.isoformat(),
+                "classroom_id": self.classroom.pk,
+                "absent_student_ids": [],
+            }),
+            content_type="application/json",
+            headers={"X-API-Key": "wrong"},
+            secure=True,
+        )
+        self.assertEqual(response.status_code, 403)
+        self.assertFalse(Absence.objects.exists())
+
+    def test_can_be_disabled_from_admin_control(self):
+        AttendanceApiControl.objects.update_or_create(pk=1, defaults={"enabled": False})
+        response = self.post_attendance([])
+        self.assertEqual(response.status_code, 503)
+        self.assertFalse(Absence.objects.exists())
 
 
 class AssignmentAdminClassroomTests(TestCase):

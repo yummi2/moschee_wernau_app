@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Profile, Assignment, AssignmentCompletion, Absence, ClassRoom, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStatus, RamadanItemDone, QuizScore, TeacherPointAward, LiveCompetition, LiveCompetitionGame, LiveCompetitionParticipant, LiveCompetitionAnswer, DailyQuranReading, StudentPointActivity
+from .models import Profile, Assignment, AssignmentCompletion, Absence, AttendanceApiControl, AttendanceApiLog, ClassRoom, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStatus, RamadanItemDone, QuizScore, TeacherPointAward, LiveCompetition, LiveCompetitionGame, LiveCompetitionParticipant, LiveCompetitionAnswer, DailyQuranReading, StudentPointActivity
 from .points import point_balances, student_users
 from .parent_points import check_parent_pin, expire_pending_activities, queue_point_activity, rollback_point_activity, set_parent_pin
 from .forms import ProfileForm
@@ -13,6 +13,7 @@ from django.utils import timezone
 import json
 from django.conf import settings
 from django.views.decorators.http import require_POST, require_GET
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView
 from django.db import transaction
@@ -45,6 +46,8 @@ logger = logging.getLogger(__name__)
 @require_GET
 def homework_status_api(request):
     """Return teacher/class pairs that have no assignment since Saturday."""
+    if not request.is_secure():
+        return JsonResponse({"detail": "HTTPS is required."}, status=400)
     configured_key = settings.HOMEWORK_STATUS_API_KEY
     supplied_key = request.headers.get("X-API-Key", "")
     if not configured_key:
@@ -83,6 +86,90 @@ def homework_status_api(request):
             })
     missing.sort(key=lambda row: (row["teacher"].casefold(), row["class"].casefold()))
     return JsonResponse({"week_start": week_start.isoformat(), "missing": missing})
+
+
+def _attendance_api_response(request, payload, body, status):
+    remote_address = request.META.get("REMOTE_ADDR")
+    AttendanceApiLog.objects.create(
+        remote_address=remote_address if remote_address else None,
+        payload=payload if isinstance(payload, dict) else {},
+        status_code=status,
+        successful=200 <= status < 300,
+        message=body.get("detail", "Attendance saved." if status == 200 else ""),
+    )
+    return JsonResponse(body, status=status)
+
+
+@csrf_exempt
+@require_POST
+def attendance_api(request):
+    if not request.is_secure():
+        return _attendance_api_response(request, {}, {"detail": "HTTPS is required."}, 400)
+    try:
+        payload = json.loads(request.body.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        payload = {}
+        return _attendance_api_response(request, payload, {"detail": "Invalid JSON."}, 400)
+
+    configured_key = settings.ATTENDANCE_API_KEY
+    supplied_key = request.headers.get("X-API-Key", "")
+    if not configured_key:
+        return _attendance_api_response(request, payload, {"detail": "API key is not configured."}, 503)
+    if configured_key == settings.HOMEWORK_STATUS_API_KEY:
+        return _attendance_api_response(request, payload, {"detail": "API keys must be different."}, 503)
+    if not supplied_key or not secrets.compare_digest(supplied_key, configured_key):
+        return _attendance_api_response(request, payload, {"detail": "Invalid API key."}, 403)
+
+    control = AttendanceApiControl.objects.first()
+    if not settings.ATTENDANCE_API_ENABLED or (control and not control.enabled):
+        return _attendance_api_response(request, payload, {"detail": "Attendance API is disabled."}, 503)
+
+    expected_fields = {"date", "classroom_id", "absent_student_ids"}
+    if not isinstance(payload, dict) or set(payload) != expected_fields:
+        return _attendance_api_response(
+            request, payload,
+            {"detail": "Required fields: date, classroom_id, absent_student_ids."},
+            400,
+        )
+    try:
+        attendance_date = dt.date.fromisoformat(payload["date"])
+        classroom_id = int(payload["classroom_id"])
+        absent_ids = payload["absent_student_ids"]
+        if not isinstance(absent_ids, list) or any(type(student_id) is not int for student_id in absent_ids):
+            raise ValueError
+        absent_ids = set(absent_ids)
+    except (TypeError, ValueError):
+        return _attendance_api_response(request, payload, {"detail": "Invalid field values."}, 400)
+
+    try:
+        classroom = ClassRoom.objects.get(pk=classroom_id)
+    except ClassRoom.DoesNotExist:
+        return _attendance_api_response(request, payload, {"detail": "Classroom not found."}, 404)
+
+    student_ids = set(classroom.students.filter(is_staff=False).values_list("id", flat=True))
+    unknown_ids = sorted(absent_ids - student_ids)
+    if unknown_ids:
+        return _attendance_api_response(
+            request, payload,
+            {"detail": "Some students do not belong to this classroom.", "student_ids": unknown_ids},
+            400,
+        )
+
+    with transaction.atomic():
+        Absence.objects.filter(user_id__in=student_ids, date=attendance_date).delete()
+        Absence.objects.bulk_create(
+            [Absence(user_id=student_id, date=attendance_date) for student_id in absent_ids],
+            ignore_conflicts=True,
+        )
+
+    return _attendance_api_response(request, payload, {
+        "ok": True,
+        "date": attendance_date.isoformat(),
+        "classroom_id": classroom.pk,
+        "class": classroom.name,
+        "absent_student_ids": sorted(absent_ids),
+        "present_student_ids": sorted(student_ids - absent_ids),
+    }, 200)
 
 LIVE_COMPETITION_TEAM_NAMES = {
     "A": "دعاة المستقبل",

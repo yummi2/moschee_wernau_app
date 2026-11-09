@@ -338,6 +338,29 @@ class Absence(models.Model):
     class Meta:
         unique_together = ("user", "date")  # pro User/Tag nur einmal        
 
+
+class AttendanceApiControl(models.Model):
+    enabled = models.BooleanField(default=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return "Anwesenheits-API"
+
+
+class AttendanceApiLog(models.Model):
+    requested_at = models.DateTimeField(auto_now_add=True)
+    remote_address = models.GenericIPAddressField(null=True, blank=True)
+    payload = models.JSONField(default=dict, blank=True)
+    status_code = models.PositiveSmallIntegerField()
+    successful = models.BooleanField(default=False)
+    message = models.CharField(max_length=240, blank=True)
+
+    class Meta:
+        ordering = ("-requested_at", "-id")
+
+    def __str__(self):
+        return f"{self.requested_at:%Y-%m-%d %H:%M} – {self.status_code}"
+
 class Group(models.Model):
     name = models.CharField(max_length=100, unique=True)
     classroom = models.ForeignKey('ClassRoom', null=True, blank=True,

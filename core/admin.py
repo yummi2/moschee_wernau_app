@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ClassRoom, Assignment, Absence, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStatus, RamadanItemDone, QuizScore, Profile, TeacherPointAward, LiveCompetition, LiveCompetitionQuestion, LiveCompetitionGame, LiveCompetitionParticipant, LiveCompetitionAnswer, DailyQuranReading, StudentPointActivity, ParentApprovalCredential
+from .models import ClassRoom, Assignment, Absence, AttendanceApiControl, AttendanceApiLog, ChecklistItem, StudentChecklist, WeeklyBanner, TeacherNote, StoryRead, PrayerStatus, RamadanItemDone, QuizScore, Profile, TeacherPointAward, LiveCompetition, LiveCompetitionQuestion, LiveCompetitionGame, LiveCompetitionParticipant, LiveCompetitionAnswer, DailyQuranReading, StudentPointActivity, ParentApprovalCredential
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from .views import STORIES, SCHOOL_YEAR_CONTENT_CUTOFF
@@ -46,6 +46,34 @@ class AssignmentAdmin(admin.ModelAdmin):
 class AbsenceAdmin(admin.ModelAdmin):
     list_display = ("user", "date", "marked_at")
     search_fields = ("user__username", "user__first_name", "user__last_name", "sid")
+
+
+@admin.register(AttendanceApiControl)
+class AttendanceApiControlAdmin(admin.ModelAdmin):
+    list_display = ("__str__", "enabled", "updated_at")
+    list_editable = ("enabled",)
+
+    def has_add_permission(self, request):
+        return not AttendanceApiControl.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(AttendanceApiLog)
+class AttendanceApiLogAdmin(admin.ModelAdmin):
+    list_display = ("requested_at", "status_code", "successful", "remote_address", "message")
+    list_filter = ("successful", "status_code")
+    readonly_fields = ("requested_at", "remote_address", "payload", "status_code", "successful", "message")
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 @admin.register(ChecklistItem)
 class ChecklistItemAdmin(admin.ModelAdmin):
